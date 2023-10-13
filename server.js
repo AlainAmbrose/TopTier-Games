@@ -37,10 +37,10 @@ app.listen(PORT, () =>
 
 if (process.env.NODE_ENV === 'production')
 {
-    app.use(express.static('frontend/build'));
+    app.use(express.static('frontend/public'));
     app.get('*', (req, res) =>
     {
-        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
+        res.sendFile('frontend/public/index.html', { root: __dirname });
     });
 }
 
