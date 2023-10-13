@@ -8,6 +8,7 @@ const url = process.env.MONGODB_URL;
 const client = new MongoClient(url);
 client.connect();
 
+const path = require("path");
 const PORT = process.env.PORT || 5000;
 
 const app = express();
@@ -32,10 +33,11 @@ app.use((req, res, next) =>
 
 if (process.env.NODE_ENV === 'production')
 {
-    app.use(express.static('frontend/public'));
-    app.get('*', function (req, res)
+
+    app.use(express.static('frontend/build'));
+    app.get('*', (req, res) =>
     {
-        res.sendFile('index.html', { root: __dirname });
+        res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'));
     });
 }
 
