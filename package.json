@@ -4,7 +4,9 @@
     "description": "",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js"
+        "start": "node server.js",
+        "install-client": "cd frontend && npm install",
+        "heroku-postbuild": "npm run install-client && npm run build"
     },
     "author": "",
     "license": "ISC",
