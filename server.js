@@ -30,19 +30,19 @@ app.use((req, res, next) =>
     next();
 });
 
+if (process.env.NODE_ENV === 'production')
+{
+    app.use(express.static('frontend/public'));
+    app.get('*', function (req, res)
+    {
+        res.sendFile('index.html', { root: __dirname });
+    });
+}
+
 app.listen(PORT, () =>
 {
     console.log('Server listening on port ' + PORT);
 });
-
-if (process.env.NODE_ENV === 'production')
-{
-    app.use(express.static('frontend/public'));
-    app.get('*', (req, res) =>
-    {
-        res.sendFile('frontend/public/index.html', { root: __dirname });
-    });
-}
 
 app.post('/api/login', async (req, res, next) =>
 {
