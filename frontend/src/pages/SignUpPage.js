@@ -1,31 +1,36 @@
 import React from "react";
 
-function Login() {
+const SignUpPage = () => {
   var loginName;
   var loginPassword;
   return (
     <div id="loginDiv">
       <form>
-        <span id="inner-title">LOG IN?</span>
+        <span id="inner-title">Sign Up?</span>
         <br />
         <input
           type="text"
-          id="loginName"
+          id="signUpName"
           placeholder="Username"
           ref={(c) => (loginName = c)}
         />
         <br />
         <input
           type="password"
-          id="loginPassword"
+          id="signUpPassword"
           placeholder="Password"
           ref={(c) => (loginPassword = c)}
         />
         <br />
-        <input type="submit" id="loginButton" class="buttons" value="Do It" />
+        <input
+          type="submit"
+          id="signUpButton"
+          className="buttons"
+          value="Do It"
+        />
       </form>
     </div>
   );
-}
+};
 
-export default Login;
+export default SignUpPage;

@@ -1,7 +1,12 @@
 import React from "react";
+import "../App.css";
 
-function LandingPageTitle() {
-  return <h1 id="title">TopTierGames</h1>;
+function LandingPageTitle(position) {
+  return (
+    <h1 className="app-title" id="title">
+      TopTier
+    </h1>
+  );
 }
 
 export default LandingPageTitle;
