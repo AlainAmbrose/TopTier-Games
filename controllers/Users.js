@@ -34,6 +34,9 @@ router.post("/api/login", (async (req, res) =>
     {
         if (await user.validatePassword(req.body.password))
         {
+            user.DateLastLoggedIn = new Date();
+            await user.save();
+
             return res.status(200).json({ message: "User Successfully Logged In", });
         } else
         {
