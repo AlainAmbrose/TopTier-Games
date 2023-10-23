@@ -5,7 +5,8 @@ const cors = require('cors');
 
 const path = require("path");
 const PORT = process.env.PORT || 5000;
-const uri = process.env.MONGODB_URL;
+// const uri = process.env.MONGODB_URL;
+const uri = 'mongodb+srv://group-8:COP4331@test.djxgo4i.mongodb.net/'
 
 require('dotenv').config();
 
