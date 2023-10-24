@@ -3,12 +3,19 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+<<<<<<< HEAD
 const path = require("path");
 require("dotenv").config();
 const PORT = process.env.PORT || 5000;
 const uri = process.env.MONGODB_URL;
 
+=======
+>>>>>>> bc26c75ebadcae98f9b2e21e9a8fa33cb1622350
 require('dotenv').config();
+
+const path = require("path");
+const PORT = process.env.PORT || 5001;
+const uri = process.env.MONGODB_URL;
 
 const usersRouter = require('./controllers/Users');
 
@@ -16,7 +23,7 @@ mongoose.connect(uri);
 
 const app = express();
 
-app.set('port', (process.env.PORT || 5000));
+app.set('port', (process.env.PORT || 5001));
 
 app.use(cors());
 app.use(bodyParser.json());

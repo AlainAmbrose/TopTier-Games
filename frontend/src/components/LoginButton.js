@@ -6,7 +6,6 @@ function LoginButton() {
     window.location.href = "/login";
   };
 
-
   return (
     <button
     type="button"

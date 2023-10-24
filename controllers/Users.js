@@ -18,28 +18,28 @@ router.post("/api/signup", (async (req, res) =>
     newUser.createHash(req.body.password);
     await newUser.save();
 
-    return res.status(200).json({ message: "User created successfully.", });
+    return res.status(200).json({ id: newUser._id, message: "User created successfully.", });
 })
 );
 
 router.post("/api/login", (async (req, res) =>
 {
-    // Find user with requested email
     let user = await User.findOne({ Login: req.body.login });
 
     if (user === null)
     {
-        return res.status(400).json({ message: "User not found.", });
+        return res.status(400).json({ id: -1, message: "User not found.", });
     } else
     {
         if (await user.validatePassword(req.body.password))
         {
-            return res.status(200).json({ message: "User Successfully Logged In", });
+            user.DateLastLoggedIn = new Date();
+            await user.save();
+
+            return res.status(200).json({ id: user._id, message: "User Successfully Logged In", });
         } else
         {
-            return res.status(400).json({
-                message: "Incorrect Password",
-            });
+            return res.status(400).json({ id: -1, message: "Incorrect Password"});
         }
     }
 })

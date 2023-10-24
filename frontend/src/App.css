@@ -1,3 +1,30 @@
+<<<<<<< HEAD
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+=======
+.app-title {
+  position: relative;
+  left: 30px;
+  top: 0px;
+  font-size: 100px;
+}
+
+.login-button {
+  position: relative;
+  left: 1000px;
+  top: 150px;
+  width: 300px;
+  height: 50px;
+  border-radius: 50px;
+}
+
+.signup-button {
+  position: relative;
+  left: 1000px;
+  top: 175px;
+  width: 300px;
+  height: 50px;
+  border-radius: 50px;
+}
+>>>>>>> bc26c75ebadcae98f9b2e21e9a8fa33cb1622350
