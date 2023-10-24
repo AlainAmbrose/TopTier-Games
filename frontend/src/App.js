@@ -1,6 +1,7 @@
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 import './App.css';
 =======
@@ -12,13 +13,11 @@ import {
 } from "react-router-dom";
 import "./App.css";
 >>>>>>> bc26c75ebadcae98f9b2e21e9a8fa33cb1622350
+=======
+import "./App.css";
+>>>>>>> Stashed changes
 
-import {
-  BrowserRouter as Router,
-  Route,
-  Navigate,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import "./App.css";
 
