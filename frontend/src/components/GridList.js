@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 // Import the classnames utility
 import classNames from 'classnames';
+import GridCard from './GridCard';
 
 const GridList = (
   {
@@ -38,7 +39,7 @@ const GridList = (
     2 : "lg:grid-cols-2",
   }
 
-  const cardClasses = classNames(`group w-full aspect-h-5 block aspect-w-8 overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100`);
+
   // Create a dynamic Tailwind class using a template literal
   const gridClasses = classNames(`mb-6 grid ${mdGridClassStyles[mdCols]} gap-x-4 gap-y-8  sm:gap-x-6 ${smGridClassStyles[smCols]} ${lgGridClassStyles[lgCols]} xl:gap-x-8`);
 
@@ -50,16 +51,17 @@ const GridList = (
         </div>
       </div>
       <ul role="list" className={gridClasses}>
-        {games.map((game) => (
-          <li key={game.title} className="relative">
-            <div className={cardClasses}>
+        {games.map((game, index) => (
+          <li key={index} className="relative">
+            {/* <div className={cardClasses}>
               <img src={game.source} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
               <button type="button" className="absolute  inset-0 focus:outline-none">
                 <span className="sr-only">View details for {game.title}</span>
               </button>
             </div>
             <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{game.title}</p>
-            <p className="pointer-events-none block text-sm font-medium text-gray-500">{game.size}</p>
+            <p className="pointer-events-none block text-sm font-medium text-gray-500">{game.size}</p> */}
+            <GridCard game={game}></GridCard>
           </li>
         ))}
       </ul>

@@ -1,17 +1,3 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import {
@@ -30,7 +16,7 @@ import HorizontalGameList from '../components/HorizontalGameList'
 import ToggleSwitch from '../components/ToggleSwitch'
 import GridList from '../components/GridList'
 import HorizontalButtonList from '../components/HorizontalButtonList'
-import GamePreview from '../components/HorizontalGame'
+import GamePreview from '../components/ScrollCard'
 
 const navigation = [
   { name: 'Homepage', href: '#', icon: HomeIcon, current: true },

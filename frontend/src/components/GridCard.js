@@ -33,7 +33,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const HorizontalGame = ({game}) => {
+const GridCard = ({game}) => {
   const [open, setOpen] = useState(false)
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [selectedSize, setSelectedSize] = useState(product.sizes[2])
@@ -44,13 +44,15 @@ const HorizontalGame = ({game}) => {
   }
   console.log("Game:", game.source)
 
+  const cardClasses = classNames(`group w-full aspect-h-5 block aspect-w-8 overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100`);
+
   
   return (
     <>
       {/* Button */}
-      <div className="group aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+      <div className={cardClasses}>
         <img src={game.source} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
-        <button type="button" className="absolute inset-0 focus:outline-none" onClick={() => {setOpen(true)}}>
+        <button type="button" className="absolute  inset-0 focus:outline-none" onClick={() => {setOpen(true)}}>
           <span className="sr-only">View details for {game.title}</span>
         </button>
       </div>
@@ -257,7 +259,7 @@ const HorizontalGame = ({game}) => {
 }
 
 
-HorizontalGame.propTypes = {
+GridCard.propTypes = {
   game: PropTypes.shape({
     title: PropTypes.string.isRequired,
     size: PropTypes.string.isRequired,
@@ -266,4 +268,4 @@ HorizontalGame.propTypes = {
   // index: PropTypes.number.isRequired
 };
 
-export default HorizontalGame
+export default GridCard

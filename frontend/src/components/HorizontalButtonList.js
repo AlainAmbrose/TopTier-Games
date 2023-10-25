@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import GamePreview from './HorizontalGame';
+import GamePreview from './ScrollCard';
 
 const HorizontalButtonList = ({genres}) => {
   

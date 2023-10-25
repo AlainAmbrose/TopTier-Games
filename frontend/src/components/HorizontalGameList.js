@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import HorizontalGame from './HorizontalGame';
+import ScrollCard from './ScrollCard';
 
 const HorizontalGameList = ({listTitle, games}) => {
   return (
@@ -18,7 +18,7 @@ const HorizontalGameList = ({listTitle, games}) => {
       <ul role="list" className="mb-4 px-4 overflow-x-auto whitespace-nowrap scrollable-div">
         {games.map((game, index) => (
           <li key={index} className="inline-block w-48 h-48 m-2 rounded">
-            <HorizontalGame game={game}></HorizontalGame>
+            <ScrollCard game={game}></ScrollCard>
           </li>
         ))}
       </ul>
