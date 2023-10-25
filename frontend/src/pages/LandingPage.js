@@ -1,10 +1,5 @@
 import React from "react";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-import { useState } from 'react'
-=======
 import { useState } from "react";
->>>>>>> Stashed changes
 
 import LoginButton from "../components/LoginButton";
 import SignUpButton from "../components/SignUpButton";
@@ -43,28 +38,4 @@ const LandingPage = () => {
   );
 };
 
-<<<<<<< Updated upstream
-
 export default LandingPage;
-=======
-import "../App.css";
-
-import LoginButton from "../components/LoginButton";
-import SignUpButton from "../components/SignUpButton";
-import LandingPageTitle from "../components/LandingPageTitle";
-
-const LandingPage = () => {
-  return (
-    <div>
-      <LandingPageTitle />
-      <LoginButton />
-      <SignUpButton />
-    </div>
-  );
-};
-
-export default LandingPage;
->>>>>>> bc26c75ebadcae98f9b2e21e9a8fa33cb1622350
-=======
-export default LandingPage;
->>>>>>> Stashed changes

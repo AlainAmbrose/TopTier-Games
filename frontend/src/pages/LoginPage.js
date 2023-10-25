@@ -1,12 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 
 const LoginPage = () => {
   var loginName;
   var loginPassword;
+
+  const [message, setMessage] = useState("");
+  const doActualLogin = async (event) => {
+    event.preventDefault();
+
+    var obj = { login: loginName.value, password: loginPassword.value };
+    var js = JSON.stringify(obj);
+
+    try {
+      const response = await fetch("http://localhost:3000/Users/api/login", {
+        method: "POST",
+        body: js,
+        headers: { "Content-Type": "application/json" },
+      });
+      var res = JSON.parse(await response.text());
+      if (res.id <= 0) {
+        setMessage(res.message);
+      } else {
+        var user = {
+          id: res.id,
+        };
+        localStorage.setItem("user", JSON.stringify(user));
+        setMessage(res.message);
+        console.log(message);
+        window.location.href = "/libraryPage";
+      }
+    } catch (e) {
+      alert(e.toString());
+      return;
+    }
+  };
+
   return (
     <div id="loginDiv">
-      <form>
-        <span id="inner-title">Log in?</span>
+      <form onSubmit={doActualLogin}>
+        <span id="inner-title">Sign in?</span>
         <br />
         <input
           type="text"
@@ -26,7 +58,8 @@ const LoginPage = () => {
           type="submit"
           id="loginButton"
           className="buttons"
-          value="Do It"
+          value="Sign In"
+          onClick={doActualLogin}
         />
       </form>
     </div>

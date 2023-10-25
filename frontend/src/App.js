@@ -1,21 +1,8 @@
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-import './App.css';
-=======
-import {
-  BrowserRouter as Router,
-  Route,
-  Navigate,
-  Routes,
-} from "react-router-dom";
+import LibraryPage from "./pages/LibraryPage";
 import "./App.css";
->>>>>>> bc26c75ebadcae98f9b2e21e9a8fa33cb1622350
-=======
-import "./App.css";
->>>>>>> Stashed changes
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -28,6 +15,7 @@ function App() {
         <Route path="/" element={<LandingPage />}></Route>
         <Route path="/login" element={<LoginPage />}></Route>
         <Route path="/signup" element={<SignUpPage />}></Route>
+        <Route path="/libraryPage" element={<LibraryPage />}></Route>
       </Routes>
     </Router>
   );
