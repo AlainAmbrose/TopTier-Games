@@ -3,6 +3,7 @@ var router = express.Router();
 
 const User = require("../models/User");
 
+// Sign up for users
 router.post("/api/signup", (async (req, res) =>
 {
     // email verification and password strength check
@@ -22,6 +23,7 @@ router.post("/api/signup", (async (req, res) =>
 })
 );
 
+// Log in for users
 router.post("/api/login", (async (req, res) =>
 {
     let user = await User.findOne({ Login: req.body.login });
@@ -39,7 +41,7 @@ router.post("/api/login", (async (req, res) =>
             return res.status(200).json({ id: user._id, message: "User Successfully Logged In", });
         } else
         {
-            return res.status(400).json({ id: -1, message: "Incorrect Password"});
+            return res.status(400).json({ id: -1, message: "Incorrect Password" });
         }
     }
 })

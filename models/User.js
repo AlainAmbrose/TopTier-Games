@@ -49,5 +49,24 @@ UserSchema.methods.validatePassword = async function (password)
     return this.Password === hash;
 };
 
+UserSchema.methods.getId = function ()
+{
+    return this._id;
+};
+
+UserSchema.methods.getFirstName = function ()
+{
+    return this.FirstName;
+};
+
+UserSchema.methods.getLastName = function ()
+{
+    return this.LastName;
+};
+
+UserSchema.methods.getEmail = function ()
+{
+    return this.Email;
+};
 
 const User = module.exports = mongoose.model("User", UserSchema);

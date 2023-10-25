@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 5001;
 const uri = process.env.MONGODB_URL;
 
 const usersRouter = require('./controllers/Users');
+const gamesRouter = require('./controllers/Games');
 
 mongoose.connect(uri);
 
@@ -49,3 +50,4 @@ app.listen(PORT, () =>
 });
 
 app.use('/Users/', usersRouter);
+app.use('/Games/', gamesRouter);
