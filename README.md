@@ -31,3 +31,37 @@ Check the projects tab for a roadmap of tasks
    `git push heroku main`
 
 5. Go to https://poosd-large-project-group-8-1502fa002270.herokuapp.com/ to see your changes reflected on the server
+
+
+## Steps for tailwind installment
+
+1. start by installing tailwind css
+
+   `npm install tailwindcss postcss autoprefixer`
+
+2. Generate Tailwind Configuration File
+
+`   npx tailwindcss init`
+
+3. Configure for tailwind in the tailwind.config.json. It should look like this:
+
+   <!-- /** @type {import('tailwindcss').Config} */
+   module.exports = {
+   content: [
+      "./src/**/*.{js,jsx,ts,tsx}",
+   ],
+   theme: {
+      extend: {},
+   },
+   plugins: [],
+   } -->
+
+4. Configure the app.css file to look like this:
+
+   <!-- @import 'tailwindcss/base';
+   @import 'tailwindcss/components';
+   @import 'tailwindcss/utilities'; -->
+
+5. Include Your Tailwind CSS File in the Project. In your React project, you should have an entry file like index.js or App.js. Import the Tailwind CSS file there:
+
+   `import './tailwind.css';`

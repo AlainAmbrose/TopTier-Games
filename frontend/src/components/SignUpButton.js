@@ -6,17 +6,13 @@ function SignUpButton() {
     window.location.href = "/signup";
   };
   return (
-    <div id="signUpButtonDiv">
-      <form>
-        <input
-          type="submit"
-          id="signUpButton"
-          className="buttons signup-button"
-          value="Sign Up"
-          onClick={doSignUp}
-        />
-      </form>
-    </div>
+    <button
+      type="button"
+      className="rounded-full bg-white px-24 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      onClick={doSignUp}
+    >
+      Sign Up
+    </button>
   );
 }
 export default SignUpButton;
