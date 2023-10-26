@@ -21,11 +21,14 @@ const SignUpPage = () => {
     var js = JSON.stringify(obj);
 
     try {
-      const response = await fetch("http://localhost:3000/Users/api/signup", {
-        method: "POST",
-        body: js,
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/signup",
+        {
+          method: "POST",
+          body: js,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       var res = JSON.parse(await response.text());
       if (res.message === "User created successfully.") {
         var user = {
