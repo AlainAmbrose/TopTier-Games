@@ -6,6 +6,11 @@ module.exports = {
   theme: {
     extend: {},
     fontSize: {
+      '3xl': ['1.5rem', {
+        lineHeight: '2rem',
+        letterSpacing: '-0.01em',
+        fontWeight: '500',
+      }],
       '4xl': ['1.8rem', {
         lineHeight: '2rem',
         letterSpacing: '-0.01em',
@@ -18,5 +23,11 @@ module.exports = {
       }],
     }
   },
-  plugins: [],
+  corePlugins: {
+    aspectRatio: false,
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/aspect-ratio')
+  ],
 }

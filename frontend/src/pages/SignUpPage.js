@@ -34,7 +34,7 @@ const SignUpPage = () => {
         localStorage.setItem("user", JSON.stringify(user));
         setMessage(res.message);
         console.log(message);
-        window.location.href = "/libraryPage";
+        window.location.href = "/library";
       }
     } catch (e) {
       alert(e.toString());
