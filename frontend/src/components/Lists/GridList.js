@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 // Import the classnames utility
 import classNames from 'classnames';
-import GridCard from './GridCard';
+import GridCard from '../Cards/GridCard';
 
 const GridList = (
   {

@@ -33,7 +33,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const ScrollCard = ({game}) => {
+const AsideCard = ({game}) => {
   const [open, setOpen] = useState(false)
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [selectedSize, setSelectedSize] = useState(product.sizes[2])
@@ -43,19 +43,20 @@ const ScrollCard = ({game}) => {
     return <div>Loading...</div>; // or some other placeholder
   }
   console.log("Game:", game.source)
-
   
   return (
     <>
       {/* Button */}
-      <div className="group aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-        <img src={game.source} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
+      <div className="group aspect-h-5 aspect-w-8 block w-36 overflow-hidden rounded-lg bg-black focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+        <img className="flex-none pointer-events-none object-cover rounded-md group-hover:opacity-90 bg-gray-50" src={game.source} alt="" />
         <button type="button" className="absolute inset-0 focus:outline-none" onClick={() => {setOpen(true)}}>
           <span className="sr-only">View details for {game.title}</span>
         </button>
       </div>
-      <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{game.title}</p>
-      <p className="pointer-events-none block text-sm font-medium text-gray-500">{game.size}</p>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold leading-6 text-gray-900">{game.title}</p>
+        <p className="mt-1 truncate text-xs leading-5 text-gray-500">{game.size}</p>
+      </div>
       {/* POP UP */}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -257,7 +258,7 @@ const ScrollCard = ({game}) => {
 }
 
 
-ScrollCard.propTypes = {
+AsideCard.propTypes = {
   game: PropTypes.shape({
     title: PropTypes.string.isRequired,
     size: PropTypes.string.isRequired,
@@ -266,4 +267,4 @@ ScrollCard.propTypes = {
   // index: PropTypes.number.isRequired
 };
 
-export default ScrollCard
+export default AsideCard

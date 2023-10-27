@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types';
-import ScrollCard from './ScrollCard';
+import ScrollCard from '../Cards/ScrollCard';
 
 const HorizontalGameList = ({listTitle, games}) => {
   return (
