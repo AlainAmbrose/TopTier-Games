@@ -15,17 +15,17 @@ router.post("/api/signup", (async (req, res) =>
     newUser.DateLastLoggedIn = new Date();
     newUser.Email = req.body.email;
 
-
     newUser.createHash(req.body.password);
     await newUser.save();
 
-    return res.status(200).json({ id: newUser._id, message: "User created successfully.", });
-})
-);
+    return res
+        .status(200)
+        .json({ id: newUser._id, message: "User created successfully." });
+}));
 
-// Log in for users
-router.post("/api/login", (async (req, res) =>
+router.post("/api/login", async (req, res) =>
 {
+    // Find user with requested email
     let user = await User.findOne({ Login: req.body.login });
 
     if (user === null)
@@ -41,10 +41,33 @@ router.post("/api/login", (async (req, res) =>
             return res.status(200).json({ id: user._id, message: "User Successfully Logged In", });
         } else
         {
-            return res.status(400).json({ id: -1, message: "Incorrect Password" });
+            return res.status(400).json({ id: -1, message: "Incorrect Password", });
         }
     }
-})
-);
+});
+
+router.post("/api/getuser", async (req, res) =>
+{
+    // Find user with requested email
+    let user = await User.findOne({ _id: req.body.id });
+
+    if (user === null)
+    {
+        return res.status(400).json({
+            id: -1,
+            firstname: "",
+            lastname: "",
+            message: "User not found.",
+        });
+    } else
+    {
+        return res.status(200).json({
+            id: user._id,
+            firstname: user.FirstName,
+            lastname: user.LastName,
+            message: "User Successful",
+        });
+    }
+});
 
 module.exports = router;
