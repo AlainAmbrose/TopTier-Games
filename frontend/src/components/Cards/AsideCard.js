@@ -1,79 +1,62 @@
-import { Fragment, useState } from "react";
-import { Dialog, RadioGroup, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { StarIcon } from "@heroicons/react/20/solid";
-import PropTypes from "prop-types";
+import { Fragment, useState } from 'react'
+import { Dialog, RadioGroup, Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { StarIcon } from '@heroicons/react/20/solid'
+import PropTypes from 'prop-types';
 
 const product = {
-  name: "The Game Name",
-  price: "$192",
+  name: 'The Game Name',
+  price: '$192',
   rating: 3.9,
   reviewCount: 117,
-  href: "#",
-  imageSrc:
-    "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  imageAlt: "Two each of gray, white, and black shirts arranged on table.",
+  href: '#',
+  imageSrc: 'https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80',
+  imageAlt: 'Two each of gray, white, and black shirts arranged on table.',
   colors: [
-    { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
-    { name: "Gray", class: "bg-gray-200", selectedClass: "ring-gray-400" },
-    { name: "Black", class: "bg-gray-900", selectedClass: "ring-gray-900" },
+    { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
+    { name: 'Gray', class: 'bg-gray-200', selectedClass: 'ring-gray-400' },
+    { name: 'Black', class: 'bg-gray-900', selectedClass: 'ring-gray-900' },
   ],
   sizes: [
-    { name: "XXS", inStock: true },
-    { name: "XS", inStock: true },
-    { name: "S", inStock: true },
-    { name: "M", inStock: true },
-    { name: "L", inStock: true },
-    { name: "XL", inStock: true },
-    { name: "XXL", inStock: true },
-    { name: "XXXL", inStock: false },
+    { name: 'XXS', inStock: true },
+    { name: 'XS', inStock: true },
+    { name: 'S', inStock: true },
+    { name: 'M', inStock: true },
+    { name: 'L', inStock: true },
+    { name: 'XL', inStock: true },
+    { name: 'XXL', inStock: true },
+    { name: 'XXXL', inStock: false },
   ],
-};
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
 }
 
-const GridCard = ({ game }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
+
+const AsideCard = ({game}) => {
+  const [open, setOpen] = useState(false)
+  const [selectedColor, setSelectedColor] = useState(product.colors[0])
+  const [selectedSize, setSelectedSize] = useState(product.sizes[2])
 
   // Check if game exists before trying to access its properties
   if (!game) {
     return <div>Loading...</div>; // or some other placeholder
   }
-  console.log("Game:", game.source);
-
-  const cardClasses = classNames(
-    `group w-full aspect-h-5 block aspect-w-8 overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100`
-  );
-
+  console.log("Game:", game.source)
+  
   return (
     <>
       {/* Button */}
-      <div className={cardClasses}>
-        <img
-          src={game.source}
-          alt=""
-          className="pointer-events-none object-cover group-hover:opacity-75"
-        />
-        <button
-          type="button"
-          className="absolute  inset-0 focus:outline-none"
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
+      <div className="group aspect-h-5 aspect-w-8 block w-36 overflow-hidden rounded-lg bg-black focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+        <img className="flex-none pointer-events-none object-cover rounded-md group-hover:opacity-90 bg-gray-50" src={game.source} alt="" />
+        <button type="button" className="absolute inset-0 focus:outline-none" onClick={() => {setOpen(true)}}>
           <span className="sr-only">View details for {game.title}</span>
         </button>
       </div>
-      <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-        {game.title}
-      </p>
-      <p className="pointer-events-none block text-sm font-medium text-gray-500">
-        {game.size}
-      </p>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold leading-6 text-gray-900">{game.title}</p>
+        <p className="mt-1 truncate text-xs leading-5 text-gray-500">{game.size}</p>
+      </div>
       {/* POP UP */}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -113,28 +96,17 @@ const GridCard = ({ game }) => {
 
                     <div className="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
                       <div className="aspect-h-3 aspect-w-2 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
-                        <img
-                          src={product.imageSrc}
-                          alt={product.imageAlt}
-                          className="object-cover object-center"
-                        />
+                        <img src={product.imageSrc} alt={product.imageAlt} className="object-cover object-center" />
                       </div>
                       <div className="sm:col-span-8 lg:col-span-7">
-                        <h2 className="text-2xl font-bold text-gray-200 sm:pr-12">
-                          {product.name}
-                        </h2>
+                        <h2 className="text-2xl font-bold text-gray-200 sm:pr-12">{product.name}</h2>
 
-                        <section
-                          aria-labelledby="information-heading"
-                          className="mt-2"
-                        >
+                        <section aria-labelledby="information-heading" className="mt-2">
                           <h3 id="information-heading" className="sr-only">
                             Product information
                           </h3>
 
-                          <p className="text-2xl text-gray-200">
-                            {product.price}
-                          </p>
+                          <p className="text-2xl text-gray-200">{product.price}</p>
 
                           {/* Reviews */}
                           <div className="mt-6">
@@ -145,32 +117,22 @@ const GridCard = ({ game }) => {
                                   <StarIcon
                                     key={rating}
                                     className={classNames(
-                                      product.rating > rating
-                                        ? "text-gray-200"
-                                        : "text-gray-600",
-                                      "h-5 w-5 flex-shrink-0"
+                                      product.rating > rating ? 'text-gray-200' : 'text-gray-600',
+                                      'h-5 w-5 flex-shrink-0'
                                     )}
                                     aria-hidden="true"
                                   />
                                 ))}
                               </div>
-                              <p className="sr-only">
-                                {product.rating} out of 5 stars
-                              </p>
-                              <a
-                                href="#"
-                                className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
-                              >
+                              <p className="sr-only">{product.rating} out of 5 stars</p>
+                              <a href="#" className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500">
                                 {product.reviewCount} reviews
                               </a>
                             </div>
                           </div>
                         </section>
 
-                        <section
-                          aria-labelledby="options-heading"
-                          className="mt-10"
-                        >
+                        <section aria-labelledby="options-heading" className="mt-10">
                           <h3 id="options-heading" className="sr-only">
                             Product options
                           </h3>
@@ -292,10 +254,11 @@ const GridCard = ({ game }) => {
         </Dialog>
       </Transition.Root>
     </>
-  );
-};
+  )
+}
 
-GridCard.propTypes = {
+
+AsideCard.propTypes = {
   game: PropTypes.shape({
     title: PropTypes.string.isRequired,
     size: PropTypes.string.isRequired,
@@ -304,4 +267,4 @@ GridCard.propTypes = {
   // index: PropTypes.number.isRequired
 };
 
-export default GridCard;
+export default AsideCard

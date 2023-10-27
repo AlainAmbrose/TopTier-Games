@@ -6,13 +6,15 @@
 * {
   border-style: none;
   border-color: none;
+  
 }
 
 /* global.css */
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden; /* This prevents scrolling by clipping the box’s content */
+  overflow: hidden; 
+  /* This prevents scrolling by clipping the box’s content */
 }
 
 /*body {

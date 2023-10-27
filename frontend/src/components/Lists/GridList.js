@@ -1,9 +1,17 @@
 import PropTypes from "prop-types";
 // Import the classnames utility
-import classNames from "classnames";
-import GridCard from "./GridCard";
+import classNames from 'classnames';
+import GridCard from '../Cards/GridCard';
 
-const GridList = ({ games, listTitle, smCols, mdCols, lgCols }) => {
+const GridList = (
+  {
+    games, 
+    listTitle, 
+    smCols,
+    mdCols,
+    lgCols,
+  }) => {
+    
   /*
     Note: Tailwind cannot handle dynamic class names unless the class name is somewhere in the source code.
     This is because when we deploy tailwind parses the code and creates a style sheet based on what it sees
