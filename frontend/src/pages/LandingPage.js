@@ -1,22 +1,26 @@
 import React from "react";
 import { useState } from "react";
 
-import LoginButton from "../components/LoginButton";
-import SignUpButton from "../components/SignUpButton";
+const navigateToLogin = async (event) => {
+  event.preventDefault();
+  window.location.href = "/login";
+};
+
+const navigateToSignUp = async (event) => {
+  event.preventDefault();
+  window.location.href = "/signup";
+};
 
 const LandingPage = () => {
   return (
     <div className="bg-black overflow-hidden">
-
-  
       <main className="overflow-hidden">
         {/* Hero section */}
         <div className="relative isolate overflow-hidden h-screen  bg-gray-900 pb-16 pt-40 sm:pb-40">
           <div className="absolute inset-0 overflow-hidden -z-10">
             <div className="absolute w-full ml-96 h-[150%]  rotate-[25deg] origin-bottom-right bg-gradient-to-b from-white to-transparent opacity-75"></div>
           </div>
-          <div className="absolute inset-0 -z-20 h-full w-full object-cover bg-black opacity-60">
-          </div> 
+          <div className="absolute inset-0 -z-20 h-full w-full object-cover bg-black opacity-60"></div>
           <img
             src="https://heroku-resources.s3.amazonaws.com/LandingPageBG.jpg"
             alt=""
@@ -33,16 +37,25 @@ const LandingPage = () => {
                 </p>
               </div>
               <div className="flex flex-col w-fit mt-60 z-20 space-y-4 pr-48">
-                <LoginButton></LoginButton>
-                <SignUpButton></SignUpButton>
+                <button
+                  type="button"
+                  className="rounded-full bg-white px-25 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                  onClick={navigateToLogin}
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full bg-white px-24 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                  onClick={navigateToSignUp}
+                >
+                  Sign Up
+                </button>
               </div>
             </div>
-          </div>    
-    
+          </div>
         </div>
-
       </main>
-
     </div>
   );
 };

@@ -8,7 +8,7 @@ const SignUpPage = () => {
   var email;
 
   const [message, setMessage] = useState("");
-  const doActualSignIn = async (event) => {
+  const initSignIn = async (event) => {
     event.preventDefault();
 
     var obj = {
@@ -47,8 +47,10 @@ const SignUpPage = () => {
 
   return (
     <div id="signUpDiv">
-      <form onSubmit={doActualSignIn}>
-        <span id="inner-title">Sign Up?</span>
+      <form onSubmit={initSignIn}>
+        <span id="inner-title" className="text-slate-50">
+          Sign Up?
+        </span>
         <br />
         <input
           type="text"
@@ -90,7 +92,7 @@ const SignUpPage = () => {
           id="signUpButton"
           className="buttons"
           value="Sign Up"
-          onClick={doActualSignIn}
+          onClick={initSignIn}
         />
       </form>
     </div>

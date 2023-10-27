@@ -41,15 +41,15 @@ const LibraryPage = () => {
       <button
         type="button"
         id="addCardButton"
-        className="buttons"
+        className="buttons text-slate-50"
         onClick={renderLibraryInfo}
       >
         {" "}
         Show User Data{" "}
       </button>
-      <p>{fn}</p>
+      <p className="text-slate-50">{fn}</p>
       <br></br>
-      <p>{ln}</p>
+      <p className="text-slate-50">{ln}</p>
     </div>
   );
 };

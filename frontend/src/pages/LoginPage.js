@@ -5,7 +5,7 @@ const LoginPage = () => {
   var loginPassword;
 
   const [message, setMessage] = useState("");
-  const doActualLogin = async (event) => {
+  const initLogin = async (event) => {
     event.preventDefault();
 
     var obj = { login: loginName.value, password: loginPassword.value };
@@ -40,8 +40,10 @@ const LoginPage = () => {
 
   return (
     <div id="loginDiv">
-      <form onSubmit={doActualLogin}>
-        <span id="inner-title">Sign in?</span>
+      <form onSubmit={initLogin}>
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
+          Sign in to your account
+        </h2>
         <br />
         <input
           type="text"
@@ -62,7 +64,7 @@ const LoginPage = () => {
           id="loginButton"
           className="buttons"
           value="Sign In"
-          onClick={doActualLogin}
+          onClick={initLogin}
         />
       </form>
     </div>
