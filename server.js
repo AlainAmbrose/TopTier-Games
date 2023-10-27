@@ -8,7 +8,8 @@ const path = require("path");
 const PORT = process.env.PORT || 5000;
 const uri = process.env.MONGODB_URL;
 
-const usersRouter = require("./controllers/Users");
+const usersRouter = require('./controllers/Users');
+const gamesRouter = require('./controllers/Games');
 
 mongoose.connect(uri);
 
@@ -18,7 +19,8 @@ app.set("port", process.env.PORT || 3000);
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use((req, res, next) => {
+app.use((req, res, next) =>
+{
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
@@ -31,15 +33,19 @@ app.use((req, res, next) => {
   next();
 });
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production")
+{
   app.use(express.static(path.join(__dirname, "frontend/build")));
-  app.get("*", (req, res) => {
+  app.get("*", (req, res) =>
+  {
     res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
   });
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, () =>
+{
   console.log("Server listening on port " + PORT);
 });
 
-app.use("/Users/", usersRouter);
+app.use('/Users/', usersRouter);
+app.use('/Games/', gamesRouter);

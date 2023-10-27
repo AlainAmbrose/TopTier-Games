@@ -49,5 +49,4 @@ UserSchema.methods.validatePassword = async function (password)
     return this.Password === hash;
 };
 
-
 const User = module.exports = mongoose.model("User", UserSchema);
