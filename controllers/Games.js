@@ -9,8 +9,21 @@ const Game = require("../models/Game");
 router.post("/api/insertgame", (async (req, res) =>
 {
     let gameToInsert = req.body.gameToInsert;
-    async function getJSON(search)
+    let gameId = req.body.gameId;
+    let search = '';
+
+    if (gameId !== undefined)
     {
+        search = `where id = ${gameId} & total_rating != null & cover.url != null;`;
+    }
+    else
+    {
+        search = `where total_rating != null & cover.url != null; search "${gameToInsert}"; limit 10;`;
+    }
+
+    async function getGame(search)
+    {
+        let txt = `fields id, name, total_rating, cover.url; ${search}`;
         let result = await fetch("https://api.igdb.com/v4/games",
             {
                 method: 'POST',
@@ -19,7 +32,7 @@ router.post("/api/insertgame", (async (req, res) =>
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields id, name, aggregated_rating; search "${search}"; limit 10;`
+                body: txt,
             }
         );
 
@@ -27,23 +40,30 @@ router.post("/api/insertgame", (async (req, res) =>
         return json;
     }
 
-    getJSON(gameToInsert).then(data =>
+    getGame(search).then(async data =>
     {
-        for (let i = 0; i < data.length; i++)
+        let result = [];
+        data.forEach(function (obj)
         {
-            let newGame = new Game();
-            newGame.IGDB_id = data[i].id;
-            newGame.Name = data[i].name;
-            newGame.GameRanking = data[i].aggregated_rating;
+            result.push({ id: obj.id, name: obj.name, ranking: obj.total_rating, url: obj.cover.url });
+        });
+
+        result.forEach(function (obj)
+        {
+            const newGame = new Game();
+            newGame.IGDB_id = obj.id;
+            newGame.Name = obj.name;
+            newGame.GameRanking = obj.ranking;
+            newGame.CoverURL = obj.url;
 
             newGame.save();
-        }
+        });
+
+        return res.status(200).json({ id: 1, message: "Game Inserted Successfully" });
     }).catch(err =>
     {
-        return res.status(400).json({ message: err });
+        return res.status(400).json({ id: -1, message: 'Bad Entry' });
     });
-
-    return res.status(200).json({ message: "Game created successfully.", });
 })
 );
 
@@ -70,13 +90,13 @@ router.post("/api/populatehomepage", (async (req, res) =>
 {
     let genre = req.body.genre;
     let size = {
-        1:'micro',
-        2:'thumb',
-        3:'cover_small',
-        4:'logo_med',
-        5:'cover_big',
-        6:'720p',
-        7:'1080p'
+        1: 'micro',
+        2: 'thumb',
+        3: 'cover_small',
+        4: 'logo_med',
+        5: 'cover_big',
+        6: '720p',
+        7: '1080p'
     };;
 
     let cover_size = size[req.body.size];
@@ -89,9 +109,9 @@ router.post("/api/populatehomepage", (async (req, res) =>
                 headers: {
                     'Accept': 'application/json',
                     'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization':process.env.IGDB_AUTHORIZATION,
+                    'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields id, name; where genres = ${genre} & total_rating_count > 100; sort total_rating desc; limit 10;`
+                body: `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit 10;`
             }
         );
 
@@ -99,46 +119,41 @@ router.post("/api/populatehomepage", (async (req, res) =>
         return json;
     }
 
-    async function getCover(ids)
+    getGenre(genre).then(async data =>
     {
-        let result = await fetch("https://api.igdb.com/v4/covers",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization':process.env.IGDB_AUTHORIZATION,
-                },
-                body: `fields id, game, url; where game = (${ids});`
-            }
-        );
-
-        const json = await result.json();
-        return json;
-    }
-
-    getGenre(genre).then(async games =>
-    {
-        let ids = [];
-        games.forEach(function(obj) {ids.push(obj.id)});
-
-        return getCover(ids).then(covers => 
+        let objects = [];
+        data.forEach(async function (obj)
         {
-            let object = {};
-            covers.forEach(function(obj) {object[obj.game] = obj.url});
+            let game = await Game.findOne({ IGDB_id: obj.id });
 
-            let result = [];
-            games.forEach(function(obj) {result.push({id:obj.id, name: obj.name, url:object[obj.id]})});
+            if (game === null)
+            {
+                let js = JSON.stringify({ gameId: obj.id });
+                let response = await fetch("https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/insertgame",
+                    {
+                        method: 'POST',
+                        body: js,
+                        headers: { "Content-Type": "application/json" },
+                    });
 
-            result.forEach(function(obj) {
-                newURL = obj.url.replace(/thumb/g, cover_size);
-                obj.url = newURL;
-            })
-
-            return res.status(200).json({result: result});
-        }).catch(err => {
-            return res.status(400).json({ message: err, });
+                let result = JSON.parse(await response.text());
+                if (result.id < 0)
+                {
+                    return result.message;
+                }
+            }
         });
+
+
+        for (let i = 0; i < data.length; i++)
+        {
+            let game = await Game.findOne({ IGDB_id: data[i].id });
+            let url = game.CoverURL;
+            let newURL = url.replace(/thumb/g, cover_size);
+            objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
+        }
+
+        return res.status(200).json({ result: objects, });
     }).catch(err =>
     {
         return res.status(400).json({ message: err, });
@@ -151,46 +166,30 @@ router.post("/api/getcover", (async (req, res) =>
 {
     let id = req.body.id;
     let size = {
-        1:'micro',
-        2:'thumb',
-        3:'cover_small',
-        4:'logo_med',
-        5:'cover_big',
-        6:'720p',
-        7:'1080p'
+        1: 'micro',
+        2: 'thumb',
+        3: 'cover_small',
+        4: 'logo_med',
+        5: 'cover_big',
+        6: '720p',
+        7: '1080p'
     };
 
     let cover_size = size[req.body.size];
 
-    async function getJSON(gameid)
-    {
-        let result = await fetch("https://api.igdb.com/v4/covers",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization':process.env.IGDB_AUTHORIZATION,
-                },
-                body: `fields url; where game = ${gameid};`
-            }
-        );
+    let game = await Game.findOne({ IGDB_id: id });
 
-        const json = await result.json();
-        return json;
+    if (game === null)
+    {
+        return res.status(400).json({ image: 'Error' });
     }
-
-    getJSON(id).then(data =>
+    else
     {
-        let url = data[0].url;
+        let url = game.CoverURL;
         let newURL = url.replace(/thumb/g, cover_size);
-        return res.status(200).json({ image: newURL, });
-    }).catch(err =>
-    {
-        return res.status(400).json({ message: err, });
-    });
-
+        return res.status(200).json({ image: newURL });
+    }
 })
-)
+);
 
 module.exports = router;
