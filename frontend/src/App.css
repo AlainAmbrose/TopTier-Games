@@ -17,8 +17,9 @@ html, body {
   /* This prevents scrolling by clipping the box’s content */
 }
 
-/*body {
+body {
   background: radial-gradient(rgb(55, 65, 81), rgb(17, 24, 39), rgb(0, 0, 0)); /* Example color */
+}
 
 /* This will apply to all elements with the class .scrollable-div */
 .scrollable-div::-webkit-scrollbar {
