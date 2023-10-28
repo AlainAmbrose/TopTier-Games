@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const LibraryPage = () => {
   var currentUser = localStorage.getItem("user");
@@ -26,6 +26,7 @@ const LibraryPage = () => {
           lastName: res.lastname,
           id: res.id,
         };
+        localStorage.setItem("userInfo", user);
         setFn(user.firstName);
         setLn(user.lastName);
         setMessage("");
@@ -36,17 +37,12 @@ const LibraryPage = () => {
     }
   };
 
+  useEffect(() => {
+    renderLibraryInfo();
+  }, []);
+
   return (
     <div id="LibraryDiv">
-      <button
-        type="button"
-        id="addCardButton"
-        className="buttons text-slate-50"
-        onClick={renderLibraryInfo}
-      >
-        {" "}
-        Show User Data{" "}
-      </button>
       <p className="text-slate-50">{fn}</p>
       <br></br>
       <p className="text-slate-50">{ln}</p>

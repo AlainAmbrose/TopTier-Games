@@ -8,7 +8,7 @@ const SignUpPage = () => {
   var email;
 
   const [message, setMessage] = useState("");
-  const initSignIn = async (event) => {
+  const initSignUp = async (event) => {
     event.preventDefault();
 
     var obj = {
@@ -37,7 +37,7 @@ const SignUpPage = () => {
         localStorage.setItem("user", JSON.stringify(user));
         setMessage(res.message);
         console.log(message);
-        window.location.href = "/library";
+        window.location.href = "/home";
       }
     } catch (e) {
       alert(e.toString());
@@ -46,54 +46,107 @@ const SignUpPage = () => {
   };
 
   return (
-    <div id="signUpDiv">
-      <form onSubmit={initSignIn}>
-        <span id="inner-title" className="text-slate-50">
-          Sign Up?
-        </span>
-        <br />
-        <input
-          type="text"
-          id="firstName"
-          placeholder="First Name"
-          ref={(c) => (firstName = c)}
-        />
-        <br />
-        <input
-          type="text"
-          id="lastName"
-          placeholder="Last Name"
-          ref={(c) => (lastName = c)}
-        />
-        <br />
-        <input
-          type="text"
-          id="login"
-          placeholder="Login"
-          ref={(c) => (login = c)}
-        />
-        <br />
-        <input
-          type="text"
-          id="email"
-          placeholder="Email"
-          ref={(c) => (email = c)}
-        />
-        <br />
-        <input
-          type="password"
-          id="password"
-          placeholder="Password"
-          ref={(c) => (password = c)}
-        />
-        <br />
-        <input
-          type="submit"
-          id="signUpButton"
-          className="buttons"
-          value="Sign Up"
-          onClick={initSignIn}
-        />
+    <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+      <div className="absolute inset-0 -z-20 h-full w-full object-cover bg-black opacity-60"></div>
+      <img
+        src="https://heroku-resources.s3.amazonaws.com/LandingPageBG.jpg"
+        alt=""
+        className="absolute inset-0 -z-30 h-full w-full object-cover"
+      />
+      <form className="space-y-6" action="#" onSubmit={initSignUp}>
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
+          Sign up for a new account
+        </h2>
+        <div>
+          <label
+            htmlFor="firstname"
+            className="block text-sm font-medium leading-6 text-white"
+          >
+            First Name
+          </label>
+          <div className="mt-2">
+            <input
+              id="firstname"
+              required
+              className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
+              ref={(c) => (firstName = c)}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="lastname"
+            className="block text-sm font-medium leading-6 text-white"
+          >
+            Last Name
+          </label>
+          <div className="mt-2">
+            <input
+              id="lastname"
+              required
+              className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
+              ref={(c) => (lastName = c)}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium leading-6 text-white"
+          >
+            Email
+          </label>
+          <div className="mt-2">
+            <input
+              id="email"
+              required
+              className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
+              ref={(c) => (email = c)}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="lastname"
+            className="block text-sm font-medium leading-6 text-white"
+          >
+            Login
+          </label>
+          <div className="mt-2">
+            <input
+              id="login"
+              required
+              className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
+              ref={(c) => (login = c)}
+            />
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="lastname"
+            className="block text-sm font-medium leading-6 text-white"
+          >
+            Password
+          </label>
+          <div className="mt-2">
+            <input
+              id="password"
+              required
+              className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
+              ref={(c) => (password = c)}
+            />
+          </div>
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+            onClick={initSignUp}
+          >
+            Sign up
+          </button>
+        </div>
       </form>
     </div>
   );
