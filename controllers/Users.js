@@ -3,6 +3,17 @@ var router = express.Router();
 
 const User = require("../models/User");
 
+
+const app_name = "poosd-large-project-group-8-1502fa002270"
+function buildPath(route) {
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://' + app_name + '.herokuapp.com/' + route
+  } else {
+    return 'http://localhost:5000/' + route
+  }
+}
+
+
 // Sign up for users
 router.post("/api/signup", (async (req, res) =>
 {

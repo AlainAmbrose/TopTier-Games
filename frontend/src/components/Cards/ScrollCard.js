@@ -39,11 +39,13 @@ const ScrollCard = ({ game }) => {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
 
+  console.log("Game:", game);
+
   // Check if game exists before trying to access its properties
   if (!game) {
     return <div>Loading...</div>; // or some other placeholder
   }
-  console.log("Game:", game.source);
+  
 
   const cardClasses = classNames(`group aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg bg-black focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100  transform transition-transform duration-300
   ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`)
@@ -54,16 +56,16 @@ const ScrollCard = ({ game }) => {
     <>
       {/* Button */}
       <div className={cardClasses}>
-        <img src={game.source} alt="" className="pointer-events-none object-cover group-hover:opacity-90" />
+        <img src={game.url} alt="" className="pointer-events-none object-cover group-hover:opacity-90" />
         <button type="button" className="absolute inset-0 focus:outline-none" onClick={() => {setOpen(true)}}>
-          <span className="sr-only">View details for {game.title}</span>
+          <span className="sr-only">View details for {game.name}</span>
         </button>
       </div>
-      <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-        {game.title}
+      <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-300">
+        {game.name}
       </p>
       <p className="pointer-events-none block text-sm font-medium text-gray-500">
-        {game.size}
+        {game.id}
       </p>
       {/* POP UP */}
       <Transition.Root show={open} as={Fragment}>
@@ -288,9 +290,9 @@ const ScrollCard = ({ game }) => {
 
 ScrollCard.propTypes = {
   game: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    size: PropTypes.string.isRequired,
-    source: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    url: PropTypes.string.isRequired,
   }).isRequired,
   // index: PropTypes.number.isRequired
 };

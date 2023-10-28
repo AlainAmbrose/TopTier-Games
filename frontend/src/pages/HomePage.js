@@ -188,37 +188,132 @@ const files3 = [
 
 const genres = [
   {
-    title: "Role Playing",
-    href: "/#",
+      id: 2,
+      title: "Point-and-click",
+      href: "/#"
   },
   {
-    title: "Battle Royal",
-    href: "/#",
+      id: 4,
+      title: "Fighting",
+      href: "/#"
   },
   {
-    title: "FPS",
-    href: "/#",
+      id: 5,
+      title: "Shooter",
+      href: "/#"
   },
-  {
-    title: "Multiplayer",
-    href: "/#",
-  },
-  {
-    title: "Single Player",
-    href: "/#",
-  },
-  {
-    title: "RPG",
-    href: "/#",
-  },
-  {
-    title: "Puzzle",
-    href: "/#",
-  },
-];
+  // {
+  //     id: 7,
+  //     title: "Music",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 8,
+  //     title: "Platform",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 9,
+  //     title: "Puzzle",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 10,
+  //     title: "Racing",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 11,
+  //     title: "Real Time Strategy (RTS)",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 12,
+  //     title: "Role-playing (RPG)",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 13,
+  //     title: "Simulator",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 14,
+  //     title: "Sport",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 15,
+  //     title: "Strategy",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 16,
+  //     title: "Turn-based strategy (TBS)",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 24,
+  //     title: "Tactical",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 25,
+  //     title: "Hack and slash/Beat 'em up",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 26,
+  //     title: "Quiz/Trivia",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 30,
+  //     title: "Pinball",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 31,
+  //     title: "Adventure",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 32,
+  //     title: "Indie",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 33,
+  //     title: "Arcade",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 34,
+  //     title: "Visual Novel",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 35,
+  //     title: "Card & Board Game",
+  //     href: "/#"
+  // },
+  // {
+  //     id: 36,
+  //     title: "MOBA",
+  //     href: "/#"
+  // }
+]
 
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  var _ud = localStorage.getItem('user_data');
+  var ud = JSON.parse(_ud);
+  var userId = ud.id;
+  var firstName = ud.firstName;
+  var lastName = ud.lastName;
+
+  const app_name = "poosd-large-project-group-8-1502fa002270"
 
   return (
     <>
@@ -460,41 +555,13 @@ const HomePage = () => {
                 {/* Main area */}
                 <HorizontalButtonList genres={genres}></HorizontalButtonList>
                 {/* Top 3 Games */}
-                <GridList
-                  games={files1}
-                  listTitle={"Top Games"}
-                  width={"8/12"}
-                  aspectHeight={8}
-                  aspectWidth={5}
-                  mdCols="3"
-                  smCols="3"
-                  lgCols="3"
+                <GridList games={files1} listTitle={"Top Games"} width={"8/12"} aspectHeight={8} aspectWidth={5} mdCols="3" smCols="3" lgCols="3"
                 ></GridList>
-                <GridList
-                  games={files3}
-                  width={"full"}
-                  aspectHeight={5}
-                  aspectWidth={8}
-                  mdCols="5"
-                  smCols="5"
-                  lgCols="5"
+                <GridList games={files3} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"
                 ></GridList>
-                <HorizontalGameList
-                  listTitle={"Action"}
-                  games={files2}
-                ></HorizontalGameList>
-                <HorizontalGameList
-                  listTitle={"Horror"}
-                  games={files2}
-                ></HorizontalGameList>
-                <HorizontalGameList
-                  listTitle={"Indie"}
-                  games={files2}
-                ></HorizontalGameList>
-                <HorizontalGameList
-                  listTitle={"FPS"}
-                  games={files2}
-                ></HorizontalGameList>
+                {genres.map((genre, index) => {
+                  return (<HorizontalGameList key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
+                })}
               </div>
             </div>
           </main>

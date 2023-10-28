@@ -8,12 +8,11 @@ const HorizontalButtonList = ({ genres }) => {
       {/* This container is positioned relatively */}
       {/* Scroll container with overlay gradients */}
       <ul
-        role="list"
         className=" px-4 overflow-x-auto scrollable-div whitespace-nowrap"
       >
         {genres.map((genre) => (
           <li
-            key={genre.title}
+            key={genre.id}
             className="inline-block w-fit h-fit m-2  rounded"
           >
             <button
@@ -60,6 +59,7 @@ HorizontalButtonList.propTypes = {
   genres: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
       href: PropTypes.string.isRequired,
     })
   ).isRequired,
