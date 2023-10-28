@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -15,11 +15,11 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
-import HorizontalGameList from "../components/HorizontalGameList";
+import HorizontalGameList from "../components/Lists/HorizontalGameList";
 import ToggleSwitch from "../components/ToggleSwitch";
-import GridList from "../components/GridList";
-import HorizontalButtonList from "../components/HorizontalButtonList";
-import GamePreview from "../components/ScrollCard";
+import GridList from "../components/Lists/GridList";
+import HorizontalButtonList from "../components/Lists/HorizontalButtonList";
+import AsideCard from "../components/Cards/AsideCard";
 
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
@@ -222,6 +222,45 @@ const genres = [
 
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  var currentUser = localStorage.getItem("user");
+
+  const [firstName, setFn] = useState("");
+  const [lastName, setLn] = useState("");
+  const [message, setMessage] = useState("");
+
+  const renderUserInfo = async () => {
+    try {
+      const response = await fetch(
+        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/getuser",
+        {
+          method: "POST",
+          body: currentUser,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      var res = JSON.parse(await response.text());
+      if (res.id <= 0) {
+        setMessage("User not found");
+      } else {
+        var user = {
+          firstName: res.firstname,
+          lastName: res.lastname,
+          id: res.id,
+        };
+        localStorage.setItem("userInfo", user);
+        setFn(user.firstName);
+        setLn(user.lastName);
+        setMessage("");
+      }
+    } catch (e) {
+      alert(e.toString());
+      return;
+    }
+  };
+
+  useEffect(() => {
+    renderUserInfo();
+  }, []);
 
   return (
     <>
@@ -416,7 +455,7 @@ const HomePage = () => {
                         className="ml-4 text-sm font-semibold leading-6 text-gray-200"
                         aria-hidden="true"
                       >
-                        Dr. Lienecker
+                        {firstName + " " + lastName}
                       </span>
                       <ChevronDownIcon
                         className="ml-2 h-5 w-5 text-gray-400"
@@ -460,7 +499,7 @@ const HomePage = () => {
           <main className="xl:pl-96 ">
             <div
               style={{ height: "calc(100vh - 120px)" }}
-              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6"
+              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
             >
               <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
                 {/* Main area */}
@@ -510,38 +549,26 @@ const HomePage = () => {
           {/* Secondary column (hidden on smaller screens) */}
           <div
             style={{ height: "calc(100vh - 120px)" }}
-            className="px-4 py-10 sm:px-6 border-transparent  border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6"
+            className="px-4 py-10 sm:px-6 border-transparent  border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6  xl:shadow-md xl:shadow-gray-950"
           >
             <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
               <p className="text-white text-3xl mb-3">Recommended for you</p>
 
               <ToggleSwitch></ToggleSwitch>
               <ul role="list" className="divide-y divide-gray-200">
-                {files.map((file) => (
-                  <li key={file.title} className="flex gap-x-4 py-5">
-                    <div className="group aspect-h-5 aspect-w-8 block w-36 overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                      <img
-                        className="flex-none pointer-events-none object-cover rounded-md group-hover:opacity-75 bg-gray-50"
-                        src={file.source}
-                        alt=""
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-0 focus:outline-none"
-                      >
-                        <span className="sr-only">
-                          View details for {file.title}
-                        </span>
+                {files.map((file, index) => (
+                  <li key={index} className="flex gap-x-4 py-5">
+                    {/* <div className="group aspect-h-5 aspect-w-8 block w-36 overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                      <img className="flex-none pointer-events-none object-cover rounded-md group-hover:opacity-75 bg-gray-50" src={file.source} alt="" />
+                      <button type="button" className="absolute inset-0 focus:outline-none">
+                        <span className="sr-only">View details for {file.title}</span>
                       </button>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold leading-6 text-gray-900">
-                        {file.title}
-                      </p>
-                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                        {file.size}
-                      </p>
-                    </div>
+                      <p className="text-sm font-semibold leading-6 text-gray-900">{file.title}</p>
+                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">{file.size}</p>
+                    </div> */}
+                    <AsideCard game={file}></AsideCard>
                   </li>
                 ))}
               </ul>
