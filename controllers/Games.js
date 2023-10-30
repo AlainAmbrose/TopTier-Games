@@ -5,6 +5,18 @@ require('dotenv').config();
 
 const Game = require("../models/Game");
 
+const app_name = "poosd-large-project-group-8-1502fa002270";
+function buildPath(route)
+{
+    if (process.env.NODE_ENV === 'production')
+    {
+        return 'https://' + app_name + '.herokuapp.com/' + route;
+    } else
+    {
+        return 'http://localhost:5000/' + route;
+    }
+}
+
 // Add game to database
 router.post("/api/insertgame", (async (req, res) =>
 {
@@ -89,6 +101,8 @@ router.post("/api/searchgame", (async (req, res) =>
 router.post("/api/populatehomepage", (async (req, res) =>
 {
     let genre = req.body.genre;
+    let limit = req.body.limit;
+    let topGamesFlag = req.body.topGamesFlag;
     let size = {
         1: 'micro',
         2: 'thumb',
@@ -99,9 +113,21 @@ router.post("/api/populatehomepage", (async (req, res) =>
         7: '1080p'
     };;
 
+    let body = '';
+
     let cover_size = size[req.body.size];
 
-    async function getGenre(genre)
+    if (topGamesFlag !== undefined)
+    {
+        body = `fields id, name; where follows > 100 & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
+    }
+    else
+    {
+        body = `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
+    }
+
+
+    async function getGenre()
     {
         let result = await fetch("https://api.igdb.com/v4/games",
             {
@@ -111,7 +137,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit 10;`
+                body: body
             }
         );
 
@@ -119,7 +145,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
         return json;
     }
 
-    getGenre(genre).then(async data =>
+    getGenre().then(async data =>
     {
         let objects = [];
         data.forEach(async function (obj)
@@ -191,5 +217,37 @@ router.post("/api/getcover", (async (req, res) =>
     }
 })
 );
+
+router.post("/api/getgameinfo", async (req, res) =>
+{
+    let gameId = req.body.gameId;
+
+    async function getGameInfo()
+    {
+        let result = await fetch("https://api.igdb.com/v4/games",
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Client-ID': process.env.IGDB_CLIENT_ID,
+                    'Authorization': process.env.IGDB_AUTHORIZATION,
+                },
+                body: `fields *; where id = ${gameId};`
+            }
+        );
+
+        const json = await result.json();
+        return json;
+    }
+
+    getGameInfo().then(async data =>
+    {
+        return res.status(200).json({ result: data[0], });
+    }).catch(err =>
+    {
+        return res.status(400).json({ message: err, });
+    });
+
+});
 
 module.exports = router;
