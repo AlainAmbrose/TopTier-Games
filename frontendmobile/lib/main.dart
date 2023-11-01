@@ -36,8 +36,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
       appBar: AppBar(
         title: const Text('Login or Sign Up'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
