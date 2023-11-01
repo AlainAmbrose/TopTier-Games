@@ -5,6 +5,15 @@ require('dotenv').config();
 
 const Game = require("../models/Game");
 
+const app_name = "poosd-large-project-group-8-1502fa002270"
+function buildPath(route) {
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://' + app_name + '.herokuapp.com/' + route
+  } else {
+    return 'http://localhost:5000/' + route
+  }
+}
+
 // Add game to database
 router.post("/api/insertgame", (async (req, res) =>
 {
@@ -97,9 +106,10 @@ router.post("/api/populatehomepage", (async (req, res) =>
         5: 'cover_big',
         6: '720p',
         7: '1080p'
-    };;
+    };
 
     let cover_size = size[req.body.size];
+  
 
     async function getGenre(genre)
     {
@@ -111,7 +121,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit 10;`
+                body: `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit 15;`
             }
         );
 
@@ -122,6 +132,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
     getGenre(genre).then(async data =>
     {
         let objects = [];
+
         data.forEach(async function (obj)
         {
             let game = await Game.findOne({ IGDB_id: obj.id });
@@ -129,7 +140,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
             if (game === null)
             {
                 let js = JSON.stringify({ gameId: obj.id });
-                let response = await fetch("https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/insertgame",
+                let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,

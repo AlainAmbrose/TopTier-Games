@@ -34,7 +34,7 @@ const SignUpPage = () => {
         var user = {
           id: res.id,
         };
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("user_data", JSON.stringify(user));
         setMessage(res.message);
         console.log(message);
         window.location.href = "/home";
