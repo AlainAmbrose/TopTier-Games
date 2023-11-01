@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 
 class SignupScreen extends StatelessWidget {
@@ -37,9 +38,23 @@ class SignupScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-        print('Signup successful');
+        Fluttertoast.showToast(
+          msg: 'Signup successful',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.blueGrey,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
         } else {
-        print(response.statusCode);
+        Fluttertoast.showToast(
+          msg: 'Signup Failed',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.blueGrey,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
         }
     }
 
