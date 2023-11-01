@@ -76,7 +76,7 @@ class SignupScreen extends StatelessWidget {
                 labelText: 'Email',
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 12.0),
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(
@@ -84,28 +84,28 @@ class SignupScreen extends StatelessWidget {
               ),
               obscureText: true,
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 12.0),
             TextField(
               controller: _loginController,
               decoration: const InputDecoration(
                 labelText: 'Login',
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 12.0),
             TextField(
               controller: _firstnameController,
               decoration: const InputDecoration(
                 labelText: 'First Name',
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 12.0),
             TextField(
               controller: _lastnameController,
               decoration: const InputDecoration(
                 labelText: 'Last Name',
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 12.0),
             ElevatedButton(
                 onPressed: _handleSignup,
                 child: const Text('Sign Up'),
