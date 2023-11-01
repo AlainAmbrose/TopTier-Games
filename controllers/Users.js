@@ -10,9 +10,10 @@ function buildPath(route)
     if (process.env.NODE_ENV === 'production')
     {
         return 'https://' + app_name + '.herokuapp.com/' + route;
-    } else
+    }
+    else
     {
-        return 'http://localhost:5000/' + route;
+        return 'http://localhost:3000/' + route;
     }
 }
 
@@ -43,7 +44,8 @@ router.post("/api/login", async (req, res) =>
     if (user === null)
     {
         return res.status(400).json({ id: -1, message: "User not found.", });
-    } else
+    }
+    else
     {
         if (await user.validatePassword(req.body.password))
         {
@@ -71,10 +73,11 @@ router.post("/api/getuser", async (req, res) =>
             lastname: "",
             message: "User not found.",
         });
-    } else
+    }
+    else
     {
         return res.status(200).json({
-            id: user._id,
+            idd: user._id,
             firstname: user.FirstName,
             lastname: user.LastName,
             message: "User Successful",
@@ -91,14 +94,15 @@ router.post("/api/updateuser", async (req, res) =>
     let newLastName = req.body.lastname;
     let newEmail = req.body.email;
 
-    let id = req.body.id;
+    let id = req.body.userId;
 
     let user = await User.findOne({ _id: id });
 
     if (user === null)
     {
         return res.status(400).json({ id: -1, message: "User not found.", });
-    } else
+    }
+    else
     {
         if (newLogin !== undefined)
         {
@@ -126,7 +130,32 @@ router.post("/api/updateuser", async (req, res) =>
         }
 
         await user.save();
-        return res.status(200).json({ id: 1, message: "User updated successfully", });
+        return res.status(200).json({ id: 1, message: "User updated successfully.", });
     }
 });
+
+router.post("/api/deleteuser", async (req, res) =>
+{
+    let userId = req.body.userId;
+    let user = await User.findOne({ _id: userId });
+
+    if (user === null)
+    {
+        return res.status(400).json({ id: -1, message: "Error: User not found." });
+    }
+    else 
+    {
+        let result = await User.deleteOne({ _id: userId });
+        if (result.deletedCount == 1)
+        {
+            return res.status(200).json({ id: 1, message: 'User deleted successfully.' });
+        }
+        else
+        {
+            return res.status(400).json({ id: -1, message: 'Error: User deleted unsuccessfully, please try again.' });
+        }
+    }
+
+});
+
 module.exports = router;

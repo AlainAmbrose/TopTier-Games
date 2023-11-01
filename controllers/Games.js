@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+var functions = require('./gameFunctions');
 
 require('dotenv').config();
 
@@ -13,7 +14,7 @@ function buildPath(route)
         return 'https://' + app_name + '.herokuapp.com/' + route;
     } else
     {
-        return 'http://localhost:5000/' + route;
+        return 'http://localhost:3000/' + route;
     }
 }
 
@@ -33,26 +34,7 @@ router.post("/api/insertgame", (async (req, res) =>
         search = `where total_rating != null & cover.url != null; search "${gameToInsert}"; limit 10;`;
     }
 
-    async function getGame(search)
-    {
-        let txt = `fields id, name, total_rating, cover.url; ${search}`;
-        let result = await fetch("https://api.igdb.com/v4/games",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization': process.env.IGDB_AUTHORIZATION,
-                },
-                body: txt,
-            }
-        );
-
-        const json = await result.json();
-        return json;
-    }
-
-    getGame(search).then(async data =>
+    await functions.getGame(search).then(async data =>
     {
         let result = [];
         data.forEach(function (obj)
@@ -126,26 +108,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
         body = `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
     }
 
-
-    async function getGenre()
-    {
-        let result = await fetch("https://api.igdb.com/v4/games",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization': process.env.IGDB_AUTHORIZATION,
-                },
-                body: body
-            }
-        );
-
-        const json = await result.json();
-        return json;
-    }
-
-    getGenre().then(async data =>
+    await functions.getGenre(body).then(async data =>
     {
         let objects = [];
         data.forEach(async function (obj)
@@ -155,7 +118,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
             if (game === null)
             {
                 let js = JSON.stringify({ gameId: obj.id });
-                let response = await fetch("https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/insertgame",
+                let response = await fetch(buildPath("/Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,
@@ -174,8 +137,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
         for (let i = 0; i < data.length; i++)
         {
             let game = await Game.findOne({ IGDB_id: data[i].id });
-            let url = game.CoverURL;
-            let newURL = url.replace(/thumb/g, cover_size);
+            functions.updateCoverURL(game.CoverURL, cover_size);
             objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
         }
 
@@ -211,8 +173,7 @@ router.post("/api/getcover", (async (req, res) =>
     }
     else
     {
-        let url = game.CoverURL;
-        let newURL = url.replace(/thumb/g, cover_size);
+        functions.updateCoverURL(game.CoverURL, cover_size);
         return res.status(200).json({ image: newURL });
     }
 })
@@ -222,27 +183,29 @@ router.post("/api/getgameinfo", async (req, res) =>
 {
     let gameId = req.body.gameId;
 
-    async function getGameInfo()
+    await functions.getGameInfo(gameId).then(async data =>
     {
-        let result = await fetch("https://api.igdb.com/v4/games",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization': process.env.IGDB_AUTHORIZATION,
-                },
-                body: `fields *; where id = ${gameId};`
-            }
-        );
+        let game = data[0];
+        let gameInfo = {};
 
-        const json = await result.json();
-        return json;
-    }
+        gameInfo.gameId = gameId;
+        gameInfo.name = game.name;
+        gameInfo.summary = game.storyline;
+        gameInfo.releaseDate = game.first_release_date;
+        gameInfo.genre = game.genres;
 
-    getGameInfo().then(async data =>
-    {
-        return res.status(200).json({ result: data[0], });
+
+        gameInfo.rating = functions.getGameRatingOutOf5(game.total_rating);
+
+        gameInfo.images = await functions.getGameImages(game.screenshots);
+        gameInfo.links = await functions.getGameLinks(game.websites);
+        gameInfo.platforms = await functions.getGamePlatforms(game.platforms);
+        gameInfo.videos = await functions.getGameVideos(game.videos);
+        gameInfo.ageRating = await functions.getAgeRating(game.age_ratings);
+
+        gameInfo.similarGames = game.similar_games;
+
+        return res.status(200).json({ gameInfo, });
     }).catch(err =>
     {
         return res.status(400).json({ message: err, });
