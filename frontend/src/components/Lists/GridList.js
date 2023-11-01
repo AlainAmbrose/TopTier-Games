@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 // Import the classnames utility
 import classNames from 'classnames';
 import GridCard from '../Cards/GridCard';
+import { useQuery, QueryClient } from 'react-query'
 
 const GridList = (
   {
@@ -11,6 +12,9 @@ const GridList = (
     mdCols,
     lgCols,
   }) => {
+  const localClient = new QueryClient();
+  const { data } = useQuery('test', async () => { return "Hello" }, { queryClient: localClient });
+  console.log("data: ", data);
     
   /*
     Note: Tailwind cannot handle dynamic class names unless the class name is somewhere in the source code.

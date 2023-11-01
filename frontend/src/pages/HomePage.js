@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect, useRef } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -17,7 +17,8 @@ import ToggleSwitch from '../components/ToggleSwitch'
 import GridList from '../components/Lists/GridList'
 import HorizontalButtonList from '../components/Lists/HorizontalButtonList'
 import AsideCard from '../components/Cards/AsideCard'
-
+import { useInfiniteQuery } from 'react-query'
+import { useIntersection } from '@mantine/hooks'
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
   { name: "Friends", href: "#", icon: UsersIcon, current: false },
@@ -202,129 +203,146 @@ const genres = [
       title: "Shooter",
       href: "/#"
   },
-  // {
-  //     id: 7,
-  //     title: "Music",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 8,
-  //     title: "Platform",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 9,
-  //     title: "Puzzle",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 10,
-  //     title: "Racing",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 11,
-  //     title: "Real Time Strategy (RTS)",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 12,
-  //     title: "Role-playing (RPG)",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 13,
-  //     title: "Simulator",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 14,
-  //     title: "Sport",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 15,
-  //     title: "Strategy",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 16,
-  //     title: "Turn-based strategy (TBS)",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 24,
-  //     title: "Tactical",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 25,
-  //     title: "Hack and slash/Beat 'em up",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 26,
-  //     title: "Quiz/Trivia",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 30,
-  //     title: "Pinball",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 31,
-  //     title: "Adventure",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 32,
-  //     title: "Indie",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 33,
-  //     title: "Arcade",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 34,
-  //     title: "Visual Novel",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 35,
-  //     title: "Card & Board Game",
-  //     href: "/#"
-  // },
-  // {
-  //     id: 36,
-  //     title: "MOBA",
-  //     href: "/#"
-  // }
+  {
+      id: 7,
+      title: "Music",
+      href: "/#"
+  },
+  {
+      id: 8,
+      title: "Platform",
+      href: "/#"
+  },
+  {
+      id: 9,
+      title: "Puzzle",
+      href: "/#"
+  },
+  {
+      id: 10,
+      title: "Racing",
+      href: "/#"
+  },
+  {
+      id: 11,
+      title: "Real Time Strategy (RTS)",
+      href: "/#"
+  },
+  {
+      id: 12,
+      title: "Role-playing (RPG)",
+      href: "/#"
+  },
+  {
+      id: 13,
+      title: "Simulator",
+      href: "/#"
+  },
+  {
+      id: 14,
+      title: "Sport",
+      href: "/#"
+  },
+  {
+      id: 15,
+      title: "Strategy",
+      href: "/#"
+  },
+  {
+      id: 16,
+      title: "Turn-based strategy (TBS)",
+      href: "/#"
+  },
+  {
+      id: 24,
+      title: "Tactical",
+      href: "/#"
+  },
+  {
+      id: 25,
+      title: "Hack and slash/Beat 'em up",
+      href: "/#"
+  },
+  {
+      id: 26,
+      title: "Quiz/Trivia",
+      href: "/#"
+  },
+  {
+      id: 30,
+      title: "Pinball",
+      href: "/#"
+  },
+  {
+      id: 31,
+      title: "Adventure",
+      href: "/#"
+  },
+  {
+      id: 32,
+      title: "Indie",
+      href: "/#"
+  },
+  {
+      id: 33,
+      title: "Arcade",
+      href: "/#"
+  },
+  {
+      id: 34,
+      title: "Visual Novel",
+      href: "/#"
+  },
+  {
+      id: 35,
+      title: "Card & Board Game",
+      href: "/#"
+  },
+  {
+      id: 36,
+      title: "MOBA",
+      href: "/#"
+  }
 ]
+
+
+const fetchGenre = async (page) => {
+
+  return genres.slice((page - 1) * 2, page * 2)
+}
 
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const lastListRef = useRef(null)
+  const { ref, entry} = useIntersection({
+    root: lastListRef.current,
+    threshold: 1
+  })
 
-  var _ud = localStorage.getItem('user_data');
-  var ud = JSON.parse(_ud);
-  var userId = ud.id;
-  var firstName = ud.firstName;
-  var lastName = ud.lastName;
-
-  const app_name = "poosd-large-project-group-8-1502fa002270"
+  const { data, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(
+    ['query'],
+    async ({ pageParam = 1} ) => {
+      const response = await fetchGenre(pageParam)
+      return response
+    },
+    {
+      getNextPageParam: (_, pages) => {
+        return pages.length + 1
+      },
+      initialData: {
+        pages: [genres.slice(0, 2)], // [[{genre}, {genre}], [{genre}, {genre}]]
+        pageParams: [1]
+      }
+    }
+  ) 
+  useEffect(() => {
+    if (entry?.isIntersecting) {console.log("INTERSECTING"); fetchNextPage()}
+  }, [entry])
+  
+  const _genres = data?.pages.flatMap((page) => page)
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -550,7 +568,7 @@ const HomePage = () => {
 
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
           <main className="xl:pl-96 ">
-            <div style={{ height: 'calc(100vh - 120px)' }} className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950">
+            <div ref={lastListRef}  style={{ height: 'calc(100vh - 120px)' }} className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950">
               <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
                 {/* Main area */}
                 <HorizontalButtonList genres={genres}></HorizontalButtonList>
@@ -559,9 +577,24 @@ const HomePage = () => {
                 ></GridList>
                 <GridList games={files3} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"
                 ></GridList>
-                {genres.map((genre, index) => {
-                  return (<HorizontalGameList key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
-                })}
+                {_genres?.map((genre, i) => {
+                    if (i === _genres.length - 1) {
+                      return(
+                        (<HorizontalGameList ref={ref} key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
+                      )
+                    }
+                    return (<HorizontalGameList key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
+                  })
+                }
+                
+                {/* <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                  {isFetchingNextPage
+                    ? 'Loading more...'
+                    : (data?.pages.length ?? 0) < 11
+                    ? 'Load More'
+                    : 'Nothing more to load'
+                  }
+                </button>  */}
               </div>
             </div>
           </main>

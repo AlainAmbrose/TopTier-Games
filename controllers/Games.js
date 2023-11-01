@@ -121,7 +121,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit 10;`
+                body: `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit 15;`
             }
         );
 
