@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
@@ -28,9 +29,23 @@ class LoginScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-            print('Login successful');
+            Fluttertoast.showToast(
+              msg: "Login successful",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.green, // You can customize the background color
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
         } else {
-            print(response.statusCode);
+            Fluttertoast.showToast(
+              msg: response.statusCode.toString(),
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.green, // You can customize the background color
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
         }
     }
 
