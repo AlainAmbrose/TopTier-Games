@@ -33,14 +33,36 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login or Sign Up'),
-      ),
       body: Center(
-        child: Column(
+        child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/LandingPageBG.jpg'),
+                  fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.black.withOpacity(0.5),
+          ),
+          Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            RichText(
+                text: const TextSpan(
+                  text: 'TopTier',
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 72.0)
+                )
+            ),
+            const SizedBox(height: 96.0),
             ElevatedButton(
               onPressed: () {
                 // Navigate to the Login screen
@@ -67,7 +89,9 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             const SizedBox(height: 16.0),
           ],
         ),
+        ],
       ),
+    ),
     );
   }
 }
