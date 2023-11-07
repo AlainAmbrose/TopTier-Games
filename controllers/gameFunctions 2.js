@@ -141,25 +141,7 @@ module.exports = {
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields name, platform_logo; where id = (${platformId});`
-            }
-        );
-
-        const json = await result.json();
-        return json;
-    },
-
-    getGamePlatformLogos: async function (platformLogoId)
-    {
-        let result = await fetch("https://api.igdb.com/v4/platform_logos",
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization': process.env.IGDB_AUTHORIZATION,
-                },
-                body: `fields url; where id = (${platformLogoId});`
+                body: `fields name; where id = (${platformId});`
             }
         );
 

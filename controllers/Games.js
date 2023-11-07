@@ -201,7 +201,18 @@ router.post("/api/getgameinfo", async (req, res) =>
 
         gameInfo.images = await functions.getGameImages(game.screenshots);
         gameInfo.links = await functions.getGameLinks(game.websites);
-        gameInfo.platforms = await functions.getGamePlatforms(game.platforms);
+
+        let platforms =  await functions.getGamePlatforms(game.platforms);
+        let p_names = [];
+        let p_logos = [];
+
+        platforms.forEach( function (obj) {
+            p_names.push(obj.name);
+            p_logos.push(obj.platform_logo);
+        })
+        gameInfo.platforms = p_names;
+
+        gameInfo.platformLogos = await functions.getGamePlatformLogos(p_logos);
         gameInfo.videos = await functions.getGameVideos(game.videos);
         gameInfo.ageRating = await functions.getAgeRating(game.age_ratings);
 

@@ -1,10 +1,20 @@
 import React, { useState } from "react";
 
+const app_name = "poosd-large-project-group-8-1502fa002270"
+function buildPath(route) {
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://' + app_name + '.herokuapp.com/' + route
+  } else {
+    return 'http://localhost:5000/' + route
+  }
+}
+
 const LoginPage = () => {
   var loginName;
   var loginPassword;
 
   const [message, setMessage] = useState("");
+
   const initLogin = async (event) => {
     event.preventDefault();
 
@@ -12,8 +22,7 @@ const LoginPage = () => {
     var js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(
-        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/login",
+      const response = await fetch(buildPath("/Users/api/login"),
         {
           method: "POST",
           body: js,
