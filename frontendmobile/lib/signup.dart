@@ -64,53 +64,89 @@ class SignupScreen extends StatelessWidget {
         appBar: AppBar(
             title: const Text('Sign Up'),
         ),
-        body: Padding(
-            padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
+        body: Center(
+        child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/LandingPageBG.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 12.0),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
+              Container(
+                color: Colors.black.withOpacity(0.5),
               ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _loginController,
-              decoration: const InputDecoration(
-                labelText: 'Login',
+              Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                ),
               ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _firstnameController,
-              decoration: const InputDecoration(
-                labelText: 'First Name',
+              const SizedBox(height: 12.0),
+              TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                ),
+                obscureText: true,
               ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _lastnameController,
-              decoration: const InputDecoration(
-                labelText: 'Last Name',
+              const SizedBox(height: 10.0),
+              TextField(
+                controller: _loginController,
+                decoration: const InputDecoration(
+                  labelText: 'Login',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                ),
               ),
-            ),
-            const SizedBox(height: 10.0),
-            ElevatedButton(
+              const SizedBox(height: 10.0),
+              TextField(
+                controller: _firstnameController,
+                decoration: const InputDecoration(
+                  labelText: 'First Name',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              TextField(
+                controller: _lastnameController,
+                decoration: const InputDecoration(
+                  labelText: 'Last Name',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              ElevatedButton(
                 onPressed: _handleSignup,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 100),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
                 child: const Text('Sign Up'),
-            ),
-            ] 
+              ),
+            ]
+            )
+            ]
             ) 
             ),
         );
