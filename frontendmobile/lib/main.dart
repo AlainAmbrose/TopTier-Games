@@ -72,7 +72,13 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                   ),
                 );
               },
-              child: const Text('Login'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+              child: const Text('Sign In'),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
@@ -84,7 +90,13 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                   ),
                 );
               },
-              child: const Text('Signup'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+              child: const Text('Sign Up'),
             ),
             const SizedBox(height: 16.0),
           ],
