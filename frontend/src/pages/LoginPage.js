@@ -4,6 +4,15 @@ const LoginPage = () => {
   var loginName;
   var loginPassword;
 
+  const app_name = "poosd-large-project-group-8-1502fa002270";
+  function buildPath(route) {
+    if (process.env.NODE_ENV === "production") {
+      return "https://" + app_name + ".herokuapp.com/" + route;
+    } else {
+      return "http://localhost:5001/" + route;
+    }
+  }
+
   const [message, setMessage] = useState("");
   const initLogin = async (event) => {
     event.preventDefault();
@@ -12,14 +21,11 @@ const LoginPage = () => {
     var js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(
-        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/login",
-        {
-          method: "POST",
-          body: js,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch(buildPath("Users/api/login"), {
+        method: "POST",
+        body: js,
+        headers: { "Content-Type": "application/json" },
+      });
       var res = JSON.parse(await response.text());
       if (res.id <= 0) {
         setMessage(res.message);
@@ -30,7 +36,7 @@ const LoginPage = () => {
         localStorage.setItem("user_data", JSON.stringify(user));
         setMessage(res.message);
         console.log(message);
-        window.location.href = "/home";
+        window.location.href = "/library";
       }
     } catch (e) {
       alert(e.toString());
