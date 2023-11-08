@@ -52,40 +52,99 @@ class LoginScreen extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
-        appBar: AppBar(
-            title: const Text('Login'),
+        body: Center(
+        child: Stack(
+            alignment: Alignment.center,
+            children: [
+        Container(
+        decoration: const BoxDecoration(
+        image: DecorationImage(
+            image: AssetImage('assets/LandingPageBG.jpg'),
+          fit: BoxFit.cover,
+          ),
+          ),
         ),
-        body: Padding(
-            padding: const EdgeInsets.all(16.0),
-        child: Column(
+        Container(
+          color: Colors.black.withOpacity(0.5),
+        ),
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-                const SizedBox(height: 16.0),
-                TextField(
+            RichText(
+                text: const TextSpan(
+                    text: 'TopTier',
+                    style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 72.0)
+                )
+            ),
+            const SizedBox(height: 24.0),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                color: Colors.black.withOpacity(0.5),
+              ),
+              child: TextField(
                 controller: _loginController,
                 decoration: const InputDecoration(
-                    labelText: 'Login',
+                  labelText: 'Username',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                  ),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                 ),
-                ),
-                const SizedBox(height: 16.0),
-                TextField(
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                color: Colors.black.withOpacity(0.5),
+              ),
+              child: TextField(
                 controller: _passwordController,
                 decoration: const InputDecoration(
-                    labelText: 'Password',
+                  labelText: 'Password',
+                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                  ),
+                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                 ),
                 obscureText: true,
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                onPressed: _handleLogin,
-                child: const Text('Login'),
-                ),
-                ] 
-            )
+              ),
             ),
-        );
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: _handleLogin,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+              child: const Text('Sign In'),
+            ),
+            const SizedBox(height: 10.0),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 100),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+                child: const Text('Go Back')
+            )
+            ]
+            )
+            ]
+            ),
+        ),
+      );
     }
-
-
 }

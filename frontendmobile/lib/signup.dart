@@ -61,9 +61,6 @@ class SignupScreen extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
-        appBar: AppBar(
-            title: const Text('Sign Up'),
-        ),
         body: Center(
         child: Stack(
             alignment: Alignment.center,
@@ -83,56 +80,102 @@ class SignupScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                RichText(
+                    text: const TextSpan(
+                        text: 'TopTier',
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 72.0)
+                    )
                 ),
-              ),
-              const SizedBox(height: 12.0),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                const SizedBox(height: 24.0),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: TextField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      ),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                    ),
+                  ),
                 ),
-                obscureText: true,
-              ),
               const SizedBox(height: 10.0),
-              TextField(
-                controller: _loginController,
-                decoration: const InputDecoration(
-                  labelText: 'Login',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: TextField(
+                    controller: _loginController,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      ),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                    ),
+                  ),
                 ),
-              ),
               const SizedBox(height: 10.0),
-              TextField(
-                controller: _firstnameController,
-                decoration: const InputDecoration(
-                  labelText: 'First Name',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: TextField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      ),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                    ),
+                    obscureText: true,
+                  ),
                 ),
-              ),
               const SizedBox(height: 10.0),
-              TextField(
-                controller: _lastnameController,
-                decoration: const InputDecoration(
-                  labelText: 'Last Name',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: TextField(
+                    controller: _firstnameController,
+                    decoration: const InputDecoration(
+                      labelText: 'First Name',
+                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      ),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                    ),
+                  ),
                 ),
-              ),
+              const SizedBox(height: 10.0),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: TextField(
+                    controller: _lastnameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Last Name',
+                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      ),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                    ),
+                  ),
+                ),
               const SizedBox(height: 10.0),
               ElevatedButton(
                 onPressed: _handleSignup,
@@ -144,6 +187,19 @@ class SignupScreen extends StatelessWidget {
                 ),
                 child: const Text('Sign Up'),
               ),
+                const SizedBox(height: 10.0),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 100),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                  child: const Text('Go Back')
+                )
             ]
             )
             ]
