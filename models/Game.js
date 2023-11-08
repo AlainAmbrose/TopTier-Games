@@ -16,7 +16,7 @@ const GameSchema = mongoose.Schema({
     CoverURL: {
         type: String,
         required: true,
-    }
+    },
 }, { collection: 'Games' });
 
 const Game = module.exports = mongoose.model("Game", GameSchema);
