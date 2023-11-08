@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'homePage.dart';
 import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
     final TextEditingController _loginController = TextEditingController();
     final TextEditingController _passwordController = TextEditingController();
+    bool loginResult = false;
 
   LoginScreen({super.key});
 
-    void _handleLogin() async {
+    void _handleLogin(BuildContext context) async {
         String login = _loginController.text;
         String password = _passwordController.text;
-
         final data = {
             'login': login,
             'password': password,
@@ -29,19 +30,24 @@ class LoginScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
+            loginResult = true;
+            _navigateToNextScreen(context);
             Fluttertoast.showToast(
               msg: "Login successful",
               toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
+              gravity: ToastGravity.TOP,
               backgroundColor: Colors.green, // You can customize the background color
               textColor: Colors.white,
               fontSize: 16.0,
             );
         } else {
+            //print(response.statusCode);
+            //print(loginResult);
+            loginResult = false;
             Fluttertoast.showToast(
               msg: response.statusCode.toString(),
               toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
+              gravity: ToastGravity.TOP,
               backgroundColor: Colors.green, // You can customize the background color
               textColor: Colors.white,
               fontSize: 16.0,
@@ -78,7 +84,9 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                onPressed: _handleLogin,
+                onPressed: () {
+                  _handleLogin(context);
+                },
                 child: const Text('Login'),
                 ),
                 ] 
@@ -87,5 +95,10 @@ class LoginScreen extends StatelessWidget {
         );
     }
 
+    Future _navigateToNextScreen(BuildContext context) async{
+
+        Navigator.push(context,MaterialPageRoute(builder: (context) =>const HomePage()));
+
+    }
 
 }
