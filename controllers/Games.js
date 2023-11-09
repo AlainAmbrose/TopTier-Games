@@ -36,21 +36,39 @@ router.post("/api/insertgame", (async (req, res) =>
 
     await functions.getGame(search).then(async data =>
     {
-        let result = [];
-        data.forEach(function (obj)
-        {
-            result.push({ id: obj.id, name: obj.name, ranking: obj.total_rating, url: obj.cover.url });
-        });
+        data.forEach(async function (obj) {
+            let game = obj;
 
-        result.forEach(function (obj)
-        {
             const newGame = new Game();
-            newGame.IGDB_id = obj.id;
-            newGame.Name = obj.name;
-            newGame.GameRanking = obj.ranking;
-            newGame.CoverURL = obj.url;
+    
+            newGame.IGDB_id = game.id;
+            newGame.Name = game.name;
+            newGame.CoverURL = game.cover.url;
+            newGame.Summary = game.storyline;
+            newGame.ReleaseDate = game.first_release_date;
+            newGame.Genre = game.genres;
 
-            newGame.save();
+            newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
+            newGame.Images = await functions.getGameImages(game.screenshots);
+            newGame.Links = await functions.getGameLinks(game.websites);
+
+            let platforms = await functions.getGamePlatforms(game.platforms);
+            let p_names = [];
+            let p_logos = [];
+    
+            platforms.forEach(function (obj)
+            {
+                p_names.push(obj.name);
+                p_logos.push(obj.platform_logo);
+            });
+
+            newGame.Platforms = p_names;
+            newGame.PlatformLogos = await functions.getGamePlatformLogos(p_logos);
+            newGame.Videos = await functions.getGameVideos(game.videos);
+            newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
+            newGame.SimilarGames = game.similar_games;
+
+            await newGame.save()
         });
 
         return res.status(200).json({ id: 1, message: "Game Inserted Successfully" });
@@ -123,7 +141,6 @@ router.post("/api/populatehomepage", (async (req, res) =>
 
             if (game === null)
             {
-                console.log("here");
                 let js = JSON.stringify({ gameId: obj.id });
                 let response = await fetch(buildPath("/Games/api/insertgame"),
                     {
@@ -180,7 +197,7 @@ router.post("/api/getcover", (async (req, res) =>
     }
     else
     {
-        functions.updateCoverURL(game.CoverURL, cover_size);
+        let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
         return res.status(200).json({ image: newURL });
     }
 })
@@ -191,46 +208,33 @@ router.post("/api/getgameinfo", async (req, res) =>
 {
     let gameId = req.body.gameId;
 
-    await functions.getGameInfo(gameId).then(async data =>
+    let game = await Game.findOne({IGDB_id: gameId});
+
+    if (game === null) {
+        return res.status(400).json({message: "Error getting info."})
+    }
+    else
     {
-        let game = data[0];
         let gameInfo = {};
+        gameInfo.id = game.IGDB_id;
+        gameInfo.name = game.Name;
+        gameInfo.coverURL = game.CoverURL;
+        gameInfo.storyline = game.Summary;
+        gameInfo.releasedate = game.ReleaseDate;
+        gameInfo.genres = game.Genre;
 
-        gameInfo.gameId = gameId;
-        gameInfo.name = game.name;
-        gameInfo.summary = game.storyline;
-        gameInfo.releaseDate = game.first_release_date;
-        gameInfo.genre = game.genres;
+        gameInfo.gameranking = game.GameRanking;
+        gameInfo.images = game.Images;
+        gameInfo.links = game.Links;
 
+        gameInfo.platforms = game.Platforms;
+        gameInfo.platformlogos = game.PlatformLogos;
+        gameInfo.videos = game.Videos;
+        gameInfo.ageratings = game.AgeRating;
+        gameInfo.similargames = game.SimilarGames;
 
-        gameInfo.rating = functions.getGameRatingOutOf5(game.total_rating);
-
-        gameInfo.images = await functions.getGameImages(game.screenshots);
-        gameInfo.links = await functions.getGameLinks(game.websites);
-
-        let platforms = await functions.getGamePlatforms(game.platforms);
-        let p_names = [];
-        let p_logos = [];
-
-        platforms.forEach(function (obj)
-        {
-            p_names.push(obj.name);
-            p_logos.push(obj.platform_logo);
-        });
-        gameInfo.platforms = p_names;
-
-        gameInfo.platformLogos = await functions.getGamePlatformLogos(p_logos);
-        gameInfo.videos = await functions.getGameVideos(game.videos);
-        gameInfo.ageRating = await functions.getAgeRating(game.age_ratings);
-
-        gameInfo.similarGames = game.similar_games;
-
-        return res.status(200).json({ gameInfo, });
-    }).catch(err =>
-    {
-        return res.status(400).json({ message: err, });
-    });
-
+        return res.status(200).json(gameInfo);
+    }
 });
 
 module.exports = router;

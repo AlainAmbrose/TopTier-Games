@@ -46,7 +46,7 @@ module.exports = {
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields *; where id = ${gameId};`
+                body: `fields *, cover.url; where id = (${gameId});`
             }
         );
 
@@ -69,7 +69,7 @@ module.exports = {
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': process.env.IGDB_AUTHORIZATION,
                 },
-                body: `fields rating, rating_cover_url; where id = (${ratingId}) & category = 1;`
+                body: `fields rating; where id = (${ratingId}) & category = 1;`
             }
         );
 
