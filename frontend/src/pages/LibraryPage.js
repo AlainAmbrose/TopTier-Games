@@ -3,50 +3,10 @@ import LibraryContent from "../components/LibraryContent";
 
 const LibraryPage = () => {
   var currentUser = localStorage.getItem("user_data");
-
-  const [fn, setFn] = useState("");
-  const [ln, setLn] = useState("");
-  const [message, setMessage] = useState("");
-
-  const app_name = "poosd-large-project-group-8-1502fa002270";
-  function buildPath(route) {
-    if (process.env.NODE_ENV === "production") {
-      return "https://" + app_name + ".herokuapp.com/" + route;
-    } else {
-      return "http://localhost:5001/" + route;
-    }
-  }
-
-  const renderLibraryInfo = async () => {
-    try {
-      const response = await fetch(buildPath("Users/api/getuser"), {
-        method: "POST",
-        body: currentUser,
-        headers: { "Content-Type": "application/json" },
-      });
-      var res = JSON.parse(await response.text());
-      if (res.id <= 0) {
-        setMessage("User not found");
-      } else {
-        var user = {
-          firstName: res.firstname,
-          lastName: res.lastname,
-          id: res.id,
-        };
-        localStorage.setItem("userInfo", user);
-        setFn(user.firstName);
-        setLn(user.lastName);
-        setMessage("");
-      }
-    } catch (e) {
-      alert(e.toString());
-      return;
-    }
-  };
-
-  useEffect(() => {
-    renderLibraryInfo();
-  }, []);
+  var userData = JSON.parse(currentUser);
+  console.log(userData);
+  var fn = userData.firstname;
+  var ln = userData.lastname;
 
   const [isClicked1, setIsClicked1] = useState(true);
   const [isClicked2, setIsClicked2] = useState(false);

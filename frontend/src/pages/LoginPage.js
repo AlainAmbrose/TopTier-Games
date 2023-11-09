@@ -32,11 +32,15 @@ const LoginPage = () => {
       } else {
         var user = {
           id: res.id,
+          firstname: res.firstname,
+          lastname: res.lastname,
         };
+        console.log(user.lastname);
         localStorage.setItem("user_data", JSON.stringify(user));
         setMessage(res.message);
         console.log(message);
-        window.location.href = "/library";
+
+        window.location.href = "/home";
       }
     } catch (e) {
       alert(e.toString());

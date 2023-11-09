@@ -28,7 +28,12 @@ router.post("/api/signup", async (req, res) => {
 
   return res
     .status(200)
-    .json({ id: newUser._id, message: "User created successfully." });
+    .json({
+      id: newUser._id,
+      firstname: newUser.FirstName,
+      lastname: newUser.LastName,
+      message: "User created successfully.",
+    });
 });
 
 router.post("/api/login", async (req, res) => {
@@ -44,52 +49,15 @@ router.post("/api/login", async (req, res) => {
 
       return res
         .status(200)
-        .json({ id: user._id, message: "User Successfully Logged In" });
+        .json({
+          id: user._id,
+          firstname: user.FirstName,
+          lastname: user.LastName,
+          message: "User Successfully Logged In",
+        });
     } else {
       return res.status(400).json({ id: -1, message: "Incorrect Password" });
     }
-  }
-});
-
-router.post("/api/login", async (req, res) => {
-  // Find user with requested email
-  let user = await User.findOne({ Login: req.body.login });
-
-  if (user === null) {
-    return res.status(400).json({
-      id: -1,
-      firstname: "",
-      lastname: "",
-      message: "User not found.",
-    });
-  } else {
-    return res.status(200).json({
-      idd: user._id,
-      firstname: user.FirstName,
-      lastname: user.LastName,
-      message: "User Successful",
-    });
-  }
-});
-
-router.post("/api/getuser", async (req, res) => {
-  // Find user with requested email
-  let user = await User.findOne({ _id: req.body.id });
-
-  if (user === null) {
-    return res.status(400).json({
-      id: -1,
-      firstname: "",
-      lastname: "",
-      message: "User not found.",
-    });
-  } else {
-    return res.status(200).json({
-      id: user._id,
-      firstname: user.FirstName,
-      lastname: user.LastName,
-      message: "User Successful",
-    });
   }
 });
 
@@ -147,12 +115,10 @@ router.post("/api/deleteuser", async (req, res) => {
         .status(200)
         .json({ id: 1, message: "User deleted successfully." });
     } else {
-      return res
-        .status(400)
-        .json({
-          id: -1,
-          message: "Error: User deleted unsuccessfully, please try again.",
-        });
+      return res.status(400).json({
+        id: -1,
+        message: "Error: User deleted unsuccessfully, please try again.",
+      });
     }
   }
 });

@@ -313,6 +313,12 @@ const fetchGenre = async (page) => {
 };
 
 const HomePage = () => {
+  var currentUser = localStorage.getItem("user_data");
+  var userData = JSON.parse(currentUser);
+  console.log(userData);
+  var fn = userData.firstname;
+  var ln = userData.lastname;
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const lastListRef = useRef(null);
   const { ref, entry } = useIntersection({
@@ -530,7 +536,7 @@ const HomePage = () => {
                         className="ml-4 text-sm font-semibold leading-6 text-gray-200"
                         aria-hidden="true"
                       >
-                        {/* {firstName + " " + lastName} */}
+                        {fn + " " + ln}
                       </span>
                       <ChevronDownIcon
                         className="ml-2 h-5 w-5 text-gray-400"
