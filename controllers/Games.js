@@ -139,7 +139,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
         for (let i = 0; i < data.length; i++)
         {
             let game = await Game.findOne({ IGDB_id: data[i].id });
-            functions.updateCoverURL(game.CoverURL, cover_size);
+            let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
             objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
         }
 
