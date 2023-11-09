@@ -168,7 +168,6 @@ module.exports = {
         return json;
     },
 
-
     updateCoverURL: function (coverURL, size)
     {
         return coverURL.replace(/thumb/g, size);

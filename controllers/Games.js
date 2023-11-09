@@ -27,7 +27,7 @@ router.post("/api/insertgame", (async (req, res) =>
 
     if (gameId !== undefined)
     {
-        search = `where id = ${gameId} & total_rating != null & cover.url != null;`;
+        search = `where id = ${gameId};`;
     }
     else
     {
@@ -99,6 +99,10 @@ router.post("/api/populatehomepage", (async (req, res) =>
 
     let cover_size = size[req.body.size];
 
+    if (limit === undefined)
+    {
+        limit = 15;
+    }
 
     if (topGamesFlag !== undefined)
     {
@@ -119,6 +123,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
 
             if (game === null)
             {
+                console.log("here");
                 let js = JSON.stringify({ gameId: obj.id });
                 let response = await fetch(buildPath("/Games/api/insertgame"),
                     {
@@ -139,7 +144,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
         for (let i = 0; i < data.length; i++)
         {
             let game = await Game.findOne({ IGDB_id: data[i].id });
-            functions.updateCoverURL(game.CoverURL, cover_size);
+            let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
             objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
         }
 
@@ -181,6 +186,7 @@ router.post("/api/getcover", (async (req, res) =>
 })
 );
 
+// Retrieves game info
 router.post("/api/getgameinfo", async (req, res) =>
 {
     let gameId = req.body.gameId;
