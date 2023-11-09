@@ -36,11 +36,12 @@ router.post("/api/insertgame", (async (req, res) =>
 
     await functions.getGame(search).then(async data =>
     {
-        data.forEach(async function (obj) {
+        data.forEach(async function (obj)
+        {
             let game = obj;
 
             const newGame = new Game();
-    
+
             newGame.IGDB_id = game.id;
             newGame.Name = game.name;
             newGame.CoverURL = game.cover.url;
@@ -53,22 +54,26 @@ router.post("/api/insertgame", (async (req, res) =>
             newGame.Links = await functions.getGameLinks(game.websites);
 
             let platforms = await functions.getGamePlatforms(game.platforms);
-            let p_names = [];
-            let p_logos = [];
-    
-            platforms.forEach(function (obj)
-            {
-                p_names.push(obj.name);
-                p_logos.push(obj.platform_logo);
-            });
 
-            newGame.Platforms = p_names;
-            newGame.PlatformLogos = await functions.getGamePlatformLogos(p_logos);
+            if (platforms instanceof Array)
+            {
+                let p_names = [];
+                let p_logos = [];
+
+                platforms.forEach(function (obj)
+                {
+                    p_names.push(obj.name);
+                    p_logos.push(obj.platform_logo);
+                });
+
+                newGame.Platforms = p_names;
+                newGame.PlatformLogos = await functions.getGamePlatformLogos(p_logos);
+            }
             newGame.Videos = await functions.getGameVideos(game.videos);
             newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
             newGame.SimilarGames = game.similar_games;
 
-            await newGame.save()
+            await newGame.save();
         });
 
         return res.status(200).json({ id: 1, message: "Game Inserted Successfully" });
@@ -142,7 +147,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
             if (game === null)
             {
                 let js = JSON.stringify({ gameId: obj.id });
-                let response = await fetch(buildPath("/Games/api/insertgame"),
+                let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,
@@ -208,10 +213,11 @@ router.post("/api/getgameinfo", async (req, res) =>
 {
     let gameId = req.body.gameId;
 
-    let game = await Game.findOne({IGDB_id: gameId});
+    let game = await Game.findOne({ IGDB_id: gameId });
 
-    if (game === null) {
-        return res.status(400).json({message: "Error getting info."})
+    if (game === null)
+    {
+        return res.status(400).json({ message: "Error getting info." });
     }
     else
     {

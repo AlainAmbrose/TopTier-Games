@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from "react";
 
-const LibraryPage = () => {
+const app_name = "poosd-large-project-group-8-1502fa002270";
+function buildPath(route)
+{
+  if (process.env.NODE_ENV === 'production')
+  {
+    return 'https://' + app_name + '.herokuapp.com/' + route;
+  } else
+  {
+    return 'http://localhost:3000/' + route;
+  }
+}
+
+const LibraryPage = () =>
+{
   var currentUser = localStorage.getItem("user");
 
   const [fn, setFn] = useState("");
   const [ln, setLn] = useState("");
   const [message, setMessage] = useState("");
 
-  const renderLibraryInfo = async () => {
-    try {
-      const response = await fetch(
-        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/getuser",
+  const renderLibraryInfo = async () =>
+  {
+    try
+    {
+      const response = await fetch(buildPath("Users/api/getuser"),
         {
           method: "POST",
           body: currentUser,
@@ -18,9 +32,11 @@ const LibraryPage = () => {
         }
       );
       var res = JSON.parse(await response.text());
-      if (res.id <= 0) {
+      if (res.id <= 0)
+      {
         setMessage("User not found");
-      } else {
+      } else
+      {
         var user = {
           firstName: res.firstname,
           lastName: res.lastname,
@@ -31,13 +47,15 @@ const LibraryPage = () => {
         setLn(user.lastName);
         setMessage("");
       }
-    } catch (e) {
+    } catch (e)
+    {
       alert(e.toString());
       return;
     }
   };
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     renderLibraryInfo();
   }, []);
 

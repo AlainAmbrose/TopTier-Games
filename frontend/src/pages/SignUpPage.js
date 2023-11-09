@@ -1,6 +1,20 @@
 import React, { useState } from "react";
 
-const SignUpPage = () => {
+
+const app_name = "poosd-large-project-group-8-1502fa002270";
+function buildPath(route)
+{
+  if (process.env.NODE_ENV === 'production')
+  {
+    return 'https://' + app_name + '.herokuapp.com/' + route;
+  } else
+  {
+    return 'http://localhost:3000/' + route;
+  }
+}
+
+const SignUpPage = () =>
+{
   var firstName;
   var lastName;
   var login;
@@ -8,7 +22,8 @@ const SignUpPage = () => {
   var email;
 
   const [message, setMessage] = useState("");
-  const initSignUp = async (event) => {
+  const initSignUp = async (event) =>
+  {
     event.preventDefault();
 
     var obj = {
@@ -20,9 +35,9 @@ const SignUpPage = () => {
     };
     var js = JSON.stringify(obj);
 
-    try {
-      const response = await fetch(
-        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/signup",
+    try
+    {
+      const response = await fetch(buildPath("Users/api/signup"),
         {
           method: "POST",
           body: js,
@@ -30,7 +45,8 @@ const SignUpPage = () => {
         }
       );
       var res = JSON.parse(await response.text());
-      if (res.message === "User created successfully.") {
+      if (res.message === "User created successfully.")
+      {
         var user = {
           id: res.id,
         };
@@ -39,7 +55,8 @@ const SignUpPage = () => {
         console.log(message);
         window.location.href = "/home";
       }
-    } catch (e) {
+    } catch (e)
+    {
       alert(e.toString());
       return;
     }

@@ -1,11 +1,12 @@
-import React from 'react'
+import React from 'react';
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import ScrollCard from '../Cards/ScrollCard';
-import { MdArrowBackIosNew, MdArrowForwardIos} from 'react-icons/md'
+import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 
 
-const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
+const HorizontalGameList = forwardRef(({ genre, size }, ref) =>
+{
   const [gameList, setGameList] = useState([]);
   const scrollContainerRef = useRef(null);
   const [scrollStep, setScrollStep] = useState(0);
@@ -14,9 +15,10 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
   const [isHovering, setIsHovering] = useState(false); // State to track if the mouse is hovering over the list
 
   // console.log("Genre:", genre.title)
-  useEffect(() => {
-    if (ref !== null) console.log("ref:", ref.current)
-  }, [])
+  useEffect(() =>
+  {
+    if (ref !== null) console.log("ref:", ref.current);
+  }, []);
 
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);
@@ -24,56 +26,65 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
   var firstName = ud.firstName;
   var lastName = ud.lastName;
 
-  const app_name = "poosd-large-project-group-8-1502fa002270"
-  function buildPath(route) {
-    if (process.env.NODE_ENV === 'production') {
-      return 'https://' + app_name + '.herokuapp.com/' + route
-    } else {
-      return 'http://localhost:5000/' + route
+  const app_name = "poosd-large-project-group-8-1502fa002270";
+  function buildPath(route)
+  {
+    if (process.env.NODE_ENV === 'production')
+    {
+      return 'https://' + app_name + '.herokuapp.com/' + route;
+    } else
+    {
+      return 'http://localhost:3000/' + route;
     }
   }
 
-  useEffect (() => {
-    const populateGames = async event => {
-  
-      var obj = {genre: genre.id, size: size};
+  useEffect(() =>
+  {
+    const populateGames = async event =>
+    {
+
+      var obj = { genre: genre.id, size: size };
       var js = JSON.stringify(obj);
       console.log("request: ", js);
       try
       {
-          const response = await fetch(buildPath("Games/api/populatehomepage"), {
-            method:'POST',
-            body:js,
-            headers:{
-              'Content-Type': 
+        const response = await fetch(buildPath("Games/api/populatehomepage"), {
+          method: 'POST',
+          body: js,
+          headers: {
+            'Content-Type':
               'application/json'
-            }});
-  
-          // var txt = await response.text();
-          // var res = JSON.parse(txt);
-          // var _results = res.results;
+          }
+        });
 
-          // Assuming the server response is JSON
-          const data = await response.json();
-          const games = data.result
-          console.log("@PopulateGames, genre: " + genre.id + " data: ", games)
-          setGameList(games);
+        // var txt = await response.text();
+        // var res = JSON.parse(txt);
+        //var _results = res.results;
+
+        // Assuming the server response is JSON
+        const data = await response.json();
+        const games = data.result;
+        console.log("@PopulateGames, genre: " + genre.id + " data: ", games);
+        setGameList(games);
       }
-      catch(e)
+      catch (e)
       {
-          alert(e.toString());
-          // setSearchResults(e.toString());
+        alert(e.toString());
+        // setSearchResults(e.toString());
       }
-    }
+    };
 
     populateGames();
-  }, []) 
-  
+  }, []);
+
 
   // Dynamically calculate how much the scroll step should be based on the screen size
-  useEffect(() => {
-    const calculateScrollStep = () => {
-      if (scrollContainerRef.current) {
+  useEffect(() =>
+  {
+    const calculateScrollStep = () =>
+    {
+      if (scrollContainerRef.current)
+      {
         // Get the width of the container and a single card
         const containerWidth = scrollContainerRef.current.offsetWidth;
         const cardWidth = 192; // As an example; this should be obtained based on your actual card width
@@ -97,33 +108,41 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
     window.addEventListener('resize', calculateScrollStep);
 
     // Clean up the event listener on component unmount
-    return () => {
+    return () =>
+    {
       window.removeEventListener('resize', calculateScrollStep);
     };
   }, []); // Empty dependency array means this useEffect runs once when the component mounts and not on every re-render
 
 
-  const scrollToLeft = () => {
-    if (scrollContainerRef.current) {
+  const scrollToLeft = () =>
+  {
+    if (scrollContainerRef.current)
+    {
       scrollContainerRef.current.scrollBy({ left: -scrollStep, behavior: 'smooth' });
     }
   };
 
-  const scrollToRight = () => {
-    if (scrollContainerRef.current) {
+  const scrollToRight = () =>
+  {
+    if (scrollContainerRef.current)
+    {
       scrollContainerRef.current.scrollBy({ left: scrollStep, behavior: 'smooth' });
     }
   };
 
   // Dynamically calculate when to show the buttons to move left and right
-  useEffect(() => {
+  useEffect(() =>
+  {
     const scrollContainer = scrollContainerRef.current;
 
-    if (!scrollContainer) {
+    if (!scrollContainer)
+    {
       return;
     }
 
-    const handleScroll = () => {
+    const handleScroll = () =>
+    {
       // Step 3: Check the current scroll position
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
       const maxScrollLeft = scrollWidth - clientWidth;
@@ -140,17 +159,20 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
     handleScroll();
 
     // Clean up event listener on component unmount
-    return () => {
+    return () =>
+    {
       scrollContainer.removeEventListener('scroll', handleScroll);
     };
   }, []); // Dependency array can be empty if nothing inside the effect needs to be referenced
 
   // Handlers for mouse events
-  const handleMouseEnter = () => {
+  const handleMouseEnter = () =>
+  {
     setIsHovering(true);
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = () =>
+  {
     setIsHovering(false);
   };
 
@@ -184,11 +206,11 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
                 </li>
               ))
             ) : (
-              [...Array(8)].map((_, index) => 
+              [...Array(8)].map((_, index) =>
                 <li key={index} className="inline-block w-48 h-48 m-2 rounded">
                   <ScrollCard skeleton={true}></ScrollCard>
                 </li>
-              ) 
+              )
             )}
 
           </ul>
@@ -196,8 +218,8 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
           {/* <div className="absolute top-0 left-0 bottom-0 w-3 pointer-events-none bg-gradient-to-r from-black to-transparent"></div>
           <div className="absolute top-0 right-0 bottom-0 w-3 pointer-events-none bg-gradient-to-l from-black to-transparent"></div> */}
           {showLeftButton && (
-            <button 
-              className="absolute top-0 left-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-r from-black to-transparent" 
+            <button
+              className="absolute top-0 left-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-r from-black to-transparent"
               onClick={scrollToLeft}
               style={{ backdropFilter: "blur(2px)" }} // Optional: for glassmorphism effect
             >
@@ -207,8 +229,8 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
             </button>
           )}
           {showRightButton && (
-            <button 
-              className="absolute top-0 right-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-l from-black to-transparent" 
+            <button
+              className="absolute top-0 right-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-l from-black to-transparent"
               onClick={scrollToRight}
               style={{ backdropFilter: "blur(2px)" }} // Optional: for glassmorphism effect
             >
@@ -226,12 +248,12 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
 // This is where you define the equivalent of your TypeScript interface
 HorizontalGameList.propTypes = {
   genre: PropTypes.shape(
-      {
-        title: PropTypes.string.isRequired,
-        id: PropTypes.number.isRequired,
-        href: PropTypes.string.isRequired,
-      }
-    ).isRequired,
+    {
+      title: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
+      href: PropTypes.string.isRequired,
+    }
+  ).isRequired,
   size: PropTypes.number.isRequired,
 };
 

@@ -1,28 +1,34 @@
 import React, { useState } from "react";
 
-const app_name = "poosd-large-project-group-8-1502fa002270"
-function buildPath(route) {
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://' + app_name + '.herokuapp.com/' + route
-  } else {
-    return 'http://localhost:5000/' + route
+const app_name = "poosd-large-project-group-8-1502fa002270";
+function buildPath(route)
+{
+  if (process.env.NODE_ENV === 'production')
+  {
+    return 'https://' + app_name + '.herokuapp.com/' + route;
+  } else
+  {
+    return 'http://localhost:3000/' + route;
   }
 }
 
-const LoginPage = () => {
+const LoginPage = () =>
+{
   var loginName;
   var loginPassword;
 
   const [message, setMessage] = useState("");
 
-  const initLogin = async (event) => {
+  const initLogin = async (event) =>
+  {
     event.preventDefault();
 
     var obj = { login: loginName.value, password: loginPassword.value };
     var js = JSON.stringify(obj);
 
-    try {
-      const response = await fetch(buildPath("/Users/api/login"),
+    try
+    {
+      const response = await fetch(buildPath("Users/api/login"),
         {
           method: "POST",
           body: js,
@@ -30,9 +36,11 @@ const LoginPage = () => {
         }
       );
       var res = JSON.parse(await response.text());
-      if (res.id <= 0) {
+      if (res.id <= 0)
+      {
         setMessage(res.message);
-      } else {
+      } else
+      {
         var user = {
           id: res.id,
         };
@@ -41,7 +49,8 @@ const LoginPage = () => {
         console.log(message);
         window.location.href = "/home";
       }
-    } catch (e) {
+    } catch (e)
+    {
       alert(e.toString());
       return;
     }
