@@ -99,7 +99,11 @@ router.post("/api/populatehomepage", (async (req, res) =>
 
     let cover_size = size[req.body.size];
   
-
+    if (limit === undefined)
+    {
+        limit = 15;
+    }
+    
     if (topGamesFlag !== undefined)
     {
         body = `fields id, name; where follows > 100 & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
