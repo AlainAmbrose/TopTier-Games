@@ -31,5 +31,6 @@ class SearchPage extends StatelessWidget {
         ),
       ),
     );
+
   }
 }
