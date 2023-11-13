@@ -17,7 +17,7 @@ import ToggleSwitch from '../components/ToggleSwitch'
 import GridList from '../components/Lists/GridList'
 import HorizontalButtonList from '../components/Lists/HorizontalButtonList'
 import AsideCard from '../components/Cards/AsideCard'
-import { useInfiniteQuery } from 'react-query'
+import { useInfiniteQuery, useQuery } from 'react-query'
 import { useIntersection } from '@mantine/hooks'
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
@@ -305,10 +305,44 @@ const genres = [
   }
 ]
 
+const app_name = "poosd-large-project-group-8-1502fa002270"
+function buildPath(route) {
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://' + app_name + '.herokuapp.com/' + route
+  } else {
+    return 'http://localhost:3001/' + route
+  }
+}
 
 const fetchGenre = async (page) => {
-
   return genres.slice((page - 1) * 2, page * 2)
+}
+
+async function fetchTopGames() {
+  var obj = {topGamesFlag: true, limit: 8, size: 7};
+  var js = JSON.stringify(obj);
+  console.log("TOP GAMES request: ", js);
+  try {
+    const response = await fetch(buildPath("Games/api/populatehomepage"), {
+      method: 'POST',
+      body: js,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const jsonResponse = await response.json();
+    return jsonResponse.result; // Accessing the 'result' property
+  }
+  catch(e)
+  {
+      alert(e.toString());
+      throw e; // Rethrow the error for React Query to catch
+  }
+
 }
 
 const HomePage = () => {
@@ -318,6 +352,8 @@ const HomePage = () => {
     root: lastListRef.current,
     threshold: 1
   })
+
+  const { data: topGamesData, isLoading: isLoadingTopGames, isError, error } = useQuery('topGames', fetchTopGames);
 
   const { data, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(
     ['query'],
@@ -335,11 +371,19 @@ const HomePage = () => {
       }
     }
   ) 
+
+
+
   useEffect(() => {
     if (entry?.isIntersecting) {console.log("INTERSECTING"); fetchNextPage()}
   }, [entry])
   
   const _genres = data?.pages.flatMap((page) => page)
+
+  useEffect(() => {
+    console.log("Results from fetching TOP Games: ", topGamesData, error)
+  }, [isLoadingTopGames])
+
 
   return (
     <>
@@ -573,10 +617,16 @@ const HomePage = () => {
                 {/* Main area */}
                 <HorizontalButtonList genres={genres}></HorizontalButtonList>
                 {/* Top 3 Games */}
-                <GridList games={files1} listTitle={"Top Games"} width={"8/12"} aspectHeight={8} aspectWidth={5} mdCols="3" smCols="3" lgCols="3"
-                ></GridList>
-                <GridList games={files3} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"
-                ></GridList>
+
+                { (!isLoadingTopGames && topGamesData !== undefined) ? (<> 
+                  <GridList games={topGamesData.slice(0, 3)} listTitle={"Top Games"} width={"8/12"} aspectHeight={8} aspectWidth={5} mdCols="3" smCols="3" lgCols="3"></GridList>
+                  <GridList games={topGamesData.slice(3, 9)} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"></GridList> 
+                </>) : 
+                (<>
+                  <GridList skeleton={true} skeletoncount={3} listTitle={"Top Games"} width={"8/12"} aspectHeight={8} aspectWidth={5} mdCols="3" smCols="3" lgCols="3"></GridList>
+                  <GridList skeleton={true} skeletoncount={5} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"></GridList>
+                </>) }
+        
                 {_genres?.map((genre, i) => {
                     if (i === _genres.length - 1) {
                       return(

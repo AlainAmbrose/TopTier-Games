@@ -7,14 +7,13 @@ import { useQuery, QueryClient } from 'react-query'
 const GridList = (
   {
     games, 
+    skeleton,
+    skeletoncount,
     listTitle, 
     smCols,
     mdCols,
     lgCols,
   }) => {
-  const localClient = new QueryClient();
-  const { data } = useQuery('test', async () => { return "Hello" }, { queryClient: localClient });
-  console.log("data: ", data);
     
   /*
     Note: Tailwind cannot handle dynamic class names unless the class name is somewhere in the source code.
@@ -47,31 +46,37 @@ const GridList = (
   const gridClasses = classNames(
     `mb-6 grid ${mdGridClassStyles[mdCols]} gap-x-4 gap-y-8  sm:gap-x-6 ${smGridClassStyles[smCols]} ${lgGridClassStyles[lgCols]} xl:gap-x-8`
   );
+  if (games !== undefined) {
+    console.log("TOPGAMESSSSSSSS", games);
+  }
 
   return (
     <div>
-      <div className={`${listTitle === "" ? "hidden" : "relative mb-5"}`}>
+      <div className={`${listTitle === "" ? "hidden" : "relative mb-5 "}`}>
         <div className="relative flex justify-start">
-          <span className="bg-black pr-3 text-base font-semibold leading-6 text-gray-200">
+          <p className="bg-black pr-3 text-4xl text-gray-200">
             {listTitle}
-          </span>
+          </p>
         </div>
       </div>
+      {!skeleton ? (<>
       <ul role="list" className={gridClasses}>
         {games.map((game, index) => (
           <li key={index} className="relative">
-            {/* <div className={cardClasses}>
-              <img src={game.source} alt="" className="pointer-events-none object-cover group-hover:opacity-75" />
-              <button type="button" className="absolute  inset-0 focus:outline-none">
-                <span className="sr-only">View details for {game.title}</span>
-              </button>
-            </div>
-            <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{game.title}</p>
-            <p className="pointer-events-none block text-sm font-medium text-gray-500">{game.size}</p> */}
-            <GridCard game={game}></GridCard>
+            <GridCard game={game} ></GridCard>
           </li>
         ))}
       </ul>
+      </>) : (<>
+        <ul role="list" className={gridClasses}>
+          {[...Array(skeletoncount)].map((_, index) => (
+            <li key={index} className="relative">
+              <GridCard skeleton={true} ></GridCard>
+            </li>
+          ))}
+        </ul>
+      </>)}
+      
     </div>
   );
 };
@@ -84,18 +89,21 @@ GridList.propTypes = {
   aspectWidth: PropTypes.number.isRequired,
   games: PropTypes.arrayOf(
     PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      size: PropTypes.string.isRequired,
-      source: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
+      url: PropTypes.string.isRequired,
     })
-  ).isRequired,
+  ),
   smCols: PropTypes.string.isRequired,
   mdCols: PropTypes.string.isRequired,
   lgCols: PropTypes.string.isRequired,
+  skeleton: PropTypes.bool.isRequired, 
+  skeletoncount: PropTypes.number,
 };
 
 // If you want to specify default values for your props, you can do so as follows:
 GridList.defaultProps = {
+  skeleton: false,
   listTitle: "",
   smCols: "3",
   mdCols: "2",

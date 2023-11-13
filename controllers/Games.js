@@ -14,7 +14,7 @@ function buildPath(route)
         return 'https://' + app_name + '.herokuapp.com/' + route;
     } else
     {
-        return 'http://localhost:3000/' + route;
+        return 'http://localhost:3001/' + route;
     }
 }
 
@@ -106,6 +106,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
     
     if (topGamesFlag !== undefined)
     {
+        console.log("Getting @populatehomepage TOP GAMES");
         body = `fields id, name; where follows > 100 & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
     }
     else
@@ -124,7 +125,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
             if (game === null)
             {
                 let js = JSON.stringify({ gameId: obj.id });
-                let response = await fetch(buildPath("/Games/api/insertgame"),
+                let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,
@@ -145,6 +146,9 @@ router.post("/api/populatehomepage", (async (req, res) =>
             let game = await Game.findOne({ IGDB_id: data[i].id });
             let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
             objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
+        }
+        if (topGamesFlag !== undefined) {
+            console.log("Objects:", objects);
         }
 
         return res.status(200).json({ result: objects, });

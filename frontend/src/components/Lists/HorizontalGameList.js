@@ -29,7 +29,7 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
     if (process.env.NODE_ENV === 'production') {
       return 'https://' + app_name + '.herokuapp.com/' + route
     } else {
-      return 'http://localhost:5000/' + route
+      return 'http://localhost:3001/' + route
     }
   }
 
@@ -163,7 +163,7 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
         {/* Title */}
         <div className="mb-2">
           <div className="flex justify-start">
-            <span className="bg-black pr-3 text-base font-semibold leading-6 text-gray-200">
+            <span className="bg-black pr-3 text-4xl pl-6 text-gray-200">
               {genre.title}
             </span>
           </div>
