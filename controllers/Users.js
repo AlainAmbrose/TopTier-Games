@@ -8,7 +8,7 @@ function buildPath(route) {
   if (process.env.NODE_ENV === "production") {
     return "https://" + app_name + ".herokuapp.com/" + route;
   } else {
-    return "http://localhost:3000/" + route;
+    return "http://localhost:5001/" + route;
   }
 }
 
@@ -26,14 +26,12 @@ router.post("/api/signup", async (req, res) => {
   newUser.createHash(req.body.password);
   await newUser.save();
 
-  return res
-    .status(200)
-    .json({
-      id: newUser._id,
-      firstname: newUser.FirstName,
-      lastname: newUser.LastName,
-      message: "User created successfully.",
-    });
+  return res.status(200).json({
+    id: newUser._id,
+    firstname: newUser.FirstName,
+    lastname: newUser.LastName,
+    message: "User created successfully.",
+  });
 });
 
 router.post("/api/login", async (req, res) => {
@@ -47,14 +45,12 @@ router.post("/api/login", async (req, res) => {
       user.DateLastLoggedIn = new Date();
       await user.save();
 
-      return res
-        .status(200)
-        .json({
-          id: user._id,
-          firstname: user.FirstName,
-          lastname: user.LastName,
-          message: "User Successfully Logged In",
-        });
+      return res.status(200).json({
+        id: user._id,
+        firstname: user.FirstName,
+        lastname: user.LastName,
+        message: "User Successfully Logged In",
+      });
     } else {
       return res.status(400).json({ id: -1, message: "Incorrect Password" });
     }
