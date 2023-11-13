@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'homePage.dart';
 import 'dart:convert';
 
 class SignupScreen extends StatelessWidget {
@@ -9,10 +10,11 @@ class SignupScreen extends StatelessWidget {
     final TextEditingController _emailController = TextEditingController();
     final TextEditingController _firstnameController = TextEditingController();
     final TextEditingController _lastnameController = TextEditingController();
+    bool loginResult = true;
 
   SignupScreen({super.key});
 
-    void _handleSignup() async {
+    void _handleSignup(BuildContext context) async {
         String email = _emailController.text;
         String password = _passwordController.text;
         String login = _loginController.text;
@@ -38,6 +40,9 @@ class SignupScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
+          loginResult = true;
+          _navigateToNextScreen(context);
+
         Fluttertoast.showToast(
           msg: 'Signup successful',
           toastLength: Toast.LENGTH_SHORT,
@@ -61,7 +66,9 @@ class SignupScreen extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
-        body: Center(
+        body: Stack(
+            children: [
+              Center(
         child: Stack(
             alignment: Alignment.center,
             children: [
@@ -105,6 +112,7 @@ class SignupScreen extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                     ),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
@@ -122,6 +130,7 @@ class SignupScreen extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                     ),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
@@ -139,6 +148,7 @@ class SignupScreen extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                     ),
+                    style: const TextStyle(color: Colors.white),
                     obscureText: true,
                   ),
                 ),
@@ -157,6 +167,7 @@ class SignupScreen extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                     ),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
@@ -174,11 +185,14 @@ class SignupScreen extends StatelessWidget {
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                       focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                     ),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
               ElevatedButton(
-                onPressed: _handleSignup,
+                onPressed: () {
+                  _handleSignup(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
@@ -187,24 +201,30 @@ class SignupScreen extends StatelessWidget {
                 ),
                 child: const Text('Sign Up'),
               ),
-                const SizedBox(height: 10.0),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 100),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    ),
-                  child: const Text('Go Back')
-                )
             ]
             )
             ]
             ) 
             ),
+              Positioned(
+                top: 30,
+                left: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  onPressed: () {
+                    // Navigate back to the previous screen
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+        ]
+        )
         );
+    }
+
+    Future _navigateToNextScreen(BuildContext context) async{
+
+      Navigator.push(context,MaterialPageRoute(builder: (context) =>const HomePage()));
+
     }
 }

@@ -58,8 +58,10 @@ class LoginScreen extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
-        body: Center(
-        child: Stack(
+        body: Stack(
+            children: [
+            Center(
+          child: Stack(
           alignment: Alignment.center,
           children: [
           Container(
@@ -102,6 +104,7 @@ class LoginScreen extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                   focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                 ),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -120,6 +123,7 @@ class LoginScreen extends StatelessWidget {
                   focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                 ),
                 obscureText: true,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
                 const SizedBox(height: 16.0),
@@ -135,23 +139,24 @@ class LoginScreen extends StatelessWidget {
                   ),
                 child: const Text('Login'),
                 ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 100),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                child: const Text('Go Back')
-            )
                 ] 
             )
             ]),
-        ));
+            ),
+              Positioned(
+                top: 30,
+                left: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  onPressed: () {
+                    // Navigate back to the previous screen
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ]
+        )
+        );
     }
 
     Future _navigateToNextScreen(BuildContext context) async{
