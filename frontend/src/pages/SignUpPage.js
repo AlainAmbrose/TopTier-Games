@@ -1,19 +1,28 @@
 import React, { useState } from "react";
 
 const SignUpPage = () => {
-  var firstName;
-  var lastName;
+  var firstname;
+  var lastname;
   var login;
   var password;
   var email;
+
+  const app_name = "poosd-large-project-group-8-1502fa002270";
+  function buildPath(route) {
+    if (process.env.NODE_ENV === "production") {
+      return "https://" + app_name + ".herokuapp.com/" + route;
+    } else {
+      return "http://localhost:5001/" + route;
+    }
+  }
 
   const [message, setMessage] = useState("");
   const initSignUp = async (event) => {
     event.preventDefault();
 
     var obj = {
-      firstname: firstName.value,
-      lastname: lastName.value,
+      firstname: firstname.value,
+      lastname: lastname.value,
       login: login.value,
       password: password.value,
       email: email.value,
@@ -21,20 +30,19 @@ const SignUpPage = () => {
     var js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(
-        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/signup",
-        {
-          method: "POST",
-          body: js,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch(buildPath("Users/api/signup"), {
+        method: "POST",
+        body: js,
+        headers: { "Content-Type": "application/json" },
+      });
       var res = JSON.parse(await response.text());
       if (res.message === "User created successfully.") {
         var user = {
           id: res.id,
+          firstname: res.firstname,
+          lastname: res.lastname,
         };
-        localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("user_data", user);
         setMessage(res.message);
         console.log(message);
         window.location.href = "/home";
@@ -69,7 +77,7 @@ const SignUpPage = () => {
               id="firstname"
               required
               className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
-              ref={(c) => (firstName = c)}
+              ref={(c) => (firstname = c)}
             />
           </div>
         </div>
@@ -85,7 +93,7 @@ const SignUpPage = () => {
               id="lastname"
               required
               className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6"
-              ref={(c) => (lastName = c)}
+              ref={(c) => (lastname = c)}
             />
           </div>
         </div>
