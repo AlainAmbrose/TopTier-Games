@@ -46,7 +46,7 @@ router.post("/api/insertgame", (async (req, res) =>
             newGame.Name = game.name;
             newGame.CoverURL = game.cover.url;
             newGame.Summary = game.storyline;
-            newGame.ReleaseDate = game.first_release_date;
+            newGame.ReleaseDate = new Date(game.first_release_date * 1000);
             newGame.Genre = game.genres;
 
             newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
@@ -129,11 +129,11 @@ router.post("/api/populatehomepage", (async (req, res) =>
 
     if (topGamesFlag !== undefined)
     {
-        body = `fields id, name; where follows > 100 & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
+        body = `fields id, name; where follows > 100 & total_rating_count > 50 & first_release_date > 1514782800; sort total_rating desc; limit ${limit};`;
     }
     else
     {
-        body = `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
+        body = `fields id, name; where genres = (${genre}) & total_rating_count > 25 & first_release_date > 1514782800; sort total_rating desc; limit ${limit};`;
     }
 
     await functions.getGenre(body).then(async data =>

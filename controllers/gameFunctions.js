@@ -1,7 +1,7 @@
 module.exports = {
     getGame: async function (search)
     {
-        let txt = `fields id, name, total_rating, cover.url; ${search}`;
+        let txt = `fields *, cover.url; ${search}`;
         let result = await fetch("https://api.igdb.com/v4/games",
             {
                 method: 'POST',
