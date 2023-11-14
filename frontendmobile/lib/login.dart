@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'homePage.dart';
+import 'gradient.dart';
 import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
@@ -75,6 +76,18 @@ class LoginScreen extends StatelessWidget {
         Container(
         color: Colors.black.withOpacity(0.5),
         ),
+            ClipPath(
+              clipper: GradientClipper(),
+              child: Container(
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.white, Colors.transparent],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )
+                ),
+              ),
+            ),
           Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
