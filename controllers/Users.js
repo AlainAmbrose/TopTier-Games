@@ -22,6 +22,7 @@ function buildPath(route)
 router.post("/api/signup", (async (req, res) =>
 {
     // email verification and password strength check
+
     const newUser = new User();
     newUser.Login = req.body.login;
     newUser.FirstName = req.body.firstname;
@@ -38,12 +39,11 @@ router.post("/api/signup", (async (req, res) =>
 
 router.post("/api/login", async (req, res) =>
 {
-    // Find user with requested email
     let user = await User.findOne({ Login: req.body.login });
 
     if (user === null)
     {
-        return res.status(400).json({ id: -1, message: "User not found.", });
+        return res.status(400).json({ id: -1, message: "User not found", });
     }
     else
     {
@@ -62,7 +62,6 @@ router.post("/api/login", async (req, res) =>
 
 router.post("/api/getuser", async (req, res) =>
 {
-    // Find user with requested email
     let user = await User.findOne({ _id: req.body.id });
 
     if (user === null)

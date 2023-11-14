@@ -11,6 +11,7 @@ const uri = process.env.MONGODB_URL;
 const usersRouter = require('./controllers/Users');
 const gamesRouter = require('./controllers/Games');
 const progressRouter = require('./controllers/ProgressCards');
+const rankingRouter = require('./controllers/RankingCards');
 
 
 mongoose.connect(uri);
@@ -52,3 +53,4 @@ app.listen(PORT, () =>
 app.use('/Users/', usersRouter);
 app.use('/Games/', gamesRouter);
 app.use('/Progress/', progressRouter);
+app.use('/Ranking/', rankingRouter);
