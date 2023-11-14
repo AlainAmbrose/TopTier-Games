@@ -191,117 +191,140 @@ const genres = [
   {
       id: 2,
       title: "Point-and-click",
-      href: "/#"
+      href: "/#",
+      data: [],
   },
   {
       id: 4,
       title: "Fighting",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 5,
       title: "Shooter",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 7,
       title: "Music",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 8,
       title: "Platform",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 9,
       title: "Puzzle",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 10,
       title: "Racing",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 11,
       title: "Real Time Strategy (RTS)",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 12,
       title: "Role-playing (RPG)",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 13,
       title: "Simulator",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 14,
       title: "Sport",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 15,
       title: "Strategy",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 16,
       title: "Turn-based strategy (TBS)",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 24,
       title: "Tactical",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 25,
       title: "Hack and slash/Beat 'em up",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 26,
       title: "Quiz/Trivia",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 30,
       title: "Pinball",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 31,
       title: "Adventure",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 32,
       title: "Indie",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 33,
       title: "Arcade",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 34,
       title: "Visual Novel",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 35,
       title: "Card & Board Game",
-      href: "/#"
+      href: "/#",
+      data: []
   },
   {
       id: 36,
       title: "MOBA",
-      href: "/#"
+      href: "/#",
+      data: []
   }
 ]
 
@@ -314,14 +337,55 @@ function buildPath(route) {
   }
 }
 
+
 const fetchGenre = async (page) => {
-  return genres.slice((page - 1) * 2, page * 2)
-}
+  const genreToFetch = genres.slice((page - 1) * 2, page * 2);
+  const genreIds = genreToFetch.map((genre) => genre.id);
+  console.log("GenreToFetch: ", genreIds);
+
+  try {
+    const fetchPromises = genreIds.map(async (id) => {
+      let obj = { genre: id, size: 7 };
+      let js = JSON.stringify(obj);
+      console.log("request", js);
+
+      const response = await fetch(buildPath("Games/api/populatehomepage"), {
+        method: 'POST',
+        body: js,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.result;
+    });
+
+    const results = await Promise.all(fetchPromises);
+
+    const retval = genreToFetch.map((genre, index) => {
+      return {...genre, data: results[index]};
+    });
+    console.log("Updated Genres: ", retval, "Page: ", page);
+
+    return retval;
+  } catch (e) {
+    alert(e.toString());
+    // setSearchResults(e.toString());
+  }
+};
+
+
 
 async function fetchTopGames() {
+
   var obj = {topGamesFlag: true, limit: 8, size: 7};
   var js = JSON.stringify(obj);
-  console.log("TOP GAMES request: ", js);
+  // console.log("TOP GAMES request: ", js);
   try {
     const response = await fetch(buildPath("Games/api/populatehomepage"), {
       method: 'POST',
@@ -345,6 +409,7 @@ async function fetchTopGames() {
 
 }
 
+
 const HomePage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const lastListRef = useRef(null)
@@ -365,24 +430,25 @@ const HomePage = () => {
       getNextPageParam: (_, pages) => {
         return pages.length + 1
       },
-      initialData: {
-        pages: [genres.slice(0, 2)], // [[{genre}, {genre}], [{genre}, {genre}]]
-        pageParams: [1]
-      }
+      refetchOnWindowFocus: false,
     }
   ) 
-
 
 
   useEffect(() => {
     if (entry?.isIntersecting) {console.log("INTERSECTING"); fetchNextPage()}
   }, [entry])
-  
-  const _genres = data?.pages.flatMap((page) => page)
+
+  const _genres = data?.pages.flatMap((page) => page) 
+
+  // useEffect(() => {
+  //   // console.log("Results from fetching TOP Games: ", topGamesData, error)
+  // }, [isLoadingTopGames])
 
   useEffect(() => {
-    console.log("Results from fetching TOP Games: ", topGamesData, error)
-  }, [isLoadingTopGames])
+    console.log("DATA has Changed", data)
+  }, [data])
+
 
 
   return (
@@ -626,18 +692,23 @@ const HomePage = () => {
                   <GridList skeleton={true} skeletoncount={3} listTitle={"Top Games"} width={"8/12"} aspectHeight={8} aspectWidth={5} mdCols="3" smCols="3" lgCols="3"></GridList>
                   <GridList skeleton={true} skeletoncount={5} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"></GridList>
                 </>) }
-        
-                {_genres?.map((genre, i) => {
-                    if (i === _genres.length - 1) {
-                      return(
-                        (<HorizontalGameList ref={ref} key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
-                      )
-                    }
-                    return (<HorizontalGameList key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
-                  })
+
+                { data !== undefined && _genres?.map((genre, i) => {
+                      if (i === _genres.length - 1) {
+                        return(
+                          (<HorizontalGameList ref={ref} key={genre.id} games={genre.data} listTitle={genre.title} ></HorizontalGameList>) 
+                        )
+                      }
+                      return (<HorizontalGameList key={genre.id} games={genre.data} listTitle={genre.title}></HorizontalGameList>) 
+                    })
                 }
-                
-                {/* <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                { (isFetchingNextPage || data == undefined) && (<>
+                  <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList>
+                  <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList>
+                </>)}
+          
+              {/*                 
+                <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
                   {isFetchingNextPage
                     ? 'Loading more...'
                     : (data?.pages.length ?? 0) < 11
@@ -645,6 +716,7 @@ const HomePage = () => {
                     : 'Nothing more to load'
                   }
                 </button>  */}
+
               </div>
             </div>
           </main>

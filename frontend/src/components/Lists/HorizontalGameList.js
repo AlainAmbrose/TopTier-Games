@@ -5,70 +5,20 @@ import ScrollCard from '../Cards/ScrollCard';
 import { MdArrowBackIosNew, MdArrowForwardIos} from 'react-icons/md'
 
 
-const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
-  const [gameList, setGameList] = useState([]);
+const HorizontalGameList = forwardRef((
+  {
+  games,
+  skeleton,
+  skeletoncount,
+  listTitle,
+  }, ref) => {
+
   const scrollContainerRef = useRef(null);
   const [scrollStep, setScrollStep] = useState(0);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true); // assuming there's content to scroll initially
   const [isHovering, setIsHovering] = useState(false); // State to track if the mouse is hovering over the list
 
-  // console.log("Genre:", genre.title)
-  useEffect(() => {
-    if (ref !== null) console.log("ref:", ref.current)
-  }, [])
-
-  var _ud = localStorage.getItem('user_data');
-  var ud = JSON.parse(_ud);
-  var userId = ud.id;
-  var firstName = ud.firstName;
-  var lastName = ud.lastName;
-
-  const app_name = "poosd-large-project-group-8-1502fa002270"
-  function buildPath(route) {
-    if (process.env.NODE_ENV === 'production') {
-      return 'https://' + app_name + '.herokuapp.com/' + route
-    } else {
-      return 'http://localhost:3001/' + route
-    }
-  }
-
-  useEffect (() => {
-    const populateGames = async event => {
-  
-      var obj = {genre: genre.id, size: size};
-      var js = JSON.stringify(obj);
-      console.log("request: ", js);
-      try
-      {
-          const response = await fetch(buildPath("Games/api/populatehomepage"), {
-            method:'POST',
-            body:js,
-            headers:{
-              'Content-Type': 
-              'application/json'
-            }});
-  
-          // var txt = await response.text();
-          // var res = JSON.parse(txt);
-          // var _results = res.results;
-
-          // Assuming the server response is JSON
-          const data = await response.json();
-          const games = data.result
-          console.log("@PopulateGames, genre: " + genre.id + " data: ", games)
-          setGameList(games);
-      }
-      catch(e)
-      {
-          alert(e.toString());
-          // setSearchResults(e.toString());
-      }
-    }
-
-    populateGames();
-  }, []) 
-  
 
   // Dynamically calculate how much the scroll step should be based on the screen size
   useEffect(() => {
@@ -156,7 +106,7 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
 
   return (
     <>
-      <div ref={ref} className='bg-black h-2 w-2 mb-2 text-white'></div>
+      { !skeleton && ref !== undefined && ref !== null && <div ref={ref} className='bg-black h-2 w-2 mb-2 text-white'></div>}
       <div className="relative">
         {" "}
         {/* This container is positioned relatively */}
@@ -164,7 +114,7 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
         <div className="mb-2">
           <div className="flex justify-start">
             <span className="bg-black pr-3 text-4xl pl-6 text-gray-200">
-              {genre.title}
+              {listTitle}
             </span>
           </div>
         </div>
@@ -177,14 +127,14 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
             role="list"
             className="mb-4 px-4 overflow-x-auto whitespace-nowrap scrollable-div"
           >
-            {gameList && gameList.length > 0 ? (
-              gameList.map((game, index) => (
+            {!skeleton ?  (
+              games.map((game, index) => (
                 <li key={index} className="inline-block w-48 h-48 m-2 rounded">
                   <ScrollCard game={game}></ScrollCard>
                 </li>
               ))
             ) : (
-              [...Array(8)].map((_, index) => 
+              [...Array(skeletoncount)].map((_, index) => 
                 <li key={index} className="inline-block w-48 h-48 m-2 rounded">
                   <ScrollCard skeleton={true}></ScrollCard>
                 </li>
@@ -225,14 +175,22 @@ const HorizontalGameList = forwardRef(({ genre, size  }, ref) => {
 
 // This is where you define the equivalent of your TypeScript interface
 HorizontalGameList.propTypes = {
-  genre: PropTypes.shape(
-      {
-        title: PropTypes.string.isRequired,
-        id: PropTypes.number.isRequired,
-        href: PropTypes.string.isRequired,
-      }
-    ).isRequired,
-  size: PropTypes.number.isRequired,
+  games: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
+      url: PropTypes.string.isRequired,
+    })
+  ),
+  skeleton: PropTypes.bool.isRequired, 
+  skeletoncount: PropTypes.number,
+  listTitle: PropTypes.string.isRequired,
+};
+
+// If you want to specify default values for your props, you can do so as follows:
+HorizontalGameList.defaultProps = {
+  skeleton: false,
+  listTitle: "",
 };
 
 export default HorizontalGameList;

@@ -44,7 +44,7 @@ const GridCard = ({ game, skeleton }) => {
   if (!game) {
     return <div>Loading...</div>; // or some other placeholder
   }
-  console.log("Game:", game.url);
+  // console.log("Game:", game.url);
 
   const cardClasses = classNames(`group aspect-h-5 aspect-w-8 block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300
   ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
