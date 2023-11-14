@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'bottomNavBar.dart';
+import 'gradient.dart';
 import 'dart:convert';
 
 class LoginScreen extends StatelessWidget {
@@ -58,8 +59,10 @@ class LoginScreen extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
-        body: Center(
-        child: Stack(
+        body: Stack(
+            children: [
+            Center(
+          child: Stack(
           alignment: Alignment.center,
           children: [
           Container(
@@ -73,6 +76,18 @@ class LoginScreen extends StatelessWidget {
         Container(
         color: Colors.black.withOpacity(0.5),
         ),
+            ClipPath(
+              clipper: GradientClipper(),
+              child: Container(
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.white, Colors.transparent],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    )
+                ),
+              ),
+            ),
           Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -102,6 +117,7 @@ class LoginScreen extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
                   focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                 ),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -120,6 +136,7 @@ class LoginScreen extends StatelessWidget {
                   focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
                 ),
                 obscureText: true,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
                 const SizedBox(height: 16.0),
@@ -135,23 +152,24 @@ class LoginScreen extends StatelessWidget {
                   ),
                 child: const Text('Login'),
                 ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 100),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                child: const Text('Go Back')
-            )
                 ] 
             )
             ]),
-        ));
+            ),
+              Positioned(
+                top: 30,
+                left: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  onPressed: () {
+                    // Navigate back to the previous screen
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ]
+        )
+        );
     }
 
     Future _navigateToNextScreen(BuildContext context) async{

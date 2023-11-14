@@ -10,15 +10,18 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import HorizontalGameList from '../components/Lists/HorizontalGameList'
-import ToggleSwitch from '../components/ToggleSwitch'
-import GridList from '../components/Lists/GridList'
-import HorizontalButtonList from '../components/Lists/HorizontalButtonList'
-import AsideCard from '../components/Cards/AsideCard'
-import { useInfiniteQuery } from 'react-query'
-import { useIntersection } from '@mantine/hooks'
+} from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
+import HorizontalGameList from "../components/Lists/HorizontalGameList";
+import ToggleSwitch from "../components/ToggleSwitch";
+import GridList from "../components/Lists/GridList";
+import HorizontalButtonList from "../components/Lists/HorizontalButtonList";
+import AsideCard from "../components/Cards/AsideCard";
+import { useInfiniteQuery } from "react-query";
+import { useIntersection } from "@mantine/hooks";
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
   { name: "Friends", href: "#", icon: UsersIcon, current: false },
@@ -26,7 +29,8 @@ const navigation = [
 ];
 const userNavigation = [
   { name: "Your profile", href: "#" },
-  { name: "Sign out", href: "#" },
+  { name: "Your Library", href: "/library" },
+  { name: "Sign out", href: "/" },
 ];
 
 function classNames(...classes) {
@@ -189,157 +193,164 @@ const files3 = [
 
 const genres = [
   {
-      id: 2,
-      title: "Point-and-click",
-      href: "/#"
+    id: 2,
+    title: "Point-and-click",
+    href: "/#",
   },
   {
-      id: 4,
-      title: "Fighting",
-      href: "/#"
+    id: 4,
+    title: "Fighting",
+    href: "/#",
   },
   {
-      id: 5,
-      title: "Shooter",
-      href: "/#"
+    id: 5,
+    title: "Shooter",
+    href: "/#",
   },
   {
-      id: 7,
-      title: "Music",
-      href: "/#"
+    id: 7,
+    title: "Music",
+    href: "/#",
   },
   {
-      id: 8,
-      title: "Platform",
-      href: "/#"
+    id: 8,
+    title: "Platform",
+    href: "/#",
   },
   {
-      id: 9,
-      title: "Puzzle",
-      href: "/#"
+    id: 9,
+    title: "Puzzle",
+    href: "/#",
   },
   {
-      id: 10,
-      title: "Racing",
-      href: "/#"
+    id: 10,
+    title: "Racing",
+    href: "/#",
   },
   {
-      id: 11,
-      title: "Real Time Strategy (RTS)",
-      href: "/#"
+    id: 11,
+    title: "Real Time Strategy (RTS)",
+    href: "/#",
   },
   {
-      id: 12,
-      title: "Role-playing (RPG)",
-      href: "/#"
+    id: 12,
+    title: "Role-playing (RPG)",
+    href: "/#",
   },
   {
-      id: 13,
-      title: "Simulator",
-      href: "/#"
+    id: 13,
+    title: "Simulator",
+    href: "/#",
   },
   {
-      id: 14,
-      title: "Sport",
-      href: "/#"
+    id: 14,
+    title: "Sport",
+    href: "/#",
   },
   {
-      id: 15,
-      title: "Strategy",
-      href: "/#"
+    id: 15,
+    title: "Strategy",
+    href: "/#",
   },
   {
-      id: 16,
-      title: "Turn-based strategy (TBS)",
-      href: "/#"
+    id: 16,
+    title: "Turn-based strategy (TBS)",
+    href: "/#",
   },
   {
-      id: 24,
-      title: "Tactical",
-      href: "/#"
+    id: 24,
+    title: "Tactical",
+    href: "/#",
   },
   {
-      id: 25,
-      title: "Hack and slash/Beat 'em up",
-      href: "/#"
+    id: 25,
+    title: "Hack and slash/Beat 'em up",
+    href: "/#",
   },
   {
-      id: 26,
-      title: "Quiz/Trivia",
-      href: "/#"
+    id: 26,
+    title: "Quiz/Trivia",
+    href: "/#",
   },
   {
-      id: 30,
-      title: "Pinball",
-      href: "/#"
+    id: 30,
+    title: "Pinball",
+    href: "/#",
   },
   {
-      id: 31,
-      title: "Adventure",
-      href: "/#"
+    id: 31,
+    title: "Adventure",
+    href: "/#",
   },
   {
-      id: 32,
-      title: "Indie",
-      href: "/#"
+    id: 32,
+    title: "Indie",
+    href: "/#",
   },
   {
-      id: 33,
-      title: "Arcade",
-      href: "/#"
+    id: 33,
+    title: "Arcade",
+    href: "/#",
   },
   {
-      id: 34,
-      title: "Visual Novel",
-      href: "/#"
+    id: 34,
+    title: "Visual Novel",
+    href: "/#",
   },
   {
-      id: 35,
-      title: "Card & Board Game",
-      href: "/#"
+    id: 35,
+    title: "Card & Board Game",
+    href: "/#",
   },
   {
-      id: 36,
-      title: "MOBA",
-      href: "/#"
-  }
-]
-
+    id: 36,
+    title: "MOBA",
+    href: "/#",
+  },
+];
 
 const fetchGenre = async (page) => {
-
-  return genres.slice((page - 1) * 2, page * 2)
-}
+  return genres.slice((page - 1) * 2, page * 2);
+};
 
 const HomePage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const lastListRef = useRef(null)
-  const { ref, entry} = useIntersection({
-    root: lastListRef.current,
-    threshold: 1
-  })
+  var currentUser = localStorage.getItem("user_data");
+  var userData = JSON.parse(currentUser);
+  console.log(userData);
+  var fn = userData.firstname;
+  var ln = userData.lastname;
 
-  const { data, fetchNextPage, isFetchingNextPage} = useInfiniteQuery(
-    ['query'],
-    async ({ pageParam = 1} ) => {
-      const response = await fetchGenre(pageParam)
-      return response
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const lastListRef = useRef(null);
+  const { ref, entry } = useIntersection({
+    root: lastListRef.current,
+    threshold: 1,
+  });
+
+  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
+    ["query"],
+    async ({ pageParam = 1 }) => {
+      const response = await fetchGenre(pageParam);
+      return response;
     },
     {
       getNextPageParam: (_, pages) => {
-        return pages.length + 1
+        return pages.length + 1;
       },
       initialData: {
         pages: [genres.slice(0, 2)], // [[{genre}, {genre}], [{genre}, {genre}]]
-        pageParams: [1]
-      }
+        pageParams: [1],
+      },
     }
-  ) 
+  );
   useEffect(() => {
-    if (entry?.isIntersecting) {console.log("INTERSECTING"); fetchNextPage()}
-  }, [entry])
-  
-  const _genres = data?.pages.flatMap((page) => page)
+    if (entry?.isIntersecting) {
+      console.log("INTERSECTING");
+      fetchNextPage();
+    }
+  }, [entry]);
+
+  const _genres = data?.pages.flatMap((page) => page);
 
   return (
     <>
@@ -526,7 +537,7 @@ const HomePage = () => {
                         className="ml-4 text-sm font-semibold leading-6 text-gray-200"
                         aria-hidden="true"
                       >
-                        {/* {firstName + " " + lastName} */}
+                        {fn + " " + ln}
                       </span>
                       <ChevronDownIcon
                         className="ml-2 h-5 w-5 text-gray-400"
@@ -568,25 +579,54 @@ const HomePage = () => {
 
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
           <main className="xl:pl-96 ">
-            <div ref={lastListRef}  style={{ height: 'calc(100vh - 120px)' }} className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950">
+            <div
+              ref={lastListRef}
+              style={{ height: "calc(100vh - 120px)" }}
+              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+            >
               <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
                 {/* Main area */}
                 <HorizontalButtonList genres={genres}></HorizontalButtonList>
                 {/* Top 3 Games */}
-                <GridList games={files1} listTitle={"Top Games"} width={"8/12"} aspectHeight={8} aspectWidth={5} mdCols="3" smCols="3" lgCols="3"
+                <GridList
+                  games={files1}
+                  listTitle={"Top Games"}
+                  width={"8/12"}
+                  aspectHeight={8}
+                  aspectWidth={5}
+                  mdCols="3"
+                  smCols="3"
+                  lgCols="3"
                 ></GridList>
-                <GridList games={files3} width={"full"} aspectHeight={5} aspectWidth={8} mdCols="5" smCols="5" lgCols="5"
+                <GridList
+                  games={files3}
+                  width={"full"}
+                  aspectHeight={5}
+                  aspectWidth={8}
+                  mdCols="5"
+                  smCols="5"
+                  lgCols="5"
                 ></GridList>
                 {_genres?.map((genre, i) => {
-                    if (i === _genres.length - 1) {
-                      return(
-                        (<HorizontalGameList ref={ref} key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
-                      )
-                    }
-                    return (<HorizontalGameList key={genre.id} genre={genre} size={7}></HorizontalGameList>) 
-                  })
-                }
-                
+                  if (i === _genres.length - 1) {
+                    return (
+                      <HorizontalGameList
+                        ref={ref}
+                        key={genre.id}
+                        genre={genre}
+                        size={7}
+                      ></HorizontalGameList>
+                    );
+                  }
+                  return (
+                    <HorizontalGameList
+                      key={genre.id}
+                      genre={genre}
+                      size={7}
+                    ></HorizontalGameList>
+                  );
+                })}
+
                 {/* <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
                   {isFetchingNextPage
                     ? 'Loading more...'
