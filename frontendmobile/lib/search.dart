@@ -24,7 +24,7 @@ class SearchPage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 141, 141, 141), Colors.black],
+            colors: [Colors.black, Color.fromARGB(255, 105, 105, 105)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),

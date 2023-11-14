@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       bottomNavigationBar: BottomNavigationBar(
         elevation: 0,
-        backgroundColor: const Color(0x00ffffff),
+        backgroundColor: const Color(0x00000000).withOpacity(0.5),
 
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
