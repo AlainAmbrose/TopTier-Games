@@ -23,7 +23,7 @@ router.post("/api/setrating", async (req, res) =>
     let gameId = req.body.gameId;
     let ranking = req.body.ranking;
 
-    let rcard = await Ranking.findOne({UserId: userId, GameId: gameId});
+    let rcard = await Ranking.findOne({ UserId: userId, GameId: gameId });
 
     if (rcard === undefined) 
     {
@@ -44,7 +44,7 @@ router.post("/api/setreview", async (req, res) =>
     let gameId = req.body.gameId;
     let review = req.body.review;
 
-    let rcard = await Ranking.findOne({UserId: userId, GameId: gameId});
+    let rcard = await Ranking.findOne({ UserId: userId, GameId: gameId });
 
     if (rcard === undefined) 
     {

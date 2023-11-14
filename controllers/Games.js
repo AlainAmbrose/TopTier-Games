@@ -211,35 +211,34 @@ router.post("/api/getcover", (async (req, res) =>
 // Retrieves game info
 router.post("/api/getgameinfo", async (req, res) =>
 {
-    let gameId = req.body.gameId;
+    let gameIds = req.body.gameId;
 
-    let game = await Game.findOne({ IGDB_id: gameId });
-
-    if (game === null)
+    if (gameIds instanceof Array)
     {
-        return res.status(400).json({ message: "Error getting info." });
-    }
-    else
-    {
-        let gameInfo = {};
-        gameInfo.id = game.IGDB_id;
-        gameInfo.name = game.Name;
-        gameInfo.coverURL = game.CoverURL;
-        gameInfo.storyline = game.Summary;
-        gameInfo.releasedate = game.ReleaseDate;
-        gameInfo.genres = game.Genre;
+        let gameInfo = [];
 
-        gameInfo.gameranking = game.GameRanking;
-        gameInfo.images = game.Images;
-        gameInfo.links = game.Links;
+        for (let id of gameIds)
+        {
+            gameInfo.push(await functions.getGameFromDB(id));
+        }
 
-        gameInfo.platforms = game.Platforms;
-        gameInfo.platformlogos = game.PlatformLogos;
-        gameInfo.videos = game.Videos;
-        gameInfo.ageratings = game.AgeRating;
-        gameInfo.similargames = game.SimilarGames;
+        if (gameInfo.some(g => g === null))
+        {
+            return res.status(400).json({ message: "Game(s) not found." });
+        }
 
         return res.status(200).json(gameInfo);
+    }
+    else 
+    {
+        let gameInfo = await functions.getGameFromDB(gameIds);
+
+        if (gameInfo === null)
+        {
+            return res.status(400).json({ message: "Game not found." });
+        }
+
+        return res.status(200).json({ gameInfo });
     }
 });
 

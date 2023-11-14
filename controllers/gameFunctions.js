@@ -1,3 +1,5 @@
+
+const Game = require("../models/Game");
 module.exports = {
     getGame: async function (search)
     {
@@ -166,6 +168,38 @@ module.exports = {
 
         const json = await result.json();
         return json;
+    },
+
+    getGameFromDB: async function (gameId)
+    {
+        let game = await Game.findOne({ IGDB_id: gameId });
+
+        if (game === null)
+        {
+            return null;
+        }
+        else
+        {
+            let gameInfo = {};
+            gameInfo.id = game.IGDB_id;
+            gameInfo.name = game.Name;
+            gameInfo.coverURL = game.CoverURL;
+            gameInfo.storyline = game.Summary;
+            gameInfo.releasedate = game.ReleaseDate;
+            gameInfo.genres = game.Genre;
+
+            gameInfo.gameranking = game.GameRanking;
+            gameInfo.images = game.Images;
+            gameInfo.links = game.Links;
+
+            gameInfo.platforms = game.Platforms;
+            gameInfo.platformlogos = game.PlatformLogos;
+            gameInfo.videos = game.Videos;
+            gameInfo.ageratings = game.AgeRating;
+            gameInfo.similargames = game.SimilarGames;
+
+            return gameInfo;
+        }
     },
 
     updateCoverURL: function (coverURL, size)
