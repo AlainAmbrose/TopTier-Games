@@ -10,11 +10,35 @@ class LoginScreen extends StatelessWidget {
     final TextEditingController _passwordController = TextEditingController();
     bool loginResult = false;
 
-  LoginScreen({super.key});
+    LoginScreen({super.key});
+
+    String _validateTextField(String value) {
+      if (value.isEmpty) {
+        return 'ERROR';
+      }
+      return '';
+    }
 
     void _handleLogin(BuildContext context) async {
         String login = _loginController.text;
         String password = _passwordController.text;
+
+        String passwordError = _validateTextField(password);
+        String loginError = _validateTextField(login);
+
+        if (loginError != '' ||
+            passwordError != '') {
+
+          Fluttertoast.showToast(msg: "Please fill in all fields.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
+              fontSize: 16.0);
+
+          return;
+        }
+
         final data = {
             'login': login,
             'password': password,

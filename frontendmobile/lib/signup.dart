@@ -13,7 +13,14 @@ class SignupScreen extends StatelessWidget {
     final TextEditingController _lastnameController = TextEditingController();
     bool loginResult = true;
 
-  SignupScreen({super.key});
+    SignupScreen({super.key});
+
+    String _validateTextField(String value) {
+      if (value.isEmpty) {
+        return 'ERROR';
+      }
+      return '';
+    }
 
     void _handleSignup(BuildContext context) async {
         String email = _emailController.text;
@@ -21,6 +28,28 @@ class SignupScreen extends StatelessWidget {
         String login = _loginController.text;
         String firstname = _firstnameController.text;
         String lastname = _lastnameController.text;
+
+        String emailError = _validateTextField(email);
+        String passwordError = _validateTextField(password);
+        String loginError = _validateTextField(login);
+        String firstnameError = _validateTextField(firstname);
+        String lastnameError = _validateTextField(lastname);
+
+        if (emailError != '' ||
+            passwordError != '' ||
+            loginError != '' ||
+            firstnameError != '' ||
+            lastnameError != '') {
+            
+          Fluttertoast.showToast(msg: "Please fill in all fields.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
+          fontSize: 16.0);
+
+          return;
+          }
 
         final data = {
         'email': email,
