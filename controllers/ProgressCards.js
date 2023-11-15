@@ -1,5 +1,4 @@
 var express = require("express");
-var router = express.Router();
 
 require('dotenv').config();
 
@@ -18,7 +17,7 @@ function buildPath(route)
     }
 }
 
-router.post("/api/addusergame", async (req, res) =>
+const addUserGame = async (req, res) =>
 {
     const newPCard = new Progress();
     newPCard.UserId = req.body.userId;
@@ -37,9 +36,9 @@ router.post("/api/addusergame", async (req, res) =>
     await newRCard.save();
 
     return res.status(200).json({ id: 1, message: "User game added successfully." });
-});
+};
 
-router.post("/api/getusergame", async (req, res) =>
+const getUserGame = async (req, res) =>
 {
     let userId = req.body.userId;
     let pcard = await Progress.find({ UserId: userId });
@@ -54,7 +53,7 @@ router.post("/api/getusergame", async (req, res) =>
     }
     else
     {
-        let len = pcard.lengthl
+        let len = pcard.length;
 
         for (let i = 0; i < len; i++)
         {
@@ -67,14 +66,14 @@ router.post("/api/getusergame", async (req, res) =>
             obj.Ranking = rcard[i].Ranking;
             obj.Review = rcard[i].Review;
 
-            objects.push(obj)
+            objects.push(obj);
         }
 
         return res.status(200).json({ games: objects, message: "Games found." });
     }
-});
+};
 
-router.post("/api/deleteusergame", async (req, res) =>
+const deleteUserGame = async (req, res) =>
 {
     let userId = req.body.userId;
     let gameId = req.body.gameId;
@@ -103,5 +102,10 @@ router.post("/api/deleteusergame", async (req, res) =>
             return res.status(400).json({ id: -1, message: "User game deleted unsuccessfully. Please try again." });
         }
     }
-});
-module.exports = router;
+};
+module.exports =
+{
+    addUserGame,
+    getUserGame,
+    deleteUserGame
+};

@@ -1,25 +1,25 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const jwt = require('jsonwebtoken');
+
+require('dotenv').config();
 
 const User = require("../models/User");
 
-
-const app_name = "poosd-large-project-group-8-1502fa002270";
-function buildPath(route)
+function secure()
 {
     if (process.env.NODE_ENV === 'production')
     {
-        return 'https://' + app_name + '.herokuapp.com/' + route;
+        return true;
     }
     else
     {
-        return 'http://localhost:3000/' + route;
+        return false;
     }
 }
 
 
 // Sign up for users
-router.post("/api/signup", (async (req, res) =>
+const signUp = async (req, res) =>
 {
     // email verification and password strength check
 
@@ -35,32 +35,51 @@ router.post("/api/signup", (async (req, res) =>
     await newUser.save();
 
     return res.status(200).json({ id: newUser._id, message: "User created successfully." });
-}));
+};
 
-router.post("/api/login", async (req, res) =>
+const login = async (req, res) =>
 {
     let user = await User.findOne({ Login: req.body.login });
 
     if (user === null)
     {
-        return res.status(400).json({ id: -1, message: "User not found", });
+        return res.sendStatus(403);
     }
     else
     {
         if (await user.validatePassword(req.body.password))
         {
+            const accessToken = jwt.sign(
+                { 'login': user.Login },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: '5m' });
+
+            const refreshToken = jwt.sign(
+                { 'login': user.Login },
+                process.env.REFRESH_TOKEN_SECRET,
+                { expiresIn: '15m' });
+
             user.DateLastLoggedIn = new Date();
+            user.RefreshToken = refreshToken;
             await user.save();
 
-            return res.status(200).json({ id: user._id, message: "User Successfully Logged In", });
+            if (secure())
+            {
+                res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 1 * 60 * 60 * 1000 });
+            }
+            else
+            {
+                res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 1 * 60 * 60 * 1000 });
+            }
+            return res.status(200).json({ accessToken, });
         } else
         {
-            return res.status(400).json({ id: -1, message: "Incorrect Password", });
+            return res.status(401);
         }
     }
-});
+};
 
-router.post("/api/getuser", async (req, res) =>
+const getUser = async (req, res) =>
 {
     let user = await User.findOne({ _id: req.body.id });
 
@@ -76,16 +95,16 @@ router.post("/api/getuser", async (req, res) =>
     else
     {
         return res.status(200).json({
-            idd: user._id,
+            id: user._id,
             firstname: user.FirstName,
             lastname: user.LastName,
             message: "User Successful",
         });
     }
-});
+};
 
 
-router.post("/api/updateuser", async (req, res) =>
+const updateUser = async (req, res) =>
 {
     let newLogin = req.body.login;
     let newPassword = req.body.password;
@@ -131,9 +150,9 @@ router.post("/api/updateuser", async (req, res) =>
         await user.save();
         return res.status(200).json({ id: 1, message: "User updated successfully.", });
     }
-});
+};
 
-router.post("/api/deleteuser", async (req, res) =>
+const deleteUser = async (req, res) =>
 {
     let userId = req.body.userId;
     let user = await User.findOne({ _id: userId });
@@ -155,6 +174,51 @@ router.post("/api/deleteuser", async (req, res) =>
         }
     }
 
-});
+};
 
-module.exports = router;
+const logout = async (req, res) =>
+{
+    let cookies = req.cookies;
+
+    if (!cookies?.jwt) return res.sendStatus(401);
+
+    const refreshToken = cookies.jwt;
+    let user = await User.findOne({ RefreshToken: refreshToken });
+
+    if (!user)
+    {
+        if (secure())
+        {
+            res.clearCookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
+        }
+        else
+        {
+            res.clearCookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+        }
+        return res.sendStatus(200);
+    }
+
+    user.RefreshToken = '';
+    await user.save();
+
+    if (secure())
+    {
+        res.clearCookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 });
+    }
+    else
+    {
+        res.clearCookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+    }
+
+    return res.sendStatus(200);
+};
+
+module.exports =
+{
+    signUp,
+    login,
+    updateUser,
+    getUser,
+    deleteUser,
+    logout
+};

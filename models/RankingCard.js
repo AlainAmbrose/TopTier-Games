@@ -13,7 +13,7 @@ const RankingSchema = mongoose.Schema({
         type: mongoose.Schema.Types.Decimal128,
     },
     Review: {
-        type: Date,
+        type: String,
     },
     ReviewDate: {
         type: Date,

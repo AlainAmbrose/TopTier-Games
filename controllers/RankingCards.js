@@ -1,5 +1,4 @@
 var express = require("express");
-var router = express.Router();
 
 require('dotenv').config();
 
@@ -17,7 +16,7 @@ function buildPath(route)
     }
 }
 
-router.post("/api/setrating", async (req, res) =>
+const setRanking = async (req, res) =>
 {
     let userId = req.body.userId;
     let gameId = req.body.gameId;
@@ -36,9 +35,9 @@ router.post("/api/setrating", async (req, res) =>
 
         return res.status(200).json({ id: 1, message: "Game rating successful" });
     }
-});
+};
 
-router.post("/api/setreview", async (req, res) =>
+const setReview = async (req, res) =>
 {
     let userId = req.body.userId;
     let gameId = req.body.gameId;
@@ -58,6 +57,10 @@ router.post("/api/setreview", async (req, res) =>
 
         return res.status(200).json({ id: 1, message: "Game review successful" });
     }
-});
+};
 
-module.exports = router;
+module.exports =
+{
+    setRanking,
+    setReview
+};

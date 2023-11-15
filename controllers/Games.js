@@ -1,5 +1,4 @@
 var express = require("express");
-var router = express.Router();
 var functions = require('./gameFunctions');
 
 require('dotenv').config();
@@ -19,7 +18,7 @@ function buildPath(route)
 }
 
 // Add game to database
-router.post("/api/insertgame", (async (req, res) =>
+const insertGame = async (req, res) =>
 {
     let gameToInsert = req.body.gameToInsert;
     let gameId = req.body.gameId;
@@ -81,11 +80,10 @@ router.post("/api/insertgame", (async (req, res) =>
     {
         return res.status(400).json({ id: -1, message: 'Bad Entry' });
     });
-})
-);
+};
 
 // Search game in database
-router.post("/api/searchgame", (async (req, res) =>
+const searchGame = async (req, res) =>
 {
     let search = req.body.search;
     let pattern = `${search}`;
@@ -99,11 +97,10 @@ router.post("/api/searchgame", (async (req, res) =>
     {
         return res.status(200).json({ games: games, message: "Games Found" });
     }
-})
-);
+};
 
 // Populate names and covers for homepage by genre
-router.post("/api/populatehomepage", (async (req, res) =>
+const populateHomePage = async (req, res) =>
 {
     let genre = req.body.genre;
     let limit = req.body.limit;
@@ -151,6 +148,7 @@ router.post("/api/populatehomepage", (async (req, res) =>
                     {
                         method: 'POST',
                         body: js,
+                        credentials: 'include',
                         headers: { "Content-Type": "application/json" },
                     });
 
@@ -175,11 +173,10 @@ router.post("/api/populatehomepage", (async (req, res) =>
     {
         return res.status(400).json({ message: err, });
     });
-})
-);
+};
 
 // Gets the url for game cover
-router.post("/api/getcover", (async (req, res) => 
+const getCover = async (req, res) => 
 {
     let id = req.body.id;
     let size = {
@@ -205,11 +202,10 @@ router.post("/api/getcover", (async (req, res) =>
         let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
         return res.status(200).json({ image: newURL });
     }
-})
-);
+};
 
 // Retrieves game info
-router.post("/api/getgameinfo", async (req, res) =>
+const getGameInfo = async (req, res) =>
 {
     let gameIds = req.body.gameId;
 
@@ -240,6 +236,13 @@ router.post("/api/getgameinfo", async (req, res) =>
 
         return res.status(200).json({ gameInfo });
     }
-});
+};
 
-module.exports = router;
+module.exports =
+{
+    insertGame,
+    populateHomePage,
+    searchGame,
+    getCover,
+    getGameInfo
+};
