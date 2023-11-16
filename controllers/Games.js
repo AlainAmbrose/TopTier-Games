@@ -137,7 +137,7 @@ router.post("/api/populatehomepage", async (req, res) => {
     .catch((err) => {
       return res
         .status(400)
-        .json({ message: "Error in populateHompage endpoint" });
+        .json({ message: err});
     });
 });
 

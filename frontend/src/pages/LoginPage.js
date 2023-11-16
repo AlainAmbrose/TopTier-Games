@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginPage = () => {
   var loginName;
@@ -12,6 +14,21 @@ const LoginPage = () => {
       return "http://localhost:5001/" + route;
     }
   }
+
+  const showToast = () => {
+    toast.info("Login Unsuccessful: Username or Password Incorrect", {
+      autoClose: 3000,
+      position: "bottom-center",
+      className: "custom-toast",
+      hideProgressBar: true,
+      icon: false,
+      style: {
+        background: "red",
+        color: "white",
+        fontSize: "15px",
+      },
+    });
+  };
 
   const [message, setMessage] = useState("");
   const initLogin = async (event) => {
@@ -29,6 +46,7 @@ const LoginPage = () => {
       var res = JSON.parse(await response.text());
       if (res.id <= 0) {
         setMessage(res.message);
+        showToast();
       } else {
         var user = {
           id: res.id,
@@ -114,6 +132,7 @@ const LoginPage = () => {
           >
             Sign in
           </button>
+          <ToastContainer />
         </div>
       </form>
     </div>

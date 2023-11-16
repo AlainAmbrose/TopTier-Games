@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SignUpPage = () => {
   var firstname;
@@ -17,8 +19,25 @@ const SignUpPage = () => {
   }
 
   const [message, setMessage] = useState("");
+
+  const showToast = (missingValue) => {
+    toast.info("Sign Up Unsuccessful: " + missingValue + " is Missing", {
+      autoClose: 3000,
+      position: "bottom-center",
+      className: "custom-toast",
+      hideProgressBar: true,
+      icon: false,
+      style: {
+        background: "red",
+        color: "white",
+        fontSize: "15px",
+      },
+    });
+  };
+
   const initSignUp = async (event) => {
     event.preventDefault();
+    let allFieldsFilled = true;
 
     var obj = {
       firstname: firstname.value,
@@ -27,29 +46,43 @@ const SignUpPage = () => {
       password: password.value,
       email: email.value,
     };
-    var js = JSON.stringify(obj);
 
-    try {
-      const response = await fetch(buildPath("Users/api/signup"), {
-        method: "POST",
-        body: js,
-        headers: { "Content-Type": "application/json" },
-      });
-      var res = JSON.parse(await response.text());
-      if (res.message === "User created successfully.") {
-        var user = {
-          id: res.id,
-          firstname: res.firstname,
-          lastname: res.lastname,
-        };
-        localStorage.setItem("user_data", user);
-        setMessage(res.message);
-        console.log(message);
-        window.location.href = "/home";
+    const keys = Object.keys(obj);
+
+    for (let i = 0; i < keys.length; i++) {
+      if (obj[keys[i]] === "") {
+        allFieldsFilled = false;
+        // setMissingValue(keys[i]);
+        showToast(keys[i]);
+        break;
       }
-    } catch (e) {
-      alert(e.toString());
-      return;
+    }
+
+    if (allFieldsFilled) {
+      var js = JSON.stringify(obj);
+      try {
+        const response = await fetch(buildPath("Users/api/signup"), {
+          method: "POST",
+          body: js,
+          headers: { "Content-Type": "application/json" },
+        });
+        var res = JSON.parse(await response.text());
+        if (res.message === "User created successfully.") {
+          var user = {
+            id: res.id,
+            firstname: res.firstname,
+            lastname: res.lastname,
+          };
+          localStorage.setItem("user_data", user);
+          setMessage(res.message);
+          console.log(message);
+          window.location.href = "/home";
+        } else {
+        }
+      } catch (e) {
+        alert(e.toString());
+        return;
+      }
     }
   };
 
@@ -156,6 +189,7 @@ const SignUpPage = () => {
           </button>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 };
