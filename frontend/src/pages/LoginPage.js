@@ -17,7 +17,7 @@ const LoginPage = () =>
   var loginName;
   var loginPassword;
 
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(null);
 
   const initLogin = async (event) =>
   {
@@ -36,17 +36,16 @@ const LoginPage = () =>
         }
       );
       var res = JSON.parse(await response.text());
-      if (res.id <= 0)
+      if (res.status === 401 || res.status === 403)
       {
-        setMessage(res.message);
+        setMessage(res.status);
       } else
       {
         var user = {
-          id: res.id,
+          accessToken: res.accessToken,
         };
         localStorage.setItem("user_data", JSON.stringify(user));
-        setMessage(res.message);
-        console.log(message);
+        setMessage(res.status);
         window.location.href = "/home";
       }
     } catch (e)

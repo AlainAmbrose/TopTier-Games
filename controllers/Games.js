@@ -143,22 +143,24 @@ const populateHomePage = async (req, res) =>
 
             if (game === null)
             {
-                let js = JSON.stringify({ gameId: obj.id });
+                const at = req.headers['authorization'].split(' ')[1];
+                let js = JSON.stringify({gameId: obj.id});
                 let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,
                         credentials: 'include',
-                        headers: { "Content-Type": "application/json" },
+                        headers: { "Content-Type": "application/json",
+                        'authorization':`Bearer ${at}` },
                     });
 
                 let result = JSON.parse(await response.text());
-                if (result.id < 0)
+                if (result.status === 401)
                 {
-                    return result.message;
+                    return result.status;
                 }
             }
-        });
+         });
 
 
         for (let i = 0; i < data.length; i++)

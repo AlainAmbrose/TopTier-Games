@@ -52,12 +52,12 @@ const login = async (req, res) =>
             const accessToken = jwt.sign(
                 { 'login': user.Login },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: '5m' });
+                { expiresIn: '1m' });
 
             const refreshToken = jwt.sign(
                 { 'login': user.Login },
                 process.env.REFRESH_TOKEN_SECRET,
-                { expiresIn: '15m' });
+                { expiresIn: '10m' });
 
             user.DateLastLoggedIn = new Date();
             user.RefreshToken = refreshToken;
@@ -65,11 +65,11 @@ const login = async (req, res) =>
 
             if (secure())
             {
-                res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, maxAge: 1 * 60 * 60 * 1000 });
+                res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 1 * 60 * 60 * 1000 });
             }
             else
             {
-                res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 1 * 60 * 60 * 1000 });
+                res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'strict',maxAge: 1 * 60 * 60 * 1000 });
             }
             return res.status(200).json({ accessToken, });
         } else

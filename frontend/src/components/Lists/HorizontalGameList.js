@@ -22,9 +22,10 @@ const HorizontalGameList = forwardRef(({ genre, size }, ref) =>
 
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);
-  var userId = ud.id;
-  var firstName = ud.firstName;
-  var lastName = ud.lastName;
+  // var userId = ud.id;
+  // var firstName = ud.firstName;
+  // var lastName = ud.lastName;
+  var userAT = ud.accessToken;
 
   const app_name = "poosd-large-project-group-8-1502fa002270";
   function buildPath(route)
@@ -53,8 +54,10 @@ const HorizontalGameList = forwardRef(({ genre, size }, ref) =>
           body: js,
           headers: {
             'Content-Type':
-              'application/json'
-          }
+              'application/json',
+            'authorization':`Bearer ${userAT}`
+          },
+          accessToken: userAT,
         });
 
         // var txt = await response.text();
