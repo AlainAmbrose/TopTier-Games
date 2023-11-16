@@ -21,16 +21,40 @@ class SearchPage extends StatelessWidget {
         ),
         backgroundColor: Colors.black,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.black, Color.fromARGB(255, 105, 105, 105)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: Stack(
+        children: [
+          Center(
+          child: Stack(
+          alignment: Alignment.center,
+          children: [
+          Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.black, Color.fromARGB(255, 105, 105, 105)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
           ),
-        ),
-      ),
-    );
+        )),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Search',
+                labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20),
+                borderSide: const BorderSide(width: 3, color: Colors.black)),
+                filled: true,
+                fillColor: Colors.grey,
+                prefixIcon: const Icon(Icons.search, color: Colors.white, size: 30),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10)
 
+              ),
+              style: const TextStyle(color: Colors.white),
+            )
+      ]
+      )
+          )
+        ]
+      )
+    );
   }
 }
