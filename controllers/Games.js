@@ -147,9 +147,6 @@ router.post("/api/populatehomepage", (async (req, res) =>
             let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
             objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
         }
-        if (topGamesFlag !== undefined) {
-            console.log("Objects:", objects);
-        }
 
         return res.status(200).json({ result: objects, });
     }).catch(err =>
@@ -192,6 +189,7 @@ router.post("/api/getcover", (async (req, res) =>
 router.post("/api/getgameinfo", async (req, res) =>
 {
     let gameId = req.body.gameId;
+    console.log("Getting game info for gameId: ", gameId);
 
     await functions.getGameInfo(gameId).then(async data =>
     {
@@ -215,6 +213,7 @@ router.post("/api/getgameinfo", async (req, res) =>
 
         gameInfo.similarGames = game.similar_games;
 
+        console.log("Game info: ", gameInfo);
         return res.status(200).json({ gameInfo, });
     }).catch(err =>
     {

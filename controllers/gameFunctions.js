@@ -38,6 +38,7 @@ module.exports = {
 
     getGameInfo: async function (gameId)
     {
+        try {
         let result = await fetch("https://api.igdb.com/v4/games",
             {
                 method: 'POST',
@@ -52,6 +53,11 @@ module.exports = {
 
         const json = await result.json();
         return json;
+
+        } catch (err) {
+            console.error("Error in @getGameInfo: ", err);
+        }
+  
     },
 
     getGameRatingOutOf5: function (rating)
