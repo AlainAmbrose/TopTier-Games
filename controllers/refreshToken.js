@@ -42,7 +42,7 @@ const refreshToken = async (req, res) =>
                 { expiresIn: '5m' }
             );
 
-            res.status(200).json(accessToken);
+            res.status(200).json({accessToken});
         }
     );
 };

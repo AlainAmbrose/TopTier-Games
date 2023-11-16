@@ -1,4 +1,3 @@
-const express = require("express");
 const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
@@ -47,6 +46,7 @@ const login = async (req, res) =>
     }
     else
     {
+        
         if (await user.validatePassword(req.body.password))
         {
             const accessToken = jwt.sign(
@@ -74,7 +74,7 @@ const login = async (req, res) =>
             return res.status(200).json({ accessToken, });
         } else
         {
-            return res.status(401);
+            return res.sendStatus(401);
         }
     }
 };

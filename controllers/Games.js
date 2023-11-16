@@ -209,13 +209,74 @@ const getGameInfo = async (req, res) =>
 {
     let gameIds = req.body.gameId;
 
+    let options = req.body.options;
+
+    let opts = {};
+
+    if (options.name !== undefined && options.name === true)
+    {
+        opts.Name = 1;
+    }
+    if (options.cover !== undefined && options.cover === true)
+    {
+        opts.CoverURL = 1;
+
+    }
+    if (options.summary !== undefined && options.summary === true)
+    {
+        opts.Summary = 1;
+    }
+    if (options.releaseDate !== undefined && options.releaseDate === true)
+    {
+        opts.ReleaseDate = 1;
+    }
+    if (options.ranking !== undefined && options.ranking === true)
+    {
+        opts.GameRanking = 1;
+    }
+    else if (options.genre !== undefined && options.genre === true)
+    {
+        opts.Genre = 1;
+        
+    }
+    if (options.images !== undefined && options.images === true)
+    {
+        opts.Images = 1;
+        
+    }
+    if (options.links !== undefined && options.links === true)
+    {
+        opts.Links = 1;
+    }
+    if (options.platforms !== undefined && options.platforms === true)
+    {
+        opts.Platforms = 1;
+    }
+    if (options.platformLogos !== undefined && options.platformLogos === true)
+    {
+        opts.PlatformLogos = 1;
+    }
+    if (options.videos !== undefined && options.videos === true)
+    {
+        opts.Videos = 1;
+    }
+    if (options.similarGames !== undefined && options.similarGames === true)
+    {
+        opts.SimilarGames = 1;
+    }
+    if (options.ageRating !== undefined && options.ageRating === true)
+    {
+        opts.AgeRating = 1;
+    }
+
+
     if (gameIds instanceof Array)
     {
         let gameInfo = [];
 
         for (let id of gameIds)
         {
-            gameInfo.push(await functions.getGameFromDB(id));
+            gameInfo.push(await functions.getGameFromDB(id, opts));
         }
 
         if (gameInfo.some(g => g === null))
@@ -227,7 +288,7 @@ const getGameInfo = async (req, res) =>
     }
     else 
     {
-        let gameInfo = await functions.getGameFromDB(gameIds);
+        let gameInfo = await functions.getGameFromDB(gameIds, opts);
 
         if (gameInfo === null)
         {

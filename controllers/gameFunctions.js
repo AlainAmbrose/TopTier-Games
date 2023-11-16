@@ -170,9 +170,9 @@ module.exports = {
         return json;
     },
 
-    getGameFromDB: async function (gameId)
+    getGameFromDB: async function (gameId, opts)
     {
-        let game = await Game.findOne({ IGDB_id: gameId });
+        let game = await Game.findOne({ IGDB_id: gameId }).select(opts);
 
         if (game === null)
         {
