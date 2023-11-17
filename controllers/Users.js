@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const User = require("../models/User");
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const crypto = require("crypto");
+var authCode;
 
 function secure()
 {
@@ -40,6 +44,52 @@ const signUp = async (req, res) =>
         message: "User Successfully Created",
      });
 };
+
+const sendAuthEmail = async (req, res) =>
+{
+    authCode = crypto.randomBytes(10).toString('hex');
+    const newUser = new User();
+    newUser.FirstName = req.body.firstname;
+    newUser.LastName = req.body.lastname;
+    newUser.Email = req.body.email;
+
+    const msg = {
+        to: req.body.email,
+        from: 'TopTierGames.ucf@gmail.com',
+        subject: 'Verify your email with TopTier Games!',
+        text: 'Hello ' + req.body.firstname + ',\nCopy the verification code below to verify your email with TopTier Games:\n\n' + authCode,
+      }
+      sgMail
+        .send(msg)
+        .then(() =>
+        {
+          console.log('Email sent')
+          return res.status(200).json({
+            message: "Email Sent Successfully"
+          });
+        })
+        .catch((error) =>
+        {
+          console.error(error)
+          return res.status(400).json({
+            message: "Error Sending Email"
+          });
+        })
+};
+
+const verifyAuthCode = async (req, res) =>
+{
+    if (req.body.authCode == authCode) {
+        return res.status(200).json({
+            message: "Email Verified Successfully"
+        });
+    }
+    else {
+        return res.status(400).json({
+            message: "Incorrect Authorization Code"
+        });
+    }
+}
 
 const login = async (req, res) =>
 {
@@ -216,6 +266,8 @@ const logout = async (req, res) =>
 module.exports =
 {
     signUp,
+    sendAuthEmail,
+    verifyAuthCode,
     login,
     updateUser,
     getUser,
