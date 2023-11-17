@@ -17,6 +17,10 @@ const ProgressSchema = mongoose.Schema({
         type: Date,
         required: true,
     },
+    DateAdded: {
+        type: Date,
+        required: true,
+    },
     Status: {
         type: Number,
         required: true,
