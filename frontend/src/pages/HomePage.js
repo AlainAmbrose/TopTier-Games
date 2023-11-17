@@ -26,7 +26,8 @@ const navigation = [
 ];
 const userNavigation = [
   { name: "Your profile", href: "#" },
-  { name: "Sign out", href: "#" },
+  { name: "Your Library", href: "/library" },
+  { name: "Sign out", href: "/" },
 ];
 
 function classNames(...classes) {
@@ -411,6 +412,12 @@ async function fetchTopGames() {
 
 
 const HomePage = () => {
+  var currentUser = localStorage.getItem("user_data");
+  var userData = JSON.parse(currentUser);
+  console.log(userData);
+  var fn = userData.firstname;
+  var ln = userData.lastname;
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const lastListRef = useRef(null)
   const { ref, entry} = useIntersection({
@@ -428,7 +435,7 @@ const HomePage = () => {
     },
     {
       getNextPageParam: (_, pages) => {
-        return pages.length + 1
+        return pages.length + 1;
       },
       refetchOnWindowFocus: false,
     }
@@ -636,7 +643,7 @@ const HomePage = () => {
                         className="ml-4 text-sm font-semibold leading-6 text-gray-200"
                         aria-hidden="true"
                       >
-                        {/* {firstName + " " + lastName} */}
+                        {fn + " " + ln}
                       </span>
                       <ChevronDownIcon
                         className="ml-2 h-5 w-5 text-gray-400"
@@ -678,7 +685,11 @@ const HomePage = () => {
 
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
           <main className="xl:pl-96 ">
-            <div ref={lastListRef}  style={{ height: 'calc(100vh - 120px)' }} className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950">
+            <div
+              ref={lastListRef}
+              style={{ height: "calc(100vh - 120px)" }}
+              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+            >
               <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
                 {/* Main area */}
                 <HorizontalButtonList genres={genres}></HorizontalButtonList>

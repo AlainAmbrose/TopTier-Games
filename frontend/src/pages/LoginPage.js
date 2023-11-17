@@ -1,8 +1,34 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginPage = () => {
   var loginName;
   var loginPassword;
+
+  const app_name = "poosd-large-project-group-8-1502fa002270";
+  function buildPath(route) {
+    if (process.env.NODE_ENV === "production") {
+      return "https://" + app_name + ".herokuapp.com/" + route;
+    } else {
+      return "http://localhost:3001/" + route;
+    }
+  }
+
+  const showToast = () => {
+    toast.info("Login Unsuccessful: Username or Password Incorrect", {
+      autoClose: 3000,
+      position: "bottom-center",
+      className: "custom-toast",
+      hideProgressBar: true,
+      icon: false,
+      style: {
+        background: "red",
+        color: "white",
+        fontSize: "15px",
+      },
+    });
+  };
 
   const [message, setMessage] = useState("");
   const initLogin = async (event) => {
@@ -12,24 +38,26 @@ const LoginPage = () => {
     var js = JSON.stringify(obj);
 
     try {
-      const response = await fetch(
-        "https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/login",
-        {
-          method: "POST",
-          body: js,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch(buildPath("Users/api/login"), {
+        method: "POST",
+        body: js,
+        headers: { "Content-Type": "application/json" },
+      });
       var res = JSON.parse(await response.text());
       if (res.id <= 0) {
         setMessage(res.message);
+        showToast();
       } else {
         var user = {
           id: res.id,
+          firstname: res.firstname,
+          lastname: res.lastname,
         };
+        console.log(user.lastname);
         localStorage.setItem("user_data", JSON.stringify(user));
         setMessage(res.message);
         console.log(message);
+
         window.location.href = "/home";
       }
     } catch (e) {
@@ -104,6 +132,7 @@ const LoginPage = () => {
           >
             Sign in
           </button>
+          <ToastContainer />
         </div>
       </form>
     </div>

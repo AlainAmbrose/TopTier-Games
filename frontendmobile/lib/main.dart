@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'signup.dart';
+import 'gradient.dart';
 
 // void main() {
 //   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -47,6 +48,18 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
           ),
           Container(
             color: Colors.black.withOpacity(0.5),
+          ),
+          ClipPath(
+            clipper: GradientClipper(),
+            child: Container(
+              decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.white, Colors.transparent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  )
+              ),
+            ),
           ),
           Column(
           mainAxisAlignment: MainAxisAlignment.center,

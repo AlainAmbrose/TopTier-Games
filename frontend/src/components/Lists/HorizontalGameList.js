@@ -1,8 +1,8 @@
-import React from 'react'
-import { useState, useEffect, useRef, forwardRef } from 'react';
-import PropTypes from 'prop-types';
-import ScrollCard from '../Cards/ScrollCard';
-import { MdArrowBackIosNew, MdArrowForwardIos} from 'react-icons/md'
+import React from "react";
+import { useState, useEffect, useRef, forwardRef } from "react";
+import PropTypes from "prop-types";
+import ScrollCard from "../Cards/ScrollCard";
+import { MdArrowBackIosNew, MdArrowForwardIos } from "react-icons/md";
 
 
 const HorizontalGameList = forwardRef((
@@ -44,24 +44,29 @@ const HorizontalGameList = forwardRef((
     calculateScrollStep();
 
     // Re-calculate on window resize
-    window.addEventListener('resize', calculateScrollStep);
+    window.addEventListener("resize", calculateScrollStep);
 
     // Clean up the event listener on component unmount
     return () => {
-      window.removeEventListener('resize', calculateScrollStep);
+      window.removeEventListener("resize", calculateScrollStep);
     };
   }, []); // Empty dependency array means this useEffect runs once when the component mounts and not on every re-render
 
-
   const scrollToLeft = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({
+        left: -scrollStep,
+        behavior: "smooth",
+      });
     }
   };
 
   const scrollToRight = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: scrollStep, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({
+        left: scrollStep,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -84,14 +89,14 @@ const HorizontalGameList = forwardRef((
     };
 
     // Adding the event listener
-    scrollContainer.addEventListener('scroll', handleScroll);
+    scrollContainer.addEventListener("scroll", handleScroll);
 
     // Initial check in case the component is not at the start
     handleScroll();
 
     // Clean up event listener on component unmount
     return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
+      scrollContainer.removeEventListener("scroll", handleScroll);
     };
   }, []); // Dependency array can be empty if nothing inside the effect needs to be referenced
 
@@ -119,7 +124,11 @@ const HorizontalGameList = forwardRef((
           </div>
         </div>
         {/* Scroll container with overlay gradients */}
-        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="relative overflow-hidden">
+        <div
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          className="relative overflow-hidden"
+        >
           {" "}
           {/* Container to hold the list and overlays */}
           <ul
@@ -146,25 +155,35 @@ const HorizontalGameList = forwardRef((
           {/* <div className="absolute top-0 left-0 bottom-0 w-3 pointer-events-none bg-gradient-to-r from-black to-transparent"></div>
           <div className="absolute top-0 right-0 bottom-0 w-3 pointer-events-none bg-gradient-to-l from-black to-transparent"></div> */}
           {showLeftButton && (
-            <button 
-              className="absolute top-0 left-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-r from-black to-transparent" 
+            <button
+              className="absolute top-0 left-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-r from-black to-transparent"
               onClick={scrollToLeft}
               style={{ backdropFilter: "blur(2px)" }} // Optional: for glassmorphism effect
             >
               {/* Optionally, insert an icon or <span> here for the button's appearance, e.g., a "<" character or arrow icon */}
-              {isHovering && (<MdArrowBackIosNew className='text-white h-full transform transition-transform duration-300
-    ease-in-out group hover:scale-150' size={32} ></MdArrowBackIosNew>)}
+              {isHovering && (
+                <MdArrowBackIosNew
+                  className="text-white h-full transform transition-transform duration-300
+    ease-in-out group hover:scale-150"
+                  size={32}
+                ></MdArrowBackIosNew>
+              )}
             </button>
           )}
           {showRightButton && (
-            <button 
-              className="absolute top-0 right-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-l from-black to-transparent" 
+            <button
+              className="absolute top-0 right-0 bottom-0 w-10 z-10 pb-10 bg-gradient-to-l from-black to-transparent"
               onClick={scrollToRight}
               style={{ backdropFilter: "blur(2px)" }} // Optional: for glassmorphism effect
             >
               {/* Optionally, insert an icon or <span> here for the button's appearance, e.g., a ">" character or arrow icon */}
-              {isHovering && (<MdArrowForwardIos className='text-white mb-28  h-full transform transition-transform duration-300
-    ease-in-out group hover:scale-150' size={32}></MdArrowForwardIos>)}
+              {isHovering && (
+                <MdArrowForwardIos
+                  className="text-white mb-28  h-full transform transition-transform duration-300
+    ease-in-out group hover:scale-150"
+                  size={32}
+                ></MdArrowForwardIos>
+              )}
             </button>
           )}
         </div>
@@ -194,3 +213,5 @@ HorizontalGameList.defaultProps = {
 };
 
 export default HorizontalGameList;
+
+

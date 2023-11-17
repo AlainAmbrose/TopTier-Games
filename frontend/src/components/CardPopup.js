@@ -179,9 +179,9 @@ const CardPopup = ({
                             <div className="mt-6">
                               <h4 className="sr-only">Game Description</h4>
 
-                              <p className="text-base text-gray-200">
+                              {/* <p className="text-base text-gray-200"> */}
                                 {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.summary !== undefined) && <LongText content={gameInfo.summary} limit={150}></LongText> }
-                              </p>
+                              {/* </p> */}
                             </div>
                           </section>
 
