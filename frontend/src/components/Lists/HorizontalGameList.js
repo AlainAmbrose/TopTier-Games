@@ -52,12 +52,10 @@ const HorizontalGameList = forwardRef(({ genre, size }, ref) =>
         const response = await fetch(buildPath("Games/api/populatehomepage"), {
           method: 'POST',
           body: js,
+          credentials: 'include',
           headers: {
-            'Content-Type':
-              'application/json',
-            'authorization':`Bearer ${userAT}`
+            'Content-Type': 'application/json',
           },
-          accessToken: userAT,
         });
 
         // var txt = await response.text();

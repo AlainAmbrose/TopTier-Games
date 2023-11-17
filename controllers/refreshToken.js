@@ -1,21 +1,17 @@
-const express = require("express");
 const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
 const User = require("../models/User");
-
-
-const app_name = "poosd-large-project-group-8-1502fa002270";
-function buildPath(route)
+function secure()
 {
     if (process.env.NODE_ENV === 'production')
     {
-        return 'https://' + app_name + '.herokuapp.com/' + route;
+        return true;
     }
     else
     {
-        return 'http://localhost:3000/' + route;
+        return false;
     }
 }
 
@@ -23,26 +19,35 @@ const refreshToken = async (req, res) =>
 {
     let cookies = req.cookies;
 
-    if (!cookies?.jwt) return res.sendStatus(401);
+    if (!cookies?.jwt_refresh) return res.sendStatus(401);
 
-    const refreshToken = cookies.jwt;
+    const refreshToken = cookies.jwt_refresh;
     let user = await User.findOne({ RefreshToken: refreshToken });
 
     if (!user) return res.sendStatus(403);
 
-    jwt.verify(
-        refreshToken,
-        process.env.REFRESH_TOKEN_SECRET,
+    jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) =>
         {
-            if (err || user.Login !== decoded.login) return res.sendStatus(403);
+            if (err || user._id.toString() !== decoded.userId) return res.sendStatus(403);
             const accessToken = jwt.sign(
-                { 'login': decoded.login },
+                { 'userId': decoded.userId },
                 process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: '1m' }
+                { expiresIn: '15m' }
             );
 
-            res.status(200).json({accessToken});
+            if (secure())
+            {
+                res.clearCookie('jwt_access');
+                res.cookie('jwt_access', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
+            }
+            else
+            {
+                res.clearCookie('jwt_access');
+                res.cookie('jwt_access', accessToken, { httpOnly: true, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
+            }
+
+            return res.status(200).json({exp: Math.floor(Date.now() / 1000),});
         }
     );
 };
