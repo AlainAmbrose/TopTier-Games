@@ -79,7 +79,7 @@ const sendAuthEmail = async (req, res) =>
 
 const verifyAuthCode = async (req, res) =>
 {
-    if (req.body.authCode == authCode) {
+    if (authCode !== null && req.body.authCode === authCode) {
         return res.status(200).json({
             message: "Email Verified Successfully"
         });
