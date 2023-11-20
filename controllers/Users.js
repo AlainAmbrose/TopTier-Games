@@ -6,7 +6,7 @@ const User = require("../models/User");
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 const crypto = require("crypto");
-var authCode;
+var authCode, passResetCode;
 
 function secure()
 {
@@ -48,10 +48,6 @@ const signUp = async (req, res) =>
 const sendAuthEmail = async (req, res) =>
 {
     authCode = crypto.randomBytes(10).toString('hex');
-    const newUser = new User();
-    newUser.FirstName = req.body.firstname;
-    newUser.LastName = req.body.lastname;
-    newUser.Email = req.body.email;
 
     const msg = {
         to: req.body.email,
@@ -142,6 +138,64 @@ const login = async (req, res) =>
             return res.sendStatus(401);
         }
     }
+};
+
+const sendPassResetEmail = async (req, res) =>
+{
+    passResetCode = crypto.randomBytes(10).toString('hex');
+
+    const msg = {
+        to: req.body.email,
+        from: 'TopTierGames.ucf@gmail.com',
+        subject: 'Password Reset Request from TopTier Games!',
+        text: 'Hello ' + req.body.firstname + ',\nWe have recieved a request that you would like to reset your password. If this is accurate, enter the verification code below into TopTier Games to continue:\n\n' + passResetCode,
+      }
+      sgMail
+        .send(msg)
+        .then(() =>
+        {
+          console.log('Email sent')
+          return res.status(200).json({
+            message: "Email Sent Successfully"
+          });
+        })
+        .catch((error) =>
+        {
+          console.error(error)
+          return res.status(400).json({
+            message: "Error Sending Email"
+          });
+        })
+};
+
+const resetPass = async (req, res) =>
+{
+    //verify passResetCode
+    if (passResetCode === null || req.body.authCode !== passResetCode)
+    {
+        return res.status(400).json({
+            message: "Incorrect Authorization Code"
+        });
+    }
+
+    //get user
+    let user = await User.findOne({ Login: req.body.login });
+
+    if (user === null)
+    {
+        return res.status(400).json({
+            message: "User not found.",
+        });
+    }
+
+    //update password
+    user.createHash(req.body.newPassword);
+    await user.save();
+
+    return res.status(200).json({ 
+        Login: user.Login,
+        message: "Password successfully updated.",
+     });
 };
 
 const getUser = async (req, res) =>
@@ -268,6 +322,8 @@ module.exports =
     signUp,
     sendAuthEmail,
     verifyAuthCode,
+    sendPassResetEmail,
+    resetPass,
     login,
     updateUser,
     getUser,
