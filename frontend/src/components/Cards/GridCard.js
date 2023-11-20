@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import Skeleton, {SkeletonTheme} from 'react-loading-skeleton'
 import CardPopup from "../CardPopup";
 import { useQuery } from "react-query";
+import { AuthContext } from "../Authorizations/AuthContext";
 
 
 const app_name = "poosd-large-project-group-8-1502fa002270"
@@ -15,19 +16,34 @@ function buildPath(route) {
 }
 
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
 const fetchGameInformation = async (gameId) => {
   console.log("GETTING Game INFO : ", gameId)
-  var obj = {gameId};
+  var obj = { 
+    gameId: gameId,
+    options: {
+      id : true,
+      name : true,
+      coverURL : true,
+      storyline : true,
+      releasedate : true,
+      genres : true,
+      gameranking : true,
+      images : true,
+      links : true,
+      platforms : true,
+      platformlogos : true,
+      videos : true,
+      ageratings : true,
+      similargames : true
+    } 
+  };
   var js = JSON.stringify(obj);
   
   try {
     const response = await fetch(buildPath("Games/api/getgameinfo"), {
       method: 'POST',
       body: js,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       }
@@ -37,49 +53,55 @@ const fetchGameInformation = async (gameId) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const jsonResponse = await response.json();
-    console.log("jsonResponse for gameInfo: ", jsonResponse);
+    
+    let gameInfo = jsonResponse.gameInfo;
+    console.log("jsonResponse for gameInfo: ", gameInfo);
 
-    return jsonResponse.gameInfo; // Remove Me!
+    // return jsonResponse.gameInfo; // Remove Me!
 
     // Retrieve the games
-    // try {
-    //   const fetchPromises = jsonResponse.similarGames.map(async (id) => {
-    //     let obj = { genre: id, size: 7 };
-    //     let js = JSON.stringify(obj);
-    //     console.log("request", js);
+    try {
+      var obj = { 
+        gameId: gameInfo.similargames,
+        options: {
+          id : true,
+          name : true,
+          coverURL : true,
+          gameranking : true,
+          links : true,
+          platforms : true,
+          platformlogos : true,
+        } 
+      };
+      console.log("request for similar games", obj);
+      let js = JSON.stringify(obj);
         
-    //     // THIS NEEDS TO BE AN ENDPOINT THAT LETS ME GET A SINGLE GAME OR MULTIPLE GAMES AT A TIME.
-    //     const response = await fetch(buildPath("Games/api/populatehomepage"), {
-    //       method: 'POST',
-    //       body: js,
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       }
-    //     });
-  
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! status: ${response.status}`);
-    //     }
-  
-    //     const data = await response.json();
-    //     return data.result;
-    //   });
-  
-    //   const results = await Promise.all(fetchPromises);
-  
-    //   jsonResponse.similarGames = results.map((game, index) => {
-    //     return {...game};
-    //   });
+      const similarGamesResponse = await fetch(buildPath("Games/api/getgameinfo"), {
+        method: 'POST',
+        body: js,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-    //   console.log("Similar Games: ", jsonResponse.similarGames);
+      if (!similarGamesResponse.ok) {
+        throw new Error(`HTTP error! status: ${similarGamesResponse.status}`);
+      }
   
-    //   return jsonResponse;
-    // } catch (e) {
-    //   alert(e.toString());
-    //   // setSearchResults(e.toString());
-    // }
+      gameInfo.similargames = similarGamesResponse.map((game, index) => {
+        return {...game};
+      });
 
-    // return jsonResponse; // Accessing the 'result' property
+      console.log("Similar Games: ", gameInfo.similarGames);
+  
+      return gameInfo;
+    } catch (e) {
+      console.error(e)
+      // setSearchResults(e.toString());
+    }
+
+    return jsonResponse; // Accessing the 'result' property
   }
   catch(e)
   {
@@ -89,17 +111,24 @@ const fetchGameInformation = async (gameId) => {
 }
 
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 const GridCard = ({ game, skeleton }) => {
   const [open, setOpen] = useState(false);
+  const authContext = useContext(AuthContext);
+  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
 
  // Triggers the query when the popup is open and the game ID is available
- const { data: gameInfo, isLoading: isLoadingGameInfo, isError, error } = useQuery(
+  const { data: gameInfo, isLoading: isLoadingGameInfo, isError, error } = useQuery(
     ['RecommendedGames', game.id], 
     () => fetchGameInformation(game.id), 
     { 
       enabled: open && game.id != null && skeleton === false,
     }
   );
+
 
   const cardClasses = classNames(`group aspect-h-5 aspect-w-8 block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300
   ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);

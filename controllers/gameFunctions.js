@@ -139,20 +139,7 @@ module.exports = {
     return json;
   },
 
-  getGamePlatforms: async function (platformId) {
-    let result = await fetch("https://api.igdb.com/v4/platforms", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Client-ID": process.env.IGDB_CLIENT_ID,
-        Authorization: process.env.IGDB_AUTHORIZATION,
-      },
-      body: `fields name, platform_logo; where id = (${platformId});`
-    });
 
-    const json = await result.json();
-    return json;
-  },
 
   getGamePlatformLogos: async function (platformLogoId) {
     let result = await fetch("https://api.igdb.com/v4/platform_logos",
@@ -172,14 +159,17 @@ module.exports = {
   },
 
   getGameFromDB: async function (gameId, opts) {
-    let game = await Game.findOne({ IGDB_id: gameId }).select(opts);
+    console.log("Getting game from DB: ", gameId, opts)
+    let game = (opts !== undefined) ? await Game.findOne({ IGDB_id: gameId }).select(opts): await Game.findOne({ IGDB_id: gameId });
 
     if (game === null)
     {
+      console.log("Game not found in DB\n");
       return null;
     }
     else
     {
+      console.log("Game found in DB\n");
       let gameInfo = {};
       gameInfo.id = game.IGDB_id;
       gameInfo.name = game.Name;

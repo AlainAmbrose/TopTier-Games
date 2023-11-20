@@ -3,8 +3,10 @@ const jwt = require('jsonwebtoken');
 const verifyJWT = async (req, res, next) =>
 {
     const cookies = req.cookies;
-    if (!cookies?.jwt_access) return res.sendStatus(401);
-
+    if (!cookies?.jwt_access) {
+        console.log("unauthorized: no jwt_access", cookies);
+        return res.sendStatus(401); 
+    }
     const token = cookies.jwt_access;
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET,

@@ -104,6 +104,12 @@ const searchGame = async (req, res) =>
 // Populate names and covers for homepage by genre
 const populateHomePage = async (req, res) =>
 {
+    let cookies = req.cookies;
+    if (!cookies?.jwt_access) return res.sendStatus(401).json({ message: 'No access token' });
+
+    let jwt_access = cookies.jwt_access;
+    let jwt_refresh = cookies.jwt_refresh;
+
     let genre = req.body.genre;
     let limit = req.body.limit;
     let topGamesFlag = req.body.topGamesFlag;
@@ -145,15 +151,16 @@ const populateHomePage = async (req, res) =>
 
             if (game === null)
             {
-                const at = req.headers['authorization'].split(' ')[1];
                 let js = JSON.stringify({gameId: obj.id});
                 let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,
                         credentials: 'include',
-                        headers: { "Content-Type": "application/json",
-                        'authorization':`Bearer ${at}` },
+                        headers: { 
+                            "Content-Type": "application/json",
+                            "Cookie" : `jwt_access=${jwt_access}; jwt_refresh=${jwt_refresh}`
+                        }
                     });
 
                 let result = JSON.parse(await response.text());
@@ -209,93 +216,55 @@ const getCover = async (req, res) =>
 };
 
 // Retrieves game info
-const getGameInfo = async (req, res) =>
-{
+const getGameInfo = async (req, res) => {
+    const converter = {
+        id : "IGDB_id",
+        name : "Name",
+        coverURL : "CoverURL",
+        storyline : "Summary",
+        releasedate : "ReleaseDate",
+        genres : "Genre",
+        gameranking : "GameRanking",
+        images : "Images",
+        links : "Links",
+        platforms : "Platforms",
+        platformlogos : "PlatformLogos",
+        videos : "Videos",
+        ageratings : "AgeRating",
+        similargames : "SimilarGames"
+    }
     let gameIds = req.body.gameId;
 
     let options = req.body.options;
 
     let opts = {};
 
-    if (options.name !== undefined && options.name === true)
-    {
-        opts.Name = 1;
-    }
-    if (options.cover !== undefined && options.cover === true)
-    {
-        opts.CoverURL = 1;
-
-    }
-    if (options.summary !== undefined && options.summary === true)
-    {
-        opts.Summary = 1;
-    }
-    if (options.releaseDate !== undefined && options.releaseDate === true)
-    {
-        opts.ReleaseDate = 1;
-    }
-    if (options.ranking !== undefined && options.ranking === true)
-    {
-        opts.GameRanking = 1;
-    }
-    else if (options.genre !== undefined && options.genre === true)
-    {
-        opts.Genre = 1;
-        
-    }
-    if (options.images !== undefined && options.images === true)
-    {
-        opts.Images = 1;
-        
-    }
-    if (options.links !== undefined && options.links === true)
-    {
-        opts.Links = 1;
-    }
-    if (options.platforms !== undefined && options.platforms === true)
-    {
-        opts.Platforms = 1;
-    }
-    if (options.platformLogos !== undefined && options.platformLogos === true)
-    {
-        opts.PlatformLogos = 1;
-    }
-    if (options.videos !== undefined && options.videos === true)
-    {
-        opts.Videos = 1;
-    }
-    if (options.similarGames !== undefined && options.similarGames === true)
-    {
-        opts.SimilarGames = 1;
-    }
-    if (options.ageRating !== undefined && options.ageRating === true)
-    {
-        opts.AgeRating = 1;
+    if (options !== undefined) {
+        for (const key of Object.keys(options)) {
+            if (options[key] === true) {
+                opts[converter[key]] = 1; 
+            }
+        }
     }
 
-
-    if (gameIds instanceof Array)
-    {
+    if (gameIds instanceof Array) {
         let gameInfo = [];
 
-        for (let id of gameIds)
-        {
+        for (let id of gameIds) {
+            // console.log("ID: ", id, "OPTS: ", opts)
             gameInfo.push(await functions.getGameFromDB(id, opts));
         }
 
-        if (gameInfo.some(g => g === null))
-        {
+        if (gameInfo.some(g => g === null)) {
+            console.log("Game(s) not found.");
             return res.status(400).json({ message: "Game(s) not found." });
         }
 
         return res.status(200).json(gameInfo);
-    }
-    else 
-    {
+    } else  {
         let gameInfo = await functions.getGameFromDB(gameIds, opts);
 
-        if (gameInfo === null)
-        {
+        if (gameInfo === null) {
             return res.status(400).json({ message: "Game not found." });
         }
 

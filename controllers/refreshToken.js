@@ -17,14 +17,15 @@ function secure()
 
 const refreshToken = async (req, res) =>
 {
+    const accessExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
     let cookies = req.cookies;
 
-    if (!cookies?.jwt_refresh) return res.sendStatus(401);
+    if (!cookies?.jwt_refresh) return res.sendStatus(401).json({ message: 'No refresh token' });
 
     const refreshToken = cookies.jwt_refresh;
     let user = await User.findOne({ RefreshToken: refreshToken });
 
-    if (!user) return res.sendStatus(403);
+    if (!user) return res.sendStatus(403).json({ message: 'User not found' });
 
     jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) =>
@@ -35,19 +36,23 @@ const refreshToken = async (req, res) =>
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '15m' }
             );
-
+            console.log('Access token created @refreshToken')
             if (secure())
             {
+                console.log('Secure mode @refreshToken ');
                 res.clearCookie('jwt_access');
-                res.cookie('jwt_access', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
+                res.cookie('jwt_access', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: accessExpirationTime, path: '/' });
             }
             else
             {
+                console.log('Insecure mode @refreshToken');
                 res.clearCookie('jwt_access');
-                res.cookie('jwt_access', accessToken, { httpOnly: true, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
+                res.cookie('jwt_access', accessToken, { httpOnly: true, sameSite: 'strict', maxAge: accessExpirationTime, path: '/' });
             }
 
-            return res.status(200).json({exp: Math.floor(Date.now() / 1000),});
+            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+            const accessTokenExpiryTime = currentTimeInSeconds + (accessExpirationTime / 1000); // 15 minutes added to the current time
+            return res.status(200).json({ exp: accessTokenExpiryTime });
         }
     );
 };

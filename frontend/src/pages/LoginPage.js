@@ -1,84 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthContext } from '../components/Authorizations/AuthContext'; // Adjust the path as necessary
 
-const app_name = "poosd-large-project-group-8-1502fa002270";
-function buildPath(route)
-{
-  if (process.env.NODE_ENV === 'production')
-  {
-    return 'https://' + app_name + '.herokuapp.com/' + route;
-  } else
-  {
-    return 'http://localhost:3000/' + route;
-  }
-}
+const LoginPage = () => {
+  const authContext = useContext(AuthContext);
+  let loginName;
+  let loginPassword;
 
-const LoginPage = () =>
-{
-  var loginName;
-  var loginPassword;
-
-  const app_name = "poosd-large-project-group-8-1502fa002270";
-  function buildPath(route) {
-    if (process.env.NODE_ENV === "production") {
-      return "https://" + app_name + ".herokuapp.com/" + route;
-    } else {
-      return "http://localhost:3001/" + route;
-    }
-  }
-
-  const showToast = () => {
-    toast.info("Login Unsuccessful: Username or Password Incorrect", {
-      autoClose: 3000,
-      position: "bottom-center",
-      className: "custom-toast",
-      hideProgressBar: true,
-      icon: false,
-      style: {
-        background: "red",
-        color: "white",
-        fontSize: "15px",
-      },
-    });
-  };
-
-  const [message, setMessage] = useState("");
-  const initLogin = async (event) => {
-    event.preventDefault();
-
-    var obj = { login: loginName.value, password: loginPassword.value };
-    var js = JSON.stringify(obj);
-
-    try {
-      const response = await fetch(buildPath("Users/api/login"), {
-        method: "POST",
-        body: js,
-        headers: { "Content-Type": "application/json" },
-      });
-      var res = JSON.parse(await response.text());
-      if (res.id <= 0) {
-        setMessage(res.message);
-        showToast();
-      } else {
-        var user = {
-          id: res.id,
-          firstname: res.firstname,
-          lastname: res.lastname,
-        };
-        console.log(user.lastname);
-        localStorage.setItem("user_data", JSON.stringify(user));
-        setMessage(res.message);
-        console.log(message);
-
-        window.location.href = "/home";
-      }
-    } catch (e)
-    {
-      alert(e.toString());
-      return;
-    }
-  };
+  // Now you can access values from the context
+  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
 
   return (
     <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -88,7 +19,7 @@ const LoginPage = () =>
         alt=""
         className="absolute inset-0 -z-30 h-full w-full object-cover"
       />
-      <form className="space-y-6" action="#" onSubmit={initLogin}>
+      <form className="space-y-6" action="#" onSubmit={(event) => userLogin(event, loginName, loginPassword, toast)}>
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
           Sign in to your account
         </h2>
@@ -142,7 +73,7 @@ const LoginPage = () =>
           <button
             type="submit"
             className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
-            onClick={initLogin}
+            // onClick={(event) => userLogin(event, loginName, loginPassword, toast)}
           >
             Sign in
           </button>

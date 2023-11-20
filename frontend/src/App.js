@@ -8,7 +8,8 @@ import HomePage from "./pages/HomePage";
 import "./App.css";
 import "react-loading-skeleton/dist/skeleton.css"
 import { QueryClient, QueryClientProvider } from 'react-query';
-import AuthProvider from './components/AuthContext';
+import AuthProvider from './components/Authorizations/AuthContext';
+import AuthProviderWithNavigation from './components/Authorizations/AuthProviderWithNavigation';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -16,17 +17,17 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <AuthProvider> */}
         <Router>
-          <Routes>
-            <Route path="/" element={<LandingPage />}></Route>
-            <Route path="/home" element={<HomePage />}></Route>
-            <Route path="/login" element={<LoginPage />}></Route>
-            <Route path="/signup" element={<SignUpPage />}></Route>
-            <Route path="/library" element={<LibraryPage />}></Route>
-          </Routes>
+          <AuthProviderWithNavigation>
+            <Routes>
+              <Route path="/" element={<LandingPage />}></Route>
+              <Route path="/home" element={<HomePage />}></Route>
+              <Route path="/login" element={<LoginPage />}></Route>
+              <Route path="/signup" element={<SignUpPage />}></Route>
+              <Route path="/library" element={<LibraryPage />}></Route>
+            </Routes>
+          </AuthProviderWithNavigation>    
         </Router>
-      {/* </AuthProvider> */}
     </QueryClientProvider>
   );
 }

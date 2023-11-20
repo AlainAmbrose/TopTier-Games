@@ -1,4 +1,5 @@
-import { Fragment, useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useRef, useContext } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -19,16 +20,14 @@ import HorizontalButtonList from '../components/Lists/HorizontalButtonList'
 import AsideCard from '../components/Cards/AsideCard'
 import { useInfiniteQuery, useQuery } from 'react-query'
 import { useIntersection } from '@mantine/hooks'
+import { AuthContext } from "../components/Authorizations/AuthContext";
+
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
   { name: "Friends", href: "#", icon: UsersIcon, current: false },
   { name: "Library", href: "#", icon: FolderIcon, current: false },
 ];
-const userNavigation = [
-  { name: "Your profile", href: "#" },
-  { name: "Your Library", href: "/library" },
-  { name: "Sign out", href: "/" },
-];
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -87,106 +86,6 @@ const files = [
   // More files...
 ];
 
-const files1 = [
-  {
-    title: "IMG_4985.HEIC14",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC15",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC16",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  // More files...
-];
-const files2 = [
-  {
-    title: "IMG_4985.HEIC1",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC2",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC3",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC4",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC25",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC35",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC45",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  // More files...
-];
-
-const files3 = [
-  {
-    title: "IMG_4985.HEIC1",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC2",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC3",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC4",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC5",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  // More files...
-];
 
 const genres = [
   {
@@ -338,7 +237,6 @@ function buildPath(route) {
   }
 }
 
-
 const fetchGenre = async (page) => {
   const genreToFetch = genres.slice((page - 1) * 2, page * 2);
   const genreIds = genreToFetch.map((genre) => genre.id);
@@ -353,6 +251,7 @@ const fetchGenre = async (page) => {
       const response = await fetch(buildPath("Games/api/populatehomepage"), {
         method: 'POST',
         body: js,
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         }
@@ -375,15 +274,13 @@ const fetchGenre = async (page) => {
 
     return retval;
   } catch (e) {
-    alert(e.toString());
+    console.error(`Error thrown when fetching genre: ${e}`)
+    // alert(e.toString());
     // setSearchResults(e.toString());
   }
 };
 
-
-
 async function fetchTopGames() {
-
   var obj = {topGamesFlag: true, limit: 8, size: 7};
   var js = JSON.stringify(obj);
   // console.log("TOP GAMES request: ", js);
@@ -391,6 +288,7 @@ async function fetchTopGames() {
     const response = await fetch(buildPath("Games/api/populatehomepage"), {
       method: 'POST',
       body: js,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       }
@@ -404,19 +302,25 @@ async function fetchTopGames() {
   }
   catch(e)
   {
-      alert(e.toString());
+      console.error(`Error thrown when fetching top games: ${e}`)
       throw e; // Rethrow the error for React Query to catch
   }
 
 }
 
-
 const HomePage = () => {
-  var currentUser = localStorage.getItem("user_data");
-  var userData = JSON.parse(currentUser);
-  console.log(userData);
-  var fn = userData.firstname;
-  var ln = userData.lastname;
+  const authContext = useContext(AuthContext);
+  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast } = authContext;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      console.log("isAuthenticated: ", isAuthenticated, localStorage.getItem("user_data"));
+      showSuperToast("Please login to view the homepage.", "not-authenticated")
+      userLogout();
+      navigate('/login');
+    }
+  }, []);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const lastListRef = useRef(null)
@@ -441,21 +345,32 @@ const HomePage = () => {
     }
   ) 
 
-
   useEffect(() => {
     if (entry?.isIntersecting) {console.log("INTERSECTING"); fetchNextPage()}
   }, [entry])
 
   const _genres = data?.pages.flatMap((page) => page) 
 
-  // useEffect(() => {
-  //   // console.log("Results from fetching TOP Games: ", topGamesData, error)
-  // }, [isLoadingTopGames])
+  // Early return if not authenticated
+  if (!isAuthenticated) {
+    return null; // or some loading indicator or minimal component
+  }
 
-  useEffect(() => {
-    console.log("DATA has Changed", data)
-  }, [data])
-
+  let fn = ""
+  let ln = ""
+  if (localStorage.getItem("user_data") !== null) {
+    var currentUser = localStorage.getItem("user_data");
+    var userData = JSON.parse(currentUser);
+    console.log(userData);
+    fn = userData.firstname;
+    ln = userData.lastname;
+  } 
+ 
+  const userNavigation = [
+    { name: "Your profile", href: "#", action: () => navigate('#')  },
+    { name: "Your Library", href: "/library", action: () => navigate('/library')},
+    { name: "Sign out", href: "/", action: () => userLogout('/') },
+  ];
 
 
   return (
@@ -660,19 +575,19 @@ const HomePage = () => {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                    <Menu.Items className="absolute cursor-pointer right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                       {userNavigation.map((item) => (
                         <Menu.Item key={item.name}>
                           {({ active }) => (
-                            <a
-                              href={item.href}
+                            <div
+                              onClick={item.action}
                               className={classNames(
                                 active ? "bg-gray-50" : "",
                                 "block px-3 py-1 text-sm leading-6 text-gray-900"
                               )}
                             >
                               {item.name}
-                            </a>
+                            </div>
                           )}
                         </Menu.Item>
                       ))}
@@ -684,7 +599,7 @@ const HomePage = () => {
           </div>
 
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
-          <main className="xl:pl-96 ">
+          <main className="xl:pl-0 ">
             <div
               ref={lastListRef}
               style={{ height: "calc(100vh - 120px)" }}
@@ -733,8 +648,8 @@ const HomePage = () => {
           </main>
         </div>
 
-        <aside className="fixed bottom-0 left-20 top-16 hidden w-96  border-r border-gray-200  py-5 sm:px-6 lg:px-8 xl:block">
-          {/* Secondary column (hidden on smaller screens) */}
+        {/* <aside className="fixed bottom-0 left-20 top-16 hidden w-96  border-r border-gray-200  py-5 sm:px-6 lg:px-8 xl:block">
+          Secondary column (hidden on smaller screens)
           <div
             style={{ height: "calc(100vh - 120px)" }}
             className="px-4 py-10 sm:px-6 border-transparent  border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6  xl:shadow-md xl:shadow-gray-950"
@@ -746,23 +661,13 @@ const HomePage = () => {
               <ul role="list" className="divide-y divide-gray-200">
                 {files.map((file, index) => (
                   <li key={index} className="flex gap-x-4 py-5">
-                    {/* <div className="group aspect-h-5 aspect-w-8 block w-36 overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                      <img className="flex-none pointer-events-none object-cover rounded-md group-hover:opacity-75 bg-gray-50" src={file.source} alt="" />
-                      <button type="button" className="absolute inset-0 focus:outline-none">
-                        <span className="sr-only">View details for {file.title}</span>
-                      </button>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold leading-6 text-gray-900">{file.title}</p>
-                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">{file.size}</p>
-                    </div> */}
                     <AsideCard game={file}></AsideCard>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-        </aside>
+        </aside> */}
       </div>
     </>
   );

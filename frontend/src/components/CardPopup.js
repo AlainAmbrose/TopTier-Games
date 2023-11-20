@@ -46,15 +46,21 @@ const fillColorArray = [
   "#f1d045"
 ];
 
-const convertDate = (date) => {
-  // Assuming releaseDate is in seconds. If it's in milliseconds, you don't need to multiply by 1000.
-  const releaseDate = new Date(date * 1000);
+const convertDate = (dateStr) => {
+  // // Assuming releaseDate is in seconds. If it's in milliseconds, you don't need to multiply by 1000.
+  // const releaseDate = new Date(date * 1000);
 
-  // Options for formatting the date
+  // // Options for formatting the date
+  // const options = { year: 'numeric', month: 'long', day: 'numeric' };
+
+  // // Format the date
+  // const formattedDate = releaseDate.toLocaleDateString('en-US', options);
+  console.log("Date: ", dateStr)
+  const dateObj = new Date(dateStr);
+
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
-
-  // Format the date
-  const formattedDate = releaseDate.toLocaleDateString('en-US', options);
+  const formattedDate = dateObj.toLocaleDateString('en-US', options);
+  console.log(formattedDate); // Outputs: February 25, 2022
 
   return formattedDate;
 }

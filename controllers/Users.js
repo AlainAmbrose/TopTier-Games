@@ -42,6 +42,8 @@ const signUp = async (req, res) =>
 
 const login = async (req, res) =>
 {
+    const accessExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+    const refreshExpirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
     let user = await User.findOne({ Login: req.body.login });
 
     if (user === null)
@@ -66,24 +68,25 @@ const login = async (req, res) =>
             user.DateLastLoggedIn = new Date();
             user.RefreshToken = refreshToken;
             await user.save();
-
-            if (secure())
-            {
-                res.cookie('jwt_access', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-
-                res.cookie('jwt_refresh', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: 1 * 60 * 60 * 1000 });
+            console.log('Access token created @login')
+            console.log('Refresh token created @login')
+            if (secure()) {
+                console.log('Secure mode @login');
+                res.cookie('jwt_access', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: accessExpirationTime, path: '/' });
+                res.cookie('jwt_refresh', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: refreshExpirationTime, path: '/' });
             }
-            else
-            {
-                res.cookie('jwt_access', accessToken, { httpOnly: true, sameSite: 'strict', maxAge: 15 * 60 * 1000 });
-
-                res.cookie('jwt_refresh', refreshToken, { httpOnly: true, sameSite: 'strict',maxAge: 1 * 60 * 60 * 1000 });
+            else {
+                console.log('Insecure mode @login');
+                res.cookie('jwt_access', accessToken, { httpOnly: true, sameSite: 'strict', maxAge: accessExpirationTime, path: '/' });
+                res.cookie('jwt_refresh', refreshToken, { httpOnly: true, sameSite: 'strict', maxAge: refreshExpirationTime, path: '/' });
             }
+            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+            const accessTokenExpiryTime = currentTimeInSeconds + (accessExpirationTime / 1000); // 15 minutes added to the current time
             return res.status(200).json({ 
                 id: user._id,
                 firstname: user.FirstName,
                 lastname: user.LastName,
-                exp: Math.floor(Date.now() / 1000),
+                exp: accessTokenExpiryTime,
                 message: "User Successfully Logged In",
             });
         } else
@@ -200,6 +203,7 @@ const logout = async (req, res) =>
 
     if (user !== undefined)
     {
+        console.log("user found: ", user)
         user.RefreshToken = '';
         await user.save();
     }
