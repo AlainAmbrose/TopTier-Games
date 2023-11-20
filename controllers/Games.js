@@ -1,6 +1,5 @@
 var express = require("express");
-var router = express.Router();
-var functions = require("./gameFunctions");
+var functions = require('./gameFunctions');
 
 require("dotenv").config();
 
@@ -19,39 +18,62 @@ function buildPath(route)
 }
 
 // Add game to database
-router.post("/api/insertgame", async (req, res) => {
-  let gameToInsert = req.body.gameToInsert;
-  let gameId = req.body.gameId;
-  let search = "";
+const insertGame = async (req, res) =>
+{
+    let gameToInsert = req.body.gameToInsert;
+    let gameId = req.body.gameId;
+    let search = '';
 
-  if (gameId !== undefined) {
-    search = `where id = ${gameId} & total_rating != null & cover.url != null;`;
-  } else {
-    search = `where total_rating != null & cover.url != null; search "${gameToInsert}"; limit 10;`;
-  }
+    if (gameId !== undefined)
+    {
+        search = `where id = ${gameId};`;
+    }
+    else
+    {
+        search = `where total_rating != null & cover.url != null; search "${gameToInsert}"; limit 10;`;
+    }
 
-  await functions
-    .getGame(search)
-    .then(async (data) => {
-      let result = [];
-      data.forEach(function (obj) {
-        result.push({
-          id: obj.id,
-          name: obj.name,
-          ranking: obj.total_rating,
-          url: obj.cover.url,
+    await functions.getGame(search).then(async data =>
+    {
+        data.forEach(async function (obj)
+        {
+            let game = obj;
+
+            const newGame = new Game();
+
+            newGame.IGDB_id = game.id;
+            newGame.Name = game.name;
+            newGame.CoverURL = game.cover.url;
+            newGame.Summary = game.storyline;
+            newGame.ReleaseDate = new Date(game.first_release_date * 1000);
+            newGame.Genre = game.genres;
+
+            newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
+            newGame.Images = await functions.getGameImages(game.screenshots);
+            newGame.Links = await functions.getGameLinks(game.websites);
+
+            let platforms = await functions.getGamePlatforms(game.platforms);
+
+            if (platforms instanceof Array)
+            {
+                let p_names = [];
+                let p_logos = [];
+
+                platforms.forEach(function (obj)
+                {
+                    p_names.push(obj.name);
+                    p_logos.push(obj.platform_logo);
+                });
+
+                newGame.Platforms = p_names;
+                newGame.PlatformLogos = await functions.getGamePlatformLogos(p_logos);
+            }
+            newGame.Videos = await functions.getGameVideos(game.videos);
+            newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
+            newGame.SimilarGames = game.similar_games;
+
+            await newGame.save();
         });
-      });
-
-      result.forEach(function (obj) {
-        const newGame = new Game();
-        newGame.IGDB_id = obj.id;
-        newGame.Name = obj.name;
-        newGame.GameRanking = obj.ranking;
-        newGame.CoverURL = obj.url;
-
-        newGame.save();
-      });
 
       return res
         .status(200)
@@ -60,148 +82,232 @@ router.post("/api/insertgame", async (req, res) => {
     .catch((err) => {
       return res.status(400).json({ id: -1, message: "Bad Entry" });
     });
-});
+};
 
 // Search game in database
-router.post("/api/searchgame", async (req, res) => {
-  let search = req.body.search;
-  let pattern = `${search}`;
+const searchGame = async (req, res) =>
+{
+    let search = req.body.search;
+    let pattern = `${search}`;
 
-  let games = await Game.find({ Name: { $regex: pattern, $options: "i" } });
-  if (games === null) {
-    return res.status(400).json({ games: [], message: "Game not found." });
-  } else {
-    return res.status(200).json({ games: games, message: "Games Found" });
-  }
-});
+    let games = await Game.find({ Name: { $regex: pattern, $options: 'i' } });
+    if (games === null)
+    {
+        return res.status(400).json({ games: [], message: "Game not found." });
+    }
+    else
+    {
+        return res.status(200).json({ games: games, message: "Games Found" });
+    }
+};
 
 // Populate names and covers for homepage by genre
-router.post("/api/populatehomepage", async (req, res) => {
-  console.log("entering populatehomepage");
-  let genre = req.body.genre;
-  let limit = req.body.limit;
-  let topGamesFlag = req.body.topGamesFlag;
-  let size = {
-    1: "micro",
-    2: "thumb",
-    3: "cover_small",
-    4: "logo_med",
-    5: "cover_big",
-    6: "720p",
-    7: "1080p",
-  };
+const populateHomePage = async (req, res) =>
+{
+    let genre = req.body.genre;
+    let limit = req.body.limit;
+    let topGamesFlag = req.body.topGamesFlag;
+    let size = {
+        1: 'micro',
+        2: 'thumb',
+        3: 'cover_small',
+        4: 'logo_med',
+        5: 'cover_big',
+        6: '720p',
+        7: '1080p'
+    };
 
-  let body = "";
+    let body = '';
 
-  let cover_size = size[req.body.size];
+    let cover_size = size[req.body.size];
 
-  if (limit === undefined) {
-    limit = 15;
-  }
+    if (limit === undefined)
+    {
+        limit = 15;
+    }
 
-  if (topGamesFlag !== undefined) {
-    body = `fields id, name; where follows > 100 & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
-  } else {
-    body = `fields id, name; where genres = (${genre}) & total_rating_count > 50; sort total_rating desc; limit ${limit};`;
-  }
+    if (topGamesFlag !== undefined)
+    {
+        body = `fields id, name; where follows > 100 & total_rating_count > 50 & first_release_date > 1514782800; sort total_rating desc; limit ${limit};`;
+    }
+    else
+    {
+        body = `fields id, name; where genres = (${genre}) & total_rating_count > 25 & first_release_date > 1514782800; sort total_rating desc; limit ${limit};`;
+    }
 
-  await functions
-    .getGenre(body)
-    .then(async (data) => {
-      let objects = [];
+    await functions.getGenre(body).then(async data =>
+    {
+        let objects = [];
 
-      data.forEach(async function (obj) {
-        let game = await Game.findOne({ IGDB_id: obj.id });
-        console.log("GAME IDS", obj.id);
-        if (game === null) {
-          let js = JSON.stringify({ gameId: obj.id });
-          let response = await fetch(buildPath("/Games/api/insertgame"), {
-            method: "POST",
-            body: js,
-            headers: { "Content-Type": "application/json" },
-          });
+        data.forEach(async function (obj)
+        {
+            let game = await Game.findOne({ IGDB_id: obj.id });
 
-          let result = JSON.parse(await response.text());
-          console.log("RESPONSE", result);
-          if (result.id < 0) {
-            return result.message;
-          }
+            if (game === null)
+            {
+                const at = req.headers['authorization'].split(' ')[1];
+                let js = JSON.stringify({gameId: obj.id});
+                let response = await fetch(buildPath("Games/api/insertgame"),
+                    {
+                        method: 'POST',
+                        body: js,
+                        credentials: 'include',
+                        headers: { "Content-Type": "application/json",
+                        'authorization':`Bearer ${at}` },
+                    });
+
+                let result = JSON.parse(await response.text());
+                if (result.status === 401)
+                {
+                    return result.status;
+                }
+            }
+         });
+
+
+        for (let i = 0; i < data.length; i++)
+        {
+            let game = await Game.findOne({ IGDB_id: data[i].id });
+            let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
+            objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
         }
-      });
 
-      for (let i = 0; i < data.length; i++) {
-        let game = await Game.findOne({ IGDB_id: data[i].id });
-        let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
-        objects.push({ id: game.IGDB_id, name: game.Name, url: newURL });
-      }
-
-      return res.status(200).json({ result: objects });
-    })
-    .catch((err) => {
-      return res
-        .status(400)
-        .json({ message: err});
+        return res.status(200).json({ result: objects, });
+    }).catch(err =>
+    {
+        return res.status(400).json({ message: err, });
     });
-});
+};
 
 // Gets the url for game cover
-router.post("/api/getcover", async (req, res) => {
-  let id = req.body.id;
-  let size = {
-    1: "micro",
-    2: "thumb",
-    3: "cover_small",
-    4: "logo_med",
-    5: "cover_big",
-    6: "720p",
-    7: "1080p",
-  };
+const getCover = async (req, res) => 
+{
+    let id = req.body.id;
+    let size = {
+        1: 'micro',
+        2: 'thumb',
+        3: 'cover_small',
+        4: 'logo_med',
+        5: 'cover_big',
+        6: '720p',
+        7: '1080p'
+    };
 
-  let cover_size = size[req.body.size];
+    let cover_size = size[req.body.size];
 
-  let game = await Game.findOne({ IGDB_id: id });
+    let game = await Game.findOne({ IGDB_id: id });
 
-  if (game === null) {
-    return res.status(400).json({ image: "Error" });
-  } else {
-    functions.updateCoverURL(game.CoverURL, cover_size);
-    return res.status(200).json({ image: newURL });
-  }
-});
+    if (game === null)
+    {
+        return res.status(400).json({ image: 'Error' });
+    }
+    else
+    {
+        let newURL = functions.updateCoverURL(game.CoverURL, cover_size);
+        return res.status(200).json({ image: newURL });
+    }
+};
 
-router.post("/api/getgameinfo", async (req, res) => {
-  let gameId = req.body.gameId;
+// Retrieves game info
+const getGameInfo = async (req, res) =>
+{
+    let gameIds = req.body.gameId;
 
-  await functions
-    .getGameInfo(gameId)
-    .then(async (data) => {
-      let game = data[0];
-      let gameInfo = {};
+    let options = req.body.options;
 
-      gameInfo.gameId = gameId;
-      gameInfo.name = game.name;
-      gameInfo.summary = game.storyline;
-      gameInfo.releaseDate = game.first_release_date;
-      gameInfo.genre = game.genres;
+    let opts = {};
 
-      gameInfo.rating = functions.getGameRatingOutOf5(game.total_rating);
+    if (options.name !== undefined && options.name === true)
+    {
+        opts.Name = 1;
+    }
+    if (options.cover !== undefined && options.cover === true)
+    {
+        opts.CoverURL = 1;
 
-      gameInfo.images = await functions.getGameImages(game.screenshots);
-      gameInfo.links = await functions.getGameLinks(game.websites);
-      gameInfo.platforms = await functions.getGamePlatforms(game.platforms);
-      gameInfo.videos = await functions.getGameVideos(game.videos);
-      gameInfo.ageRating = await functions.getAgeRating(game.age_ratings);
+    }
+    if (options.summary !== undefined && options.summary === true)
+    {
+        opts.Summary = 1;
+    }
+    if (options.releaseDate !== undefined && options.releaseDate === true)
+    {
+        opts.ReleaseDate = 1;
+    }
+    if (options.ranking !== undefined && options.ranking === true)
+    {
+        opts.GameRanking = 1;
+    }
+    else if (options.genre !== undefined && options.genre === true)
+    {
+        opts.Genre = 1;
+        
+    }
+    if (options.images !== undefined && options.images === true)
+    {
+        opts.Images = 1;
+        
+    }
+    if (options.links !== undefined && options.links === true)
+    {
+        opts.Links = 1;
+    }
+    if (options.platforms !== undefined && options.platforms === true)
+    {
+        opts.Platforms = 1;
+    }
+    if (options.platformLogos !== undefined && options.platformLogos === true)
+    {
+        opts.PlatformLogos = 1;
+    }
+    if (options.videos !== undefined && options.videos === true)
+    {
+        opts.Videos = 1;
+    }
+    if (options.similarGames !== undefined && options.similarGames === true)
+    {
+        opts.SimilarGames = 1;
+    }
+    if (options.ageRating !== undefined && options.ageRating === true)
+    {
+        opts.AgeRating = 1;
+    }
 
-      gameInfo.similarGames = game.similar_games;
 
-      return res.status(200).json({ gameInfo });
-    })
-    .catch((err) => {
-      return res.status(400).json({ message: err });
-    });
+    if (gameIds instanceof Array)
+    {
+        let gameInfo = [];
 
-  // const json = await result.json();
-  // return json;
-});
+        for (let id of gameIds)
+        {
+            gameInfo.push(await functions.getGameFromDB(id, opts));
+        }
 
-module.exports = router;
+        if (gameInfo.some(g => g === null))
+        {
+            return res.status(400).json({ message: "Game(s) not found." });
+        }
+
+        return res.status(200).json(gameInfo);
+    }
+    else 
+    {
+        let gameInfo = await functions.getGameFromDB(gameIds, opts);
+
+        if (gameInfo === null)
+        {
+            return res.status(400).json({ message: "Game not found." });
+        }
+
+        return res.status(200).json({ gameInfo });
+    }
+};
+
+module.exports =
+{
+    insertGame,
+    populateHomePage,
+    searchGame,
+    getCover,
+    getGameInfo
+};

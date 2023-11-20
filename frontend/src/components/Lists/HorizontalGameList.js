@@ -21,9 +21,12 @@ const HorizontalGameList = forwardRef((
 
 
   // Dynamically calculate how much the scroll step should be based on the screen size
-  useEffect(() => {
-    const calculateScrollStep = () => {
-      if (scrollContainerRef.current) {
+  useEffect(() =>
+  {
+    const calculateScrollStep = () =>
+    {
+      if (scrollContainerRef.current)
+      {
         // Get the width of the container and a single card
         const containerWidth = scrollContainerRef.current.offsetWidth;
         const cardWidth = 192; // As an example; this should be obtained based on your actual card width
@@ -71,14 +74,17 @@ const HorizontalGameList = forwardRef((
   };
 
   // Dynamically calculate when to show the buttons to move left and right
-  useEffect(() => {
+  useEffect(() =>
+  {
     const scrollContainer = scrollContainerRef.current;
 
-    if (!scrollContainer) {
+    if (!scrollContainer)
+    {
       return;
     }
 
-    const handleScroll = () => {
+    const handleScroll = () =>
+    {
       // Step 3: Check the current scroll position
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
       const maxScrollLeft = scrollWidth - clientWidth;
@@ -101,11 +107,13 @@ const HorizontalGameList = forwardRef((
   }, []); // Dependency array can be empty if nothing inside the effect needs to be referenced
 
   // Handlers for mouse events
-  const handleMouseEnter = () => {
+  const handleMouseEnter = () =>
+  {
     setIsHovering(true);
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = () =>
+  {
     setIsHovering(false);
   };
 
@@ -147,7 +155,7 @@ const HorizontalGameList = forwardRef((
                 <li key={index} className="inline-block w-48 h-48 m-2 rounded">
                   <ScrollCard skeleton={true}></ScrollCard>
                 </li>
-              ) 
+              )
             )}
 
           </ul>

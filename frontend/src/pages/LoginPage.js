@@ -2,7 +2,20 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const LoginPage = () => {
+const app_name = "poosd-large-project-group-8-1502fa002270";
+function buildPath(route)
+{
+  if (process.env.NODE_ENV === 'production')
+  {
+    return 'https://' + app_name + '.herokuapp.com/' + route;
+  } else
+  {
+    return 'http://localhost:3000/' + route;
+  }
+}
+
+const LoginPage = () =>
+{
   var loginName;
   var loginPassword;
 
@@ -60,7 +73,8 @@ const LoginPage = () => {
 
         window.location.href = "/home";
       }
-    } catch (e) {
+    } catch (e)
+    {
       alert(e.toString());
       return;
     }
