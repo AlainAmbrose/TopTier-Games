@@ -1,5 +1,16 @@
-
 const Game = require("../models/Game");
+
+function buildPath(route)
+{
+  if (process.env.NODE_ENV === 'production')
+  {
+    return 'https://' + app_name + '.herokuapp.com/' + route;
+  } else
+  {
+    return 'http://localhost:3001/' + route;
+  }
+}
+
 module.exports = {
   getGame: async function (search)
   {
@@ -20,13 +31,14 @@ module.exports = {
     return json;
   },
 
-  getGenre: async function (body) {
+  getGenre: async function (body)
+  {
     let result = await fetch("https://api.igdb.com/v4/games", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        'Accept': "application/json",
         "Client-ID": process.env.IGDB_CLIENT_ID,
-        Authorization: process.env.IGDB_AUTHORIZATION,
+        'Authorization': process.env.IGDB_AUTHORIZATION,
       },
       body: body,
     });
@@ -37,7 +49,8 @@ module.exports = {
 
   getGameInfo: async function (gameId)
   {
-    try {
+    try
+    {
       let result = await fetch("https://api.igdb.com/v4/games",
         {
           method: 'POST',
@@ -52,22 +65,25 @@ module.exports = {
 
       const json = await result.json();
       return json;
-    } catch (err) {
-        console.error("Error in @getGameInfo: ", err);
+    } catch (err)
+    {
+      console.error("Error in @getGameInfo: ", err);
     }
   },
 
-  getGameRatingOutOf5: function (rating) {
+  getGameRatingOutOf5: function (rating)
+  {
     return rating / 20;
   },
 
-  getAgeRating: async function (ratingId) {
+  getAgeRating: async function (ratingId)
+  {
     let result = await fetch("https://api.igdb.com/v4/age_ratings", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        'Accept': "application/json",
         "Client-ID": process.env.IGDB_CLIENT_ID,
-        Authorization: process.env.IGDB_AUTHORIZATION,
+        'Authorization': process.env.IGDB_AUTHORIZATION,
       },
       body: `fields rating; where id = (${ratingId}) & category = 1;`,
     });
@@ -76,13 +92,14 @@ module.exports = {
     return json;
   },
 
-  getGameImages: async function (imageId) {
+  getGameImages: async function (imageId)
+  {
     let result = await fetch("https://api.igdb.com/v4/screenshots", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        'Accept': "application/json",
         "Client-ID": process.env.IGDB_CLIENT_ID,
-        Authorization: process.env.IGDB_AUTHORIZATION,
+        'Authorization': process.env.IGDB_AUTHORIZATION,
       },
       body: `fields url; where id = (${imageId});`,
     });
@@ -91,13 +108,14 @@ module.exports = {
     return json;
   },
 
-  getGameVideos: async function (videoId) {
+  getGameVideos: async function (videoId)
+  {
     let result = await fetch("https://api.igdb.com/v4/game_videos", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        'Accept': "application/json",
         "Client-ID": process.env.IGDB_CLIENT_ID,
-        Authorization: process.env.IGDB_AUTHORIZATION,
+        'Authorization': process.env.IGDB_AUTHORIZATION,
       },
       body: `fields video_id; where id = (${videoId});`,
     });
@@ -106,13 +124,14 @@ module.exports = {
     return json;
   },
 
-  getGameLinks: async function (linkId) {
+  getGameLinks: async function (linkId)
+  {
     let result = await fetch("https://api.igdb.com/v4/websites", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        'Accept': "application/json",
         "Client-ID": process.env.IGDB_CLIENT_ID,
-        Authorization: process.env.IGDB_AUTHORIZATION,
+        'Authorization': process.env.IGDB_AUTHORIZATION,
       },
       body: `fields url; where id = (${linkId});`,
     });
@@ -122,7 +141,8 @@ module.exports = {
     return json;
   },
 
-  getGamePlatforms: async function (platformId) {
+  getGamePlatforms: async function (platformId)
+  {
     let result = await fetch("https://api.igdb.com/v4/platforms",
       {
         method: 'POST',
@@ -141,7 +161,8 @@ module.exports = {
 
 
 
-  getGamePlatformLogos: async function (platformLogoId) {
+  getGamePlatformLogos: async function (platformLogoId)
+  {
     let result = await fetch("https://api.igdb.com/v4/platform_logos",
       {
         method: 'POST',
@@ -150,7 +171,7 @@ module.exports = {
           'Client-ID': process.env.IGDB_CLIENT_ID,
           'Authorization': process.env.IGDB_AUTHORIZATION,
         },
-        body: `fields url; where id = (${platformLogoId});` 
+        body: `fields url; where id = (${platformLogoId});`
       }
     );
 
@@ -158,41 +179,59 @@ module.exports = {
     return json;
   },
 
-  getGameFromDB: async function (gameId, opts) {
-    console.log("Getting game from DB: ", gameId, opts)
-    let game = (opts !== undefined) ? await Game.findOne({ IGDB_id: gameId }).select(opts): await Game.findOne({ IGDB_id: gameId });
+  getGameFromDB: async function (gameId, opts, cookies)
+  {
+    let gameCheck = await Game.findOne({ IGDB_id: gameId });
 
-    if (game === null)
+    let jwt_access = cookies.jwt_access;
+    let jwt_refresh = cookies.jwt_refresh;
+
+    if (gameCheck === null)
     {
-      console.log("Game not found in DB\n");
-      return null;
+      let js = JSON.stringify({ gameId: gameId });
+      let response = await fetch(buildPath("Games/api/insertgame"),
+        {
+          method: 'POST',
+          body: js,
+          credentials: 'include',
+          headers: {
+            "Content-Type": "application/json",
+            "Cookie": `jwt_access=${jwt_access}; jwt_refresh=${jwt_refresh}`
+          }
+        });
+
+      let result = JSON.parse(await response.text());
+
+      if (result.id !== 1) return null;
     }
-    else
-    {
-      console.log("Game found in DB\n");
-      let gameInfo = {};
-      gameInfo.id = game.IGDB_id;
-      gameInfo.name = game.Name;
-      gameInfo.coverURL = game.CoverURL;
-      gameInfo.storyline = game.Summary;
-      gameInfo.releasedate = game.ReleaseDate;
-      gameInfo.genres = game.Genre;
 
-      gameInfo.gameranking = game.GameRanking;
-      gameInfo.images = game.Images;
-      gameInfo.links = game.Links;
+    let game = (opts !== undefined) ? await Game.findOne({ IGDB_id: gameId }).select(opts) : await Game.findOne({ IGDB_id: gameId });
 
-      gameInfo.platforms = game.Platforms;
-      gameInfo.platformlogos = game.PlatformLogos;
-      gameInfo.videos = game.Videos;
-      gameInfo.ageratings = game.AgeRating;
-      gameInfo.similargames = game.SimilarGames;
+    if (game === null) return null;
 
-      return gameInfo;
-    }
+    let gameInfo = {};
+    gameInfo.id = game.IGDB_id;
+    gameInfo.name = game.Name;
+    gameInfo.coverURL = game.CoverURL;
+    gameInfo.storyline = game.Summary;
+    gameInfo.releasedate = game.ReleaseDate;
+    gameInfo.genres = game.Genre;
+
+    gameInfo.gameranking = game.GameRanking;
+    gameInfo.images = game.Images;
+    gameInfo.links = game.Links;
+
+    gameInfo.platforms = game.Platforms;
+    gameInfo.platformlogos = game.PlatformLogos;
+    gameInfo.videos = game.Videos;
+    gameInfo.ageratings = game.AgeRating;
+    gameInfo.similargames = game.SimilarGames;
+
+    return gameInfo;
   },
 
-  updateCoverURL: function (coverURL, size) {
+  updateCoverURL: function (coverURL, size)
+  {
     return coverURL.replace(/thumb/g, size);
   }
 };

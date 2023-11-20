@@ -1,5 +1,3 @@
-var express = require("express");
-
 require("dotenv").config();
 
 const Progress = require("../models/ProgressCard");

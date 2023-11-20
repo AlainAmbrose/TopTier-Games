@@ -1,4 +1,3 @@
-var express = require("express");
 var functions = require('./gameFunctions');
 
 require("dotenv").config();
@@ -41,16 +40,18 @@ const insertGame = async (req, res) =>
 
             const newGame = new Game();
 
-            newGame.IGDB_id = game.id;
-            newGame.Name = game.name;
-            newGame.CoverURL = game.cover.url;
-            newGame.Summary = game.storyline;
-            newGame.ReleaseDate = new Date(game.first_release_date * 1000);
-            newGame.Genre = game.genres;
+            if (game.id) newGame.IGDB_id = game.id; else return res.sendStatus(403);
+            if (game.name) newGame.Name = game.name; else return res.sendStatus(403);
+            if (game.cover && game.cover.url) newGame.CoverURL = game.cover.url; else return res.sendStatus(403);
+            if (game.storyline) newGame.Summary = game.storyline;
+            if (game.first_release_date) newGame.ReleaseDate = new Date(game.first_release_date * 1000);
+            if (game.genres) newGame.Genre = game.genres;
 
-            newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
-            newGame.Images = await functions.getGameImages(game.screenshots);
-            newGame.Links = await functions.getGameLinks(game.websites);
+            if (game.total_rating) newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
+            else return res.sendStatus(403);
+
+            if (game.screenshots) newGame.Images = await functions.getGameImages(game.screenshots);
+            if (game.websites) newGame.Links = await functions.getGameLinks(game.websites);
 
             let platforms = await functions.getGamePlatforms(game.platforms);
 
@@ -65,22 +66,20 @@ const insertGame = async (req, res) =>
                     p_logos.push(obj.platform_logo);
                 });
 
-                newGame.Platforms = p_names;
-                newGame.PlatformLogos = await functions.getGamePlatformLogos(p_logos);
+                if (p_names.length === 0) newGame.Platforms = p_names;
+                if (p_logos.length === 0) newGame.PlatformLogos = await functions.getGamePlatformLogos(p_logos);
             }
-            newGame.Videos = await functions.getGameVideos(game.videos);
-            newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
-            newGame.SimilarGames = game.similar_games;
+            if (game.videos) newGame.Videos = await functions.getGameVideos(game.videos);
+            if (game.age_ratings) newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
+            if (game.similar_games) newGame.SimilarGames = game.similar_games;
 
             await newGame.save();
         });
 
-      return res
-        .status(200)
-        .json({ id: 1, message: "Game Inserted Successfully" });
-    })
-    .catch((err) => {
-      return res.status(400).json({ id: -1, message: "Bad Entry" });
+        return res.status(200).json({ id: 1, message: "Game Inserted Successfully" });
+    }).catch((err) =>
+    {
+        return res.status(400).json({ id: -1, message: "Bad Entry" });
     });
 };
 
@@ -151,15 +150,15 @@ const populateHomePage = async (req, res) =>
 
             if (game === null)
             {
-                let js = JSON.stringify({gameId: obj.id});
+                let js = JSON.stringify({ gameId: obj.id });
                 let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
                         body: js,
                         credentials: 'include',
-                        headers: { 
+                        headers: {
                             "Content-Type": "application/json",
-                            "Cookie" : `jwt_access=${jwt_access}; jwt_refresh=${jwt_refresh}`
+                            "Cookie": `jwt_access=${jwt_access}; jwt_refresh=${jwt_refresh}`
                         }
                     });
 
@@ -169,7 +168,7 @@ const populateHomePage = async (req, res) =>
                     return result.status;
                 }
             }
-         });
+        });
 
 
         for (let i = 0; i < data.length; i++)
@@ -216,55 +215,70 @@ const getCover = async (req, res) =>
 };
 
 // Retrieves game info
-const getGameInfo = async (req, res) => {
+const getGameInfo = async (req, res) =>
+{
     const converter = {
-        id : "IGDB_id",
-        name : "Name",
-        coverURL : "CoverURL",
-        storyline : "Summary",
-        releasedate : "ReleaseDate",
-        genres : "Genre",
-        gameranking : "GameRanking",
-        images : "Images",
-        links : "Links",
-        platforms : "Platforms",
-        platformlogos : "PlatformLogos",
-        videos : "Videos",
-        ageratings : "AgeRating",
-        similargames : "SimilarGames"
-    }
+        id: "IGDB_id",
+        name: "Name",
+        coverURL: "CoverURL",
+        storyline: "Summary",
+        releasedate: "ReleaseDate",
+        genres: "Genre",
+        gameranking: "GameRanking",
+        images: "Images",
+        links: "Links",
+        platforms: "Platforms",
+        platformlogos: "PlatformLogos",
+        videos: "Videos",
+        ageratings: "AgeRating",
+        similargames: "SimilarGames"
+    };
     let gameIds = req.body.gameId;
 
     let options = req.body.options;
 
+    let cookies = req.cookies;
+    if (!cookies?.jwt_access && !cookies?.jwt_refresh)
+    {
+        return res.sendStatus(403);
+    }
+
     let opts = {};
 
-    if (options !== undefined) {
-        for (const key of Object.keys(options)) {
-            if (options[key] === true) {
-                opts[converter[key]] = 1; 
+    if (options !== undefined)
+    {
+        for (const key of Object.keys(options))
+        {
+            if (options[key] === true)
+            {
+                opts[converter[key]] = 1;
             }
         }
     }
 
-    if (gameIds instanceof Array) {
+    if (gameIds instanceof Array)
+    {
         let gameInfo = [];
 
-        for (let id of gameIds) {
-            // console.log("ID: ", id, "OPTS: ", opts)
-            gameInfo.push(await functions.getGameFromDB(id, opts));
+        for (let id of gameIds)
+        {
+            let result = await functions.getGameFromDB(id, opts, cookies);
+            gameInfo.push(result);
         }
 
-        if (gameInfo.some(g => g === null)) {
-            console.log("Game(s) not found.");
+        if (gameInfo.some(g => g === null))
+        {
+            console.log("Game(s) not found. NULL");
             return res.status(400).json({ message: "Game(s) not found." });
         }
 
         return res.status(200).json(gameInfo);
-    } else  {
-        let gameInfo = await functions.getGameFromDB(gameIds, opts);
+    } else
+    {
+        let gameInfo = await functions.getGameFromDB(gameIds, opts, cookies);
 
-        if (gameInfo === null) {
+        if (gameInfo === null)
+        {
             return res.status(400).json({ message: "Game not found." });
         }
 

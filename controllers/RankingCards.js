@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const Ranking = require("../models/RankingCard");
 
 const setRanking = async (req, res) =>

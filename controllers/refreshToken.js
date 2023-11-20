@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-
 require('dotenv').config();
 
 const User = require("../models/User");
@@ -27,7 +26,7 @@ const refreshToken = async (req, res) =>
 
     if (!user) return res.sendStatus(403).json({ message: 'User not found' });
 
-    jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET,
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) =>
         {
             if (err || user._id.toString() !== decoded.userId) return res.sendStatus(403);
@@ -36,7 +35,7 @@ const refreshToken = async (req, res) =>
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '15m' }
             );
-            console.log('Access token created @refreshToken')
+            console.log('Access token created @refreshToken');
             if (secure())
             {
                 console.log('Secure mode @refreshToken ');
