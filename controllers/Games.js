@@ -148,7 +148,6 @@ const populateHomePage = async (req, res) =>
 
             if (game === null)
             {
-                const at = req.headers['authorization'].split(' ')[1];
                 let js = JSON.stringify({gameId: obj.id});
                 let response = await fetch(buildPath("Games/api/insertgame"),
                     {
