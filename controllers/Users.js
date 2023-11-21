@@ -87,6 +87,7 @@ const login = async (req, res) =>
                 firstname: user.FirstName,
                 lastname: user.LastName,
                 exp: accessTokenExpiryTime,
+                accessToken: accessToken,
                 message: "User Successfully Logged In",
             });
         } else

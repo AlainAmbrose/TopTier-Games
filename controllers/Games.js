@@ -1,5 +1,4 @@
 var functions = require('./gameFunctions');
-
 require("dotenv").config();
 
 const Game = require("../models/Game");
@@ -264,12 +263,13 @@ const getGameInfo = async (req, res) =>
         {
             let result = await functions.getGameFromDB(id, opts, cookies);
             gameInfo.push(result);
+
+            setTimeout(() => { ; }, 250);
         }
 
         if (gameInfo.some(g => g === null))
         {
-            console.log("Game(s) not found. NULL");
-            return res.status(400).json({ message: "Game(s) not found." });
+            return res.status(400).json({ message: "Please try again." });
         }
 
         return res.status(200).json(gameInfo);
