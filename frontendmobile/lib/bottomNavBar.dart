@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     } else if (selectedIndex==1) {
       return const SearchPage();
     } else if (selectedIndex==2) {
-      return DiscoverPage();
+      return const DiscoverPage();
     }
   }
 

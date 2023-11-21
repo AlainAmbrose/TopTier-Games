@@ -1,17 +1,60 @@
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:flutter/material.dart';
 //import 'package:http/http.dart' as http;
 
 class DiscoverPage extends StatefulWidget {
   const DiscoverPage({super.key});
   @override
-  _DiscoverPageState createState() => _DiscoverPageState();
+  State<DiscoverPage> createState() => _DiscoverPageState();
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  late ScrollController controller;
-  List<String> items = List.generate(10, (index) => 'Hello $index');
+  List<List<int>> cardData = [];
+  List<int> genreData = [];
+  int cardLength = 0;
+  int genreLength = 0;
+
+  final int increment = 10;
+  bool isLoading = false;
 
   @override
+  void initState() {
+    _loadMoreGenres();
+    super.initState();
+  }
+
+  Future _loadMoreCards(int genre) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // dummy delay
+    await Future.delayed(const Duration(seconds: 4));
+    for (var i = cardLength; i <= cardLength + increment; i++) {
+      cardData[genre].add(i);
+    }
+    setState(() {
+      isLoading = false;
+      cardLength = cardData[genre].length;
+    });
+  }
+
+  Future _loadMoreGenres() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // dummy delay
+    await Future.delayed(const Duration(seconds: 2));
+    for (var i = genreLength; i <= genreLength + increment; i++) {
+      genreData.add(i);
+      cardData.add([]);
+    }
+    setState(() {
+      isLoading = false;
+      genreLength = genreData.length;
+    });
+  }
 
   Widget _buildCardsList(int item) {
     return Column(
@@ -43,23 +86,26 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ).createShader(rect);
               },
               blendMode: BlendMode.dstOut,
-              child: ListView.builder(
-              //physics: const ClampingScrollPhysics(),
-              shrinkWrap: true,
+              child: LazyLoadScrollView(
+              isLoading: isLoading,
               scrollDirection: Axis.horizontal,
-              itemCount: 8 ,
-              itemBuilder: (BuildContext context, int index) => const Card(
-                elevation: 2,
-                margin:  EdgeInsets.all(10.0),
-                child: SizedBox(
+              onEndOfPage: () => _loadMoreCards(item),
+              child: ListView.builder(
+                  itemCount: cardData[item].length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) =>  Card(
+                    elevation: 2,
+                    margin:  const EdgeInsets.all(10.0),
+                    child: SizedBox(
                     width: 125.0,
                     child: Text(
-                        'Dummy Card Text'
+                    'Dummy Card Text $index'
                     )
-                ),
-              ),
+                  ),
+                  ),
             ),
           ),
+        ),
         ),
         ),
       ],
@@ -105,15 +151,18 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       fontSize: 30),
                 ),
               ),
-              ListView.builder(
-                itemCount: 7,
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.all(10.0),
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildCardsList(index);
-                },
-              )
+              LazyLoadScrollView(
+                  isLoading: isLoading,
+                  onEndOfPage: () => _loadMoreGenres(),
+                  child: ListView.builder(
+                    itemCount: genreData.length,
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.all(10.0),
+                    itemBuilder: (BuildContext context, int index) {
+                      return _buildCardsList(index);
+                    },
+                  ))
             ],
           ),
         ),
