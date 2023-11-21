@@ -10,7 +10,7 @@ import LibraryContent from "../components/LibraryContent";
 const userNavigation = [
   { name: "Your profile", href: "#" },
   { name: "Home", href: "/home" },
-  { name: "Sign out", href: "/", action: () => userLogout('/') },
+  { name: "Sign out", href: "/"},
 ];
 
 function classNames(...classes)
