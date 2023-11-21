@@ -8,7 +8,6 @@ import 'dart:convert';
 class LoginScreen extends StatelessWidget {
     final TextEditingController _loginController = TextEditingController();
     final TextEditingController _passwordController = TextEditingController();
-    bool loginResult = false;
 
     LoginScreen({super.key});
 
@@ -55,8 +54,8 @@ class LoginScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-            loginResult = true;
-            _navigateToNextScreen(context);
+            Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+            _navigateToNextScreen(context, jsonResponse);
             Fluttertoast.showToast(
               msg: "Login successful",
               toastLength: Toast.LENGTH_SHORT,
@@ -66,9 +65,6 @@ class LoginScreen extends StatelessWidget {
               fontSize: 16.0,
             );
         } else {
-            //print(response.statusCode);
-            //print(loginResult);
-            loginResult = false;
             Fluttertoast.showToast(
               msg: response.statusCode.toString(),
               toastLength: Toast.LENGTH_SHORT,
@@ -196,9 +192,9 @@ class LoginScreen extends StatelessWidget {
         );
     }
 
-    Future _navigateToNextScreen(BuildContext context) async{
+    Future _navigateToNextScreen(BuildContext context, Map<String, dynamic> jsonResponse) async{
 
-        Navigator.push(context,MaterialPageRoute(builder: (context) =>const HomePage()));
+        Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage(jsonResponse: jsonResponse)));
 
     }
 

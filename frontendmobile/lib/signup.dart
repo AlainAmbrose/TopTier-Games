@@ -11,7 +11,6 @@ class SignupScreen extends StatelessWidget {
     final TextEditingController _emailController = TextEditingController();
     final TextEditingController _firstnameController = TextEditingController();
     final TextEditingController _lastnameController = TextEditingController();
-    bool loginResult = true;
 
     SignupScreen({super.key});
 
@@ -70,8 +69,8 @@ class SignupScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-          loginResult = true;
-          _navigateToNextScreen(context);
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          _navigateToNextScreen(context, jsonResponse);
 
         Fluttertoast.showToast(
           msg: 'Signup successful',
@@ -264,9 +263,9 @@ class SignupScreen extends StatelessWidget {
         );
     }
 
-    Future _navigateToNextScreen(BuildContext context) async{
+    Future _navigateToNextScreen(BuildContext context, Map<String, dynamic> jsonResponse) async{
 
-      Navigator.push(context,MaterialPageRoute(builder: (context) =>const HomePage()));
+      Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage(jsonResponse: jsonResponse)));
 
     }
 }
