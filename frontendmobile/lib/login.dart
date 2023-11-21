@@ -8,13 +8,36 @@ import 'dart:convert';
 class LoginScreen extends StatelessWidget {
     final TextEditingController _loginController = TextEditingController();
     final TextEditingController _passwordController = TextEditingController();
-    bool loginResult = false;
 
-  LoginScreen({super.key});
+    LoginScreen({super.key});
+
+    String _validateTextField(String value) {
+      if (value.isEmpty) {
+        return 'ERROR';
+      }
+      return '';
+    }
 
     void _handleLogin(BuildContext context) async {
         String login = _loginController.text;
         String password = _passwordController.text;
+
+        String passwordError = _validateTextField(password);
+        String loginError = _validateTextField(login);
+
+        if (loginError != '' ||
+            passwordError != '') {
+
+          Fluttertoast.showToast(msg: "Please fill in all fields.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
+              fontSize: 16.0);
+
+          return;
+        }
+
         final data = {
             'login': login,
             'password': password,
@@ -31,8 +54,8 @@ class LoginScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-            loginResult = true;
-            _navigateToNextScreen(context);
+            Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+            _navigateToNextScreen(context, jsonResponse);
             Fluttertoast.showToast(
               msg: "Login successful",
               toastLength: Toast.LENGTH_SHORT,
@@ -42,9 +65,6 @@ class LoginScreen extends StatelessWidget {
               fontSize: 16.0,
             );
         } else {
-            //print(response.statusCode);
-            //print(loginResult);
-            loginResult = false;
             Fluttertoast.showToast(
               msg: response.statusCode.toString(),
               toastLength: Toast.LENGTH_SHORT,
@@ -172,9 +192,9 @@ class LoginScreen extends StatelessWidget {
         );
     }
 
-    Future _navigateToNextScreen(BuildContext context) async{
+    Future _navigateToNextScreen(BuildContext context, Map<String, dynamic> jsonResponse) async{
 
-        Navigator.push(context,MaterialPageRoute(builder: (context) =>const HomePage()));
+        Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage(jsonResponse: jsonResponse)));
 
     }
 

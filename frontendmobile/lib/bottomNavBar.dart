@@ -1,18 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'library.dart';
 import 'search.dart';
 import 'discover.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Map<String, dynamic> jsonResponse;
+  const HomePage({Key? key, required this.jsonResponse}) : super(key: key);
 
   @override
-  State<HomePage> createState() =>
-      _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _selectedIndex = 0;
   void _onItemTapped(int index) {
     setState(() {
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: bottomNavBarItems(_selectedIndex),
+      body: bottomNavBarItems(_selectedIndex, widget.jsonResponse),
       extendBody: true,
       bottomNavigationBar: BottomNavigationBar(
         elevation: 0,
@@ -58,13 +59,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  bottomNavBarItems(int selectedIndex) {
+  bottomNavBarItems(int selectedIndex, Map<String, dynamic> jsonResponse) {
     if (selectedIndex==0) {
-      return const LibraryPage();
+      return LibraryPage(jsonResponse: jsonResponse);
     } else if (selectedIndex==1) {
-      return const SearchPage();
+      return SearchPage(jsonResponse: jsonResponse);
     } else if (selectedIndex==2) {
-      return const DiscoverPage();
+      return DiscoverPage(jsonResponse: jsonResponse);
     }
   }
 
