@@ -2,6 +2,10 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const User = require("../models/User");
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const crypto = require("crypto");
+var authCode, passResetCode;
 
 function secure()
 {
@@ -19,6 +23,7 @@ function secure()
 const signUp = async (req, res) =>
 {
     // email verification and password strength check
+
     const newUser = new User();
     newUser.Login = req.body.login;
     newUser.FirstName = req.body.firstname;
@@ -35,8 +40,50 @@ const signUp = async (req, res) =>
         firstname: newUser.FirstName,
         lastname: newUser.LastName,
         message: "User Successfully Created",
-    });
+     });
 };
+
+const sendAuthEmail = async (req, res) =>
+{
+    authCode = crypto.randomBytes(10).toString('hex');
+
+    const msg = {
+        to: req.body.email,
+        from: 'TopTierGames.ucf@gmail.com',
+        subject: 'Verify your email with TopTier Games!',
+        text: 'Hello ' + req.body.firstname + ',\nCopy the verification code below to verify your email with TopTier Games:\n\n' + authCode,
+      }
+      sgMail
+        .send(msg)
+        .then(() =>
+        {
+          console.log('Email sent')
+          return res.status(200).json({
+            message: "Email Sent Successfully"
+          });
+        })
+        .catch((error) =>
+        {
+          console.error(error)
+          return res.status(400).json({
+            message: "Error Sending Email"
+          });
+        })
+};
+
+const verifyAuthCode = async (req, res) =>
+{
+    if (authCode !== null && req.body.authCode === authCode) {
+        return res.status(200).json({
+            message: "Email Verified Successfully"
+        });
+    }
+    else {
+        return res.status(400).json({
+            message: "Incorrect Authorization Code"
+        });
+    }
+}
 
 const login = async (req, res) =>
 {
@@ -50,7 +97,7 @@ const login = async (req, res) =>
     }
     else
     {
-
+        
         if (await user.validatePassword(req.body.password))
         {
             const accessToken = jwt.sign(
@@ -95,6 +142,64 @@ const login = async (req, res) =>
             return res.sendStatus(401);
         }
     }
+};
+
+const sendPassResetEmail = async (req, res) =>
+{
+    passResetCode = crypto.randomBytes(10).toString('hex');
+
+    const msg = {
+        to: req.body.email,
+        from: 'TopTierGames.ucf@gmail.com',
+        subject: 'Password Reset Request from TopTier Games!',
+        text: 'Hello ' + req.body.firstname + ',\nWe have recieved a request that you would like to reset your password. If this is accurate, enter the verification code below into TopTier Games to continue:\n\n' + passResetCode,
+      }
+      sgMail
+        .send(msg)
+        .then(() =>
+        {
+          console.log('Email sent')
+          return res.status(200).json({
+            message: "Email Sent Successfully"
+          });
+        })
+        .catch((error) =>
+        {
+          console.error(error)
+          return res.status(400).json({
+            message: "Error Sending Email"
+          });
+        })
+};
+
+const resetPass = async (req, res) =>
+{
+    //verify passResetCode
+    if (passResetCode === null || req.body.authCode !== passResetCode)
+    {
+        return res.status(400).json({
+            message: "Incorrect Authorization Code"
+        });
+    }
+
+    //get user
+    let user = await User.findOne({ Login: req.body.login });
+
+    if (user === null)
+    {
+        return res.status(400).json({
+            message: "User not found.",
+        });
+    }
+
+    //update password
+    user.createHash(req.body.newPassword);
+    await user.save();
+
+    return res.status(200).json({ 
+        Login: user.Login,
+        message: "Password successfully updated.",
+     });
 };
 
 const getUser = async (req, res) =>
@@ -222,6 +327,10 @@ const logout = async (req, res) =>
 module.exports =
 {
     signUp,
+    sendAuthEmail,
+    verifyAuthCode,
+    sendPassResetEmail,
+    resetPass,
     login,
     updateUser,
     getUser,

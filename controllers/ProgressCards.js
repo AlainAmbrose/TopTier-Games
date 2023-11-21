@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 require("dotenv").config();
+=======
+var express = require("express");
+
+require('dotenv').config();
+>>>>>>> BACKEND-008/Password-Reset
 
 const Progress = require("../models/ProgressCard");
 const Ranking = require("../models/RankingCard");
@@ -105,4 +111,8 @@ module.exports =
     addUserGame,
     getUserGame,
     deleteUserGame
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> BACKEND-008/Password-Reset
