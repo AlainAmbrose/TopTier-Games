@@ -1,9 +1,11 @@
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:flutter/material.dart';
-//import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DiscoverPage extends StatefulWidget {
   const DiscoverPage({super.key});
+
   @override
   State<DiscoverPage> createState() => _DiscoverPageState();
 }
@@ -11,11 +13,11 @@ class DiscoverPage extends StatefulWidget {
 class _DiscoverPageState extends State<DiscoverPage> {
   List<List<int>> cardData = [];
   List<int> genreData = [];
-  int cardLength = 0;
   int genreLength = 0;
 
   final int increment = 10;
   bool isLoading = false;
+  bool _mounted = true;
 
   @override
   void initState() {
@@ -23,19 +25,43 @@ class _DiscoverPageState extends State<DiscoverPage> {
     super.initState();
   }
 
-  Future _loadMoreCards(int genre) async {
-    setState(() {
-      isLoading = true;
-    });
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
+  }
 
-    // dummy delay
-    await Future.delayed(const Duration(seconds: 4));
-    for (var i = cardLength; i <= cardLength + increment; i++) {
-      cardData[genre].add(i);
+  Future populateHomePage() async {}
+
+  Future _loadMoreCards(int genre) async {
+    final data = {'topGamesFlag ': 1, 'size': 6, 'limit': 10};
+
+    final jsonData = jsonEncode(data);
+    final headers = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'authorization': 'include'
+    };
+
+    final response = await http.post(
+      Uri.parse(
+          'https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/populatehomepage'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      return jsonData;
+    } else {
+      print("error");
+      print(response.statusCode);
     }
+
     setState(() {
+      // Add more cards to the specific genre
+      cardData[genre].addAll(List.generate(
+          increment + 1, (index) => cardData[genre].length + index));
       isLoading = false;
-      cardLength = cardData[genre].length;
     });
   }
 
@@ -46,69 +72,91 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
     // dummy delay
     await Future.delayed(const Duration(seconds: 2));
+
+    // Load more genres
     for (var i = genreLength; i <= genreLength + increment; i++) {
       genreData.add(i);
       cardData.add([]);
     }
+
     setState(() {
       isLoading = false;
       genreLength = genreData.length;
     });
+
+    // Load more cards for each genre
+    for (var genre in genreData) {
+      await _loadMoreCards(genre);
+    }
   }
 
   Widget _buildCardsList(int item) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-         Container(
-           alignment: Alignment.topLeft,
-           child: Text(
-             '$item',
-             style: const TextStyle(
-                 color: Colors.white,
-                 fontFamily: 'Inter-Regular',
-                 fontStyle: FontStyle.italic,
-                 fontWeight: FontWeight.w400,
-                 fontSize: 30),
-           ),
-         ),
-        SizedBox(
-          height: 190.0,
-          child: Container(
-            color: Colors.transparent,
-            child: ShaderMask(
-              shaderCallback: (Rect rect) {
-              return const LinearGradient(
-              //begin: Alignment.center,
-              end: Alignment.centerRight,
-              colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.purple],
-              stops: [0.0, 0.1, 0.9, 1.0], // 10% purple, 80% transparent, 10% purple
-              ).createShader(rect);
-              },
-              blendMode: BlendMode.dstOut,
-              child: LazyLoadScrollView(
-              isLoading: isLoading,
-              scrollDirection: Axis.horizontal,
-              onEndOfPage: () => _loadMoreCards(item),
-              child: ListView.builder(
-                  itemCount: cardData[item].length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (BuildContext context, int index) =>  Card(
-                    elevation: 2,
-                    margin:  const EdgeInsets.all(10.0),
-                    child: SizedBox(
-                    width: 125.0,
-                    child: Text(
-                    'Dummy Card Text $index'
-                    )
-                  ),
-                  ),
+    return LazyLoadScrollView(
+      isLoading: isLoading,
+      scrollDirection: Axis.horizontal,
+      onEndOfPage: () => _loadMoreCards(item),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            alignment: Alignment.topLeft,
+            child: Text(
+              '$item',
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter-Regular',
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 30),
             ),
           ),
-        ),
-        ),
-        ),
-      ],
+          SizedBox(
+            height: 190.0,
+            child: Container(
+              color: Colors.transparent,
+              child: ShaderMask(
+                shaderCallback: (Rect rect) {
+                  return const LinearGradient(
+                    end: Alignment.centerRight,
+                    colors: [
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.purple
+                    ],
+                    stops: [0.0, 0.1, 0.9, 1.0],
+                  ).createShader(rect);
+                },
+                blendMode: BlendMode.dstOut,
+                child: ListView.builder(
+                    itemCount: cardData[item].length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.all(10.0),
+                            child: SizedBox(
+                              height: 140.0,
+                              width: 110.0,
+                              child: Text(
+                                  'Dummy Card Text ${cardData[item][index]}'),
+                            ),
+                          ),
+                          Text('Dummy Card Text ${cardData[item][index]}',
+                            overflow: TextOverflow.clip,
+                          )
+                        ],
+                      );
+                    }),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -151,18 +199,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       fontSize: 30),
                 ),
               ),
-              LazyLoadScrollView(
-                  isLoading: isLoading,
-                  onEndOfPage: () => _loadMoreGenres(),
-                  child: ListView.builder(
-                    itemCount: genreData.length,
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.all(10.0),
-                    itemBuilder: (BuildContext context, int index) {
-                      return _buildCardsList(index);
-                    },
-                  ))
+              ListView.builder(
+                itemCount: genreData.length,
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.all(10.0),
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildCardsList(index);
+                },
+              ),
             ],
           ),
         ),
