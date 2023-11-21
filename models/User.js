@@ -14,6 +14,9 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    RefreshToken: {
+        type: String
+    },
     FirstName: {
         type: String,
         required: true

@@ -42,7 +42,7 @@ const AsideCard = ({game}) => {
   if (!game) {
     return <div>Loading...</div>; // or some other placeholder
   }
-  console.log("Game:", game.title)
+  // console.log("Game:", game.title)
   
   return (
     <>

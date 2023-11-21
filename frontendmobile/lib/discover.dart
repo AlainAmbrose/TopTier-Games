@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DiscoverPage extends StatefulWidget {
-  const DiscoverPage({super.key});
+class DiscoverPage extends StatelessWidget {
+  Map<String, dynamic> jsonResponse;
+  DiscoverPage({Key? key, required this.jsonResponse}) : super(key: key);
 
   @override
   State<DiscoverPage> createState() => _DiscoverPageState();
@@ -174,6 +175,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
               fontSize: 25),
         ),
         backgroundColor: Colors.black,
+          actions: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                child: Text(
+                  "${jsonResponse["firstname"]} ${jsonResponse["lastname"]}",
+                  style: const TextStyle(fontSize: 18),
+                )
+            )
+          ]
       ),
       body: Container(
         decoration: const BoxDecoration(

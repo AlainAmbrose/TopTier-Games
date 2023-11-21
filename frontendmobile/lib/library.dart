@@ -2,7 +2,26 @@ import 'package:flutter/material.dart';
 //import 'gameFunctions.dart';
 
 class LibraryPage extends StatelessWidget {
-  const LibraryPage ({super.key});
+  Map<String, dynamic> jsonResponse;
+  LibraryPage({Key? key, required this.jsonResponse}) : super(key: key);
+
+  PreferredSizeWidget _buildBottomText(Map<String, dynamic> jsonResponse) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(24.0),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Text(
+          jsonResponse['firstname'],
+          style: const TextStyle(
+            fontSize: 16.0,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +41,15 @@ class LibraryPage extends StatelessWidget {
                 fontSize: 25),
         ),
         backgroundColor: Colors.black,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            child: Text(
+              "${jsonResponse["firstname"]} ${jsonResponse["lastname"]}",
+              style: const TextStyle(fontSize: 18),
+            )
+          )
+        ]
       ),
 
       body: Container(
@@ -97,5 +125,6 @@ class LibraryPage extends StatelessWidget {
       ),
     );
   }
+
 
 }

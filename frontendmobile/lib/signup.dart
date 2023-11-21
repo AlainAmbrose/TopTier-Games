@@ -11,9 +11,15 @@ class SignupScreen extends StatelessWidget {
     final TextEditingController _emailController = TextEditingController();
     final TextEditingController _firstnameController = TextEditingController();
     final TextEditingController _lastnameController = TextEditingController();
-    bool loginResult = true;
 
-  SignupScreen({super.key});
+    SignupScreen({super.key});
+
+    String _validateTextField(String value) {
+      if (value.isEmpty) {
+        return 'ERROR';
+      }
+      return '';
+    }
 
     void _handleSignup(BuildContext context) async {
         String email = _emailController.text;
@@ -21,6 +27,28 @@ class SignupScreen extends StatelessWidget {
         String login = _loginController.text;
         String firstname = _firstnameController.text;
         String lastname = _lastnameController.text;
+
+        String emailError = _validateTextField(email);
+        String passwordError = _validateTextField(password);
+        String loginError = _validateTextField(login);
+        String firstnameError = _validateTextField(firstname);
+        String lastnameError = _validateTextField(lastname);
+
+        if (emailError != '' ||
+            passwordError != '' ||
+            loginError != '' ||
+            firstnameError != '' ||
+            lastnameError != '') {
+            
+          Fluttertoast.showToast(msg: "Please fill in all fields.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
+          fontSize: 16.0);
+
+          return;
+          }
 
         final data = {
         'email': email,
@@ -41,8 +69,8 @@ class SignupScreen extends StatelessWidget {
         );
 
         if (response.statusCode == 200) {
-          loginResult = true;
-          _navigateToNextScreen(context);
+          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+          _navigateToNextScreen(context, jsonResponse);
 
         Fluttertoast.showToast(
           msg: 'Signup successful',
@@ -235,9 +263,9 @@ class SignupScreen extends StatelessWidget {
         );
     }
 
-    Future _navigateToNextScreen(BuildContext context) async{
+    Future _navigateToNextScreen(BuildContext context, Map<String, dynamic> jsonResponse) async{
 
-      Navigator.push(context,MaterialPageRoute(builder: (context) =>const HomePage()));
+      Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage(jsonResponse: jsonResponse)));
 
     }
 }
