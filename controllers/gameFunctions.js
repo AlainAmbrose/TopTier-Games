@@ -4,7 +4,7 @@ function buildPath(route)
 {
   if (process.env.NODE_ENV === 'production')
   {
-    return 'https://' + app_name + '.herokuapp.com/' + route;
+    return 'https://www.toptier.games/' + route;
   } else
   {
     return 'http://localhost:3001/' + route;

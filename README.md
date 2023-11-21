@@ -30,7 +30,7 @@ Check the projects tab for a roadmap of tasks
 
    `git push heroku main`
 
-5. Go to https://poosd-large-project-group-8-1502fa002270.herokuapp.com/ to see your changes reflected on the server
+5. Go to https://www.toptier.games/ to see your changes reflected on the server
 
 
 ## Steps for tailwind installment

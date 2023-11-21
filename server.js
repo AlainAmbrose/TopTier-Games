@@ -23,7 +23,7 @@ const app = express();
 
 app.set("port", process.env.PORT || 3001);
 
-const allowedOrigins = ['http://localhost:3000', "https://poosd-large-project-group-8-1502fa002270.herokuapp.com"];
+const allowedOrigins = ['http://localhost:3000', "https://poosd-large-project-group-8-1502fa002270.herokuapp.com", 'https://www.toptier.games'];
 
 const corsOptions = {
   origin: function (origin, callback)

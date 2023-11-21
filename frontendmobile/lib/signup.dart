@@ -35,7 +35,7 @@ class SignupScreen extends StatelessWidget {
         'Content-Type': 'application/json; charset=UTF-8',
         };
         
-        final response = await http.post(Uri.parse('https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Users/api/signup'),
+        final response = await http.post(Uri.parse('https://www.toptier.games/Users/api/signup'),
         headers: headers,
         body: jsonData,
         );
