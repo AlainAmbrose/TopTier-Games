@@ -1,27 +1,6 @@
-<<<<<<< HEAD
 require('dotenv').config();
 const Ranking = require("../models/RankingCard");
 
-=======
-var express = require("express");
-
-require('dotenv').config();
-
-const Ranking = require("../models/RankingCard");
-
-const app_name = "poosd-large-project-group-8-1502fa002270";
-function buildPath(route)
-{
-    if (process.env.NODE_ENV === 'production')
-    {
-        return 'https://' + app_name + '.herokuapp.com/' + route;
-    } else
-    {
-        return 'http://localhost:3000/' + route;
-    }
-}
-
->>>>>>> BACKEND-008/Password-Reset
 const setRanking = async (req, res) =>
 {
     let userId = req.body.userId;
