@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class SearchPage extends StatelessWidget {
-  Map<String, dynamic> jsonResponse;
+  final Map<String, dynamic> jsonResponse;
   final TextEditingController _searchController = TextEditingController();
 
   SearchPage({Key? key, required this.jsonResponse}) : super(key: key);
@@ -39,13 +39,15 @@ class SearchPage extends StatelessWidget {
     final jsonData = jsonEncode(data);
 
     final headers = <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'credentials': 'include',
+      'Content-Type': 'application/json',
+      'Cookie': 'jwt_access=${jsonResponse['accessToken']}'
     };
 
-    final response = await http.post(Uri.parse('https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/searchgame'),
-      headers: headers,
-      body: jsonData
+
+    final response = await http.post(
+        Uri.parse('https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/searchgame'),
+        headers: headers,
+        body: jsonData,
     );
 
     if (response.statusCode == 200) {
