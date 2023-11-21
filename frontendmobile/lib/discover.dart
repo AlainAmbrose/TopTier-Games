@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class DiscoverPage extends StatelessWidget {
-  const DiscoverPage({super.key});
+  Map<String, dynamic> jsonResponse;
+  DiscoverPage({Key? key, required this.jsonResponse}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +21,15 @@ class DiscoverPage extends StatelessWidget {
 
         ),
         backgroundColor: Colors.black,
+          actions: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                child: Text(
+                  "${jsonResponse["firstname"]} ${jsonResponse["lastname"]}",
+                  style: const TextStyle(fontSize: 18),
+                )
+            )
+          ]
       ),
       body: Container(
         decoration: const BoxDecoration(
