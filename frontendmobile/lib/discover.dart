@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class DiscoverPage extends StatelessWidget {
+class DiscoverPage extends StatefulWidget {
   Map<String, dynamic> jsonResponse;
   DiscoverPage({Key? key, required this.jsonResponse}) : super(key: key);
 
@@ -12,13 +12,15 @@ class DiscoverPage extends StatelessWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
+  late Map<String, dynamic> data = <String,dynamic>{};
   List<List<int>> cardData = [];
   List<int> genreData = [];
   int genreLength = 0;
 
-  final int increment = 10;
+  static const int increment = 10;
   bool isLoading = false;
   bool _mounted = true;
+
 
   @override
   void initState() {
@@ -35,28 +37,39 @@ class _DiscoverPageState extends State<DiscoverPage> {
   Future populateHomePage() async {}
 
   Future _loadMoreCards(int genre) async {
-    final data = {'topGamesFlag ': 1, 'size': 6, 'limit': 10};
-
-    final jsonData = jsonEncode(data);
-    final headers = <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'authorization': 'include'
+    var data = {
+      'topGamesFlag': true,
+      'size': 6,
+      'limit': 10
     };
 
-    final response = await http.post(
-      Uri.parse(
-          'https://poosd-large-project-group-8-1502fa002270.herokuapp.com/Games/api/populatehomepage'),
+    final jsonData = jsonEncode(data);
+
+    final headers = <String, String> {
+      'Content-Type': 'application/json',
+      'authorization' : '${widget.jsonResponse['accessToken']}',
+      'Cookie' : 'jwt_access=${widget.jsonResponse['accessToken']}'
+    };
+
+
+    var response = await http.post(
+      Uri.parse('https://www.toptier.games/Games/api/populatehomepage'),
       headers: headers,
       body: jsonData,
     );
 
+
     if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
-      return jsonData;
+      data = json.decode(response.body);
+      print("yay");
+      //print(response.statusCode);
+      print(data['result']);
+      //print(response.body);
     } else {
       print("error");
       print(response.statusCode);
     }
+
 
     setState(() {
       // Add more cards to the specific genre
@@ -112,7 +125,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ),
           ),
           SizedBox(
-            height: 190.0,
+            height: 200.0,
             child: Container(
               color: Colors.transparent,
               child: ShaderMask(
@@ -133,25 +146,29 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     itemCount: cardData[item].length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
+                      return
                           Card(
-                            elevation: 2,
+                            elevation: 3,
                             margin: const EdgeInsets.all(10.0),
-                            child: SizedBox(
-                              height: 140.0,
-                              width: 110.0,
-                              child: Text(
-                                  'Dummy Card Text ${cardData[item][index]}'),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                  SizedBox(
+                                  height: 130.0,
+                                  width: 100.0,
+                                  child: Text(
+                                      'Dummy Card Text ${cardData[item][index]}'),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(6.0),
+                                  alignment: Alignment.bottomLeft,
+                                  //child: Text('Dummy Card Text ${data['result'][index]}'),
+                                ),
+                              ]
                             ),
-                          ),
-                          Text('Dummy Card Text ${cardData[item][index]}',
-                            overflow: TextOverflow.clip,
-                          )
-                        ],
-                      );
+                          );
                     }),
               ),
             ),
@@ -179,7 +196,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                 child: Text(
-                  "${jsonResponse["firstname"]} ${jsonResponse["lastname"]}",
+                  "${widget.jsonResponse["firstname"]} ${widget.jsonResponse["lastname"]}",
                   style: const TextStyle(fontSize: 18),
                 )
             )
