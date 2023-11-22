@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'genres.dart';
 import 'dart:convert';
 
 class DiscoverPage extends StatefulWidget {
@@ -12,7 +15,9 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
+  Map<int, List<Map<String, dynamic>>> genreResults = {};
   late Map<String, dynamic> data = <String,dynamic>{};
+  List<Map<String, dynamic>> results = [];
   List<List<int>> cardData = [];
   List<int> genreData = [];
   int genreLength = 0;
@@ -25,6 +30,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   void initState() {
     _loadMoreGenres();
+    //_loadMoreCards(genreData.length);
     super.initState();
   }
 
@@ -34,23 +40,32 @@ class _DiscoverPageState extends State<DiscoverPage> {
     super.dispose();
   }
 
-  Future populateHomePage() async {}
 
   Future _loadMoreCards(int genre) async {
-    var data = {
-      'topGamesFlag': true,
-      'size': 6,
-      'limit': 10
-    };
+    Map<String, dynamic> jsonSendData = <String,dynamic>{};
 
-    final jsonData = jsonEncode(data);
+    if (genre == 0) {
+      jsonSendData = {
+        'topGamesFlag': true,
+        'size': 6,
+        'limit': 10,
+      };
+    }
+    else
+    {
+      jsonSendData = {
+        'size': 6,
+        'limit': 10,
+        'genre': genres[genre - 1].id,
+      };
+    }
+    final jsonData = jsonEncode(jsonSendData);
 
-    final headers = <String, String> {
+    final headers = <String, String>{
       'Content-Type': 'application/json',
-      'authorization' : '${widget.jsonResponse['accessToken']}',
-      'Cookie' : 'jwt_access=${widget.jsonResponse['accessToken']}'
+      'authorization': '${widget.jsonResponse['accessToken']}',
+      'Cookie': 'jwt_access=${widget.jsonResponse['accessToken']}',
     };
-
 
     var response = await http.post(
       Uri.parse('https://www.toptier.games/Games/api/populatehomepage'),
@@ -58,26 +73,35 @@ class _DiscoverPageState extends State<DiscoverPage> {
       body: jsonData,
     );
 
-
     if (response.statusCode == 200) {
-      data = json.decode(response.body);
+      data = Map<String, Object>.from(json.decode(response.body));
+      // Use the genre as a key to store results in the map
+      genreResults[genre] = List<Map<String, dynamic>>.from((data['result'] as Iterable?) ?? []);
       print("yay");
-      //print(response.statusCode);
-      print(data['result']);
-      //print(response.body);
+      print(response.body);
     } else {
       print("error");
       print(response.statusCode);
     }
 
-
     setState(() {
+      if (cardData.length <= genre || cardData[genre] == null) {
+        cardData.add([]);
+      }
+      // Clear the existing cards for the genre
+      cardData[genre].clear();
+
       // Add more cards to the specific genre
       cardData[genre].addAll(List.generate(
-          increment + 1, (index) => cardData[genre].length + index));
+        // Use the minimum of increment and the number of items received
+        // from the API to avoid the range error
+        min(increment, genreResults[genre]?.length ?? 0),
+            (index) => cardData[genre].length + index,
+      ));
       isLoading = false;
     });
   }
+
 
   Future _loadMoreGenres() async {
     setState(() {
@@ -88,10 +112,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
     await Future.delayed(const Duration(seconds: 2));
 
     // Load more genres
-    for (var i = genreLength; i <= genreLength + increment; i++) {
+    for (var i = genreLength; i < genreLength + increment; i++) {
       genreData.add(i);
       cardData.add([]);
+      await _loadMoreCards(i);
     }
+
 
     setState(() {
       isLoading = false;
@@ -99,9 +125,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
     });
 
     // Load more cards for each genre
-    for (var genre in genreData) {
-      await _loadMoreCards(genre);
-    }
+    // for (var genre in genreData) {
+    //   await _loadMoreCards(genre);
+
   }
 
   Widget _buildCardsList(int item) {
@@ -115,13 +141,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
           Container(
             alignment: Alignment.topLeft,
             child: Text(
-              '$item',
+              item == 0 ? 'Top Games' : genres[item - 1].title,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Inter-Regular',
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 30),
+                color: Colors.white,
+                fontFamily: 'Inter-Regular',
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400,
+                fontSize: 30,
+              ),
             ),
           ),
           SizedBox(
@@ -136,40 +163,24 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       Colors.transparent,
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.purple
+                      Colors.purple,
                     ],
                     stops: [0.0, 0.1, 0.9, 1.0],
                   ).createShader(rect);
                 },
                 blendMode: BlendMode.dstOut,
-                child: ListView.builder(
+                child: LazyLoadScrollView(
+                  isLoading: isLoading,
+                  scrollDirection: Axis.horizontal,
+                  onEndOfPage: () => _loadMoreCards(item),
+                  child: ListView.builder(
                     itemCount: cardData[item].length,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
-                      return
-                          Card(
-                            elevation: 3,
-                            margin: const EdgeInsets.all(10.0),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                  SizedBox(
-                                  height: 130.0,
-                                  width: 100.0,
-                                  child: Text(
-                                      'Dummy Card Text ${cardData[item][index]}'),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(6.0),
-                                  alignment: Alignment.bottomLeft,
-                                  //child: Text('Dummy Card Text ${data['result'][index]}'),
-                                ),
-                              ]
-                            ),
-                          );
-                    }),
+                      return _buildGameCard(item, cardData[item][index]);
+                    },
+                  ),
+                ),
               ),
             ),
           ),
@@ -178,20 +189,71 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
+  Widget _buildGameCard(int genre, int index) {
+    // Retrieve the result for the specific genre
+    var game = genreResults[genre]?[index];
+    if (game == null) {
+      return Container(); // Return an empty container if game is null
+    }
+
+    var imageUrl = game['url'] ?? '';
+
+    return Card(
+      elevation: 0.0,
+      margin: const EdgeInsets.all(10.0),
+      color: Colors.transparent,
+      child: SizedBox(
+        width: 115.0,
+        height: 200.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4.0),
+              child: Image.network(
+                'https:$imageUrl',
+                height: 150.0,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(6.0),
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                game['name'] ?? 'N/A',
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter-regular',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'TopTier',
-          style: TextStyle(
-              fontFamily: 'Inter-Bold',
-              fontWeight: FontWeight.w800,
-              fontStyle: FontStyle.italic,
-              fontSize: 25),
-        ),
-        backgroundColor: Colors.black,
+          automaticallyImplyLeading: false,
+          title: const Text(
+            'TopTier',
+            style: TextStyle(
+                fontFamily: 'Inter-Bold',
+                fontWeight: FontWeight.w800,
+                fontStyle: FontStyle.italic,
+                fontSize: 25),
+          ),
+          backgroundColor: Colors.black,
           actions: [
             Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -225,6 +287,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       fontWeight: FontWeight.w700,
                       fontSize: 30),
                 ),
+              ),
+              ListView.builder(
+                itemCount: genreData.length,
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.all(10.0),
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildCardsList(index);
+                },
               ),
               ListView.builder(
                 itemCount: genreData.length,
