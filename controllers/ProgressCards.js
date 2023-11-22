@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const Progress = require("../models/ProgressCard");
 const Ranking = require("../models/RankingCard");
+const Game = require("../models/Game");
+
 
 function buildPath(route)
 {
@@ -35,6 +37,46 @@ const addUserGame = async (req, res) =>
     return res.status(200).json({ id: 1, message: "User game added successfully." });
 };
 
+const populateLibraryPage = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let pcard = await Progress.find({ UserId: userId });
+    let rcard = await Ranking.find({ UserId: userId });
+
+    let objects = [];
+
+
+    if (pcard === null || rcard === null) 
+    {
+        return res.status(400).json({ games: [], message: "No games found." });
+    }
+    else
+    {
+        let len = pcard.length;
+
+        for (let i = 0; i < len; i++)
+        {
+            let obj = {};
+
+            let game = await Game.findOne({_id: pcard[i].GameId})
+
+            if (game === undefined)
+            {
+                return res.sendStatus(403);
+            }
+
+            obj.id = game.IGDB_id
+            obj.name = game.Name;
+
+            let newURL = functions.updateCoverURL(game.CoverURL, "1080p");
+            obj.cover = newURL;
+            objects.push(obj);
+        }
+
+        return res.status(200).json({ games: objects, message: "Games found." });
+    }
+}
+
 const getUserGame = async (req, res) =>
 {
     let userId = req.body.userId;
@@ -56,12 +98,25 @@ const getUserGame = async (req, res) =>
         {
             let obj = {};
 
+            let game = await Game.findOne({_id: pcard[i].GameId})
+
+            if (game === undefined)
+            {
+                return res.sendStatus(403);
+            }
+
             obj.UserId = pcard[i].UserId;
             obj.GameId = pcard[i].GameId;
             obj.HoursPlayed = pcard[i].HoursPlayed;
             obj.Status = pcard[i].Status;
             if (rcard[i]?.ranking) obj.Ranking = rcard[i].Ranking;
             if (rcard[i]?.Review) obj.Review = rcard[i].Review;
+
+            obj.id = game.IGDB_id
+            obj.name = game.Name;
+
+            let newURL = functions.updateCoverURL(game.CoverURL, "1080p");
+            obj.cover = newURL;
 
             objects.push(obj);
         }
@@ -103,6 +158,7 @@ const deleteUserGame = async (req, res) =>
 module.exports =
 {
     addUserGame,
+    populateLibraryPage,
     getUserGame,
     deleteUserGame
 };
