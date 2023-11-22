@@ -60,8 +60,8 @@ const getUserGame = async (req, res) =>
             obj.GameId = pcard[i].GameId;
             obj.HoursPlayed = pcard[i].HoursPlayed;
             obj.Status = pcard[i].Status;
-            obj.Ranking = rcard[i].Ranking;
-            obj.Review = rcard[i].Review;
+            if (rcard[i]?.ranking) obj.Ranking = rcard[i].Ranking;
+            if (rcard[i]?.Review) obj.Review = rcard[i].Review;
 
             objects.push(obj);
         }
