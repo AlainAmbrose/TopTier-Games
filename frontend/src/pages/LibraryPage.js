@@ -179,6 +179,9 @@ import AsideCard from "../components/Cards/AsideCard";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { useIntersection } from "@mantine/hooks";
 import { AuthContext } from "../components/Authorizations/AuthContext";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+
+const mongoose = require("mongoose");
 
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
@@ -190,147 +193,6 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const genres = [
-  {
-    id: 2,
-    title: "Point-and-click",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 4,
-    title: "Fighting",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 5,
-    title: "Shooter",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 7,
-    title: "Music",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 8,
-    title: "Platform",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 9,
-    title: "Puzzle",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 10,
-    title: "Racing",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 11,
-    title: "Real Time Strategy (RTS)",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 12,
-    title: "Role-playing (RPG)",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 13,
-    title: "Simulator",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 14,
-    title: "Sport",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 15,
-    title: "Strategy",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 16,
-    title: "Turn-based strategy (TBS)",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 24,
-    title: "Tactical",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 25,
-    title: "Hack and slash/Beat 'em up",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 26,
-    title: "Quiz/Trivia",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 30,
-    title: "Pinball",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 31,
-    title: "Adventure",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 32,
-    title: "Indie",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 33,
-    title: "Arcade",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 34,
-    title: "Visual Novel",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 35,
-    title: "Card & Board Game",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 36,
-    title: "MOBA",
-    href: "/#",
-    data: [],
-  },
-];
-
 const app_name = "poosd-large-project-group-8-1502fa002270";
 function buildPath(route) {
   if (process.env.NODE_ENV === "production") {
@@ -340,7 +202,6 @@ function buildPath(route) {
   }
 }
 
-let userId = "";
 let fn = "";
 let ln = "";
 if (localStorage.getItem("user_data") !== null) {
@@ -349,14 +210,15 @@ if (localStorage.getItem("user_data") !== null) {
   console.log(userData);
   fn = userData.firstname;
   ln = userData.lastname;
-  userId = userData.id;
+  var userId = new mongoose.Types.ObjectId(userData.id);
 }
 
-const fetchUserGames = async () => {
+// ONLY THING IT SHOULD BE GETTING IS [ids, ids , ids ]
+const fetchUserGames = async (userId) => {
   let obj = { userId: userId };
   let js = JSON.stringify(obj);
 
-  const response = await fetch(buildPath("Progress/api/getusergame"), {
+  const response = await fetch(buildPath("Progress/api/populatelibrarypage"), {
     method: "POST",
     body: js,
     credentials: "include",
@@ -370,65 +232,37 @@ const fetchUserGames = async () => {
   }
 
   const data = await response.json();
+  console.log(data);
   return data.games;
-
-  // Make it so that this function returns something
-  // that can be consumed by GridList and then try to make
-  // a grid list on the first row
 };
 
-const usersGames = await fetchUserGames();
-console.log(usersGames);
+// Requests a singe page [id,id,id]
+// Return [{ id, thumbnail, name },{ id, thumbnail, name },{ id, thumbnail, name }]
+const fetchUserGamesExtraInfo = async (page, userGameInfo) => {
+  // if (userGameInfo === undefined) {
+  //   return [];
+  // }
 
-const fetchGenre = async (page) => {
-  const genreToFetch = genres.slice((page - 1) * 2, page * 2);
-  const genreIds = genreToFetch.map((genre) => genre.id);
-  console.log("GenreToFetch: ", genreIds);
+  const gamesToFetch = userGameInfo.slice((page - 1) * 15, page * 15);
+  let arrayGamesToFetch = [];
+  gamesToFetch.forEach((game) => {
+    arrayGamesToFetch.push(game.id);
+  });
 
+  console.log("GamesToFetch, ", arrayGamesToFetch);
   try {
-    const fetchPromises = genreIds.map(async (id) => {
-      let obj = { genre: id, size: 7 };
-      let js = JSON.stringify(obj);
-      console.log("request", js);
-
-      const response = await fetch(buildPath("Games/api/populatehomepage"), {
-        method: "POST",
-        body: js,
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.result;
-    });
-
-    const results = await Promise.all(fetchPromises);
-
-    const retval = genreToFetch.map((genre, index) => {
-      return { ...genre, data: results[index] };
-    });
-    console.log("Updated Genres: ", retval, "Page: ", page);
-
-    return retval;
-  } catch (e) {
-    console.error(`Error thrown when fetching genre: ${e}`);
-    // alert(e.toString());
-    // setSearchResults(e.toString());
-  }
-};
-
-async function fetchTopGames() {
-  var obj = { topGamesFlag: true, limit: 8, size: 7 };
-  var js = JSON.stringify(obj);
-  // console.log("TOP GAMES request: ", js);
-  try {
-    const response = await fetch(buildPath("Games/api/populatehomepage"), {
+    // Fetch games using userId [{}, {}, ...]
+    let obj = {
+      gameIds: arrayGamesToFetch,
+      options: {
+        id: true,
+        name: true,
+        coverURL: true,
+      },
+    };
+    let js = JSON.stringify(obj);
+    console.log("GamesToFetch object, ", obj);
+    const response = await fetch(buildPath("Games/api/getgameinfo"), {
       method: "POST",
       body: js,
       credentials: "include",
@@ -440,13 +274,12 @@ async function fetchTopGames() {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const jsonResponse = await response.json();
-    return jsonResponse.result; // Accessing the 'result' property
-  } catch (e) {
-    console.error(`Error thrown when fetching top games: ${e}`);
-    throw e; // Rethrow the error for React Query to catch
-  }
-}
+
+    const data = await response.json();
+    console.log("===============>", data, data.gameInfo);
+    return data;
+  } catch {}
+};
 
 const LibraryPage = () => {
   const authContext = useContext(AuthContext);
@@ -459,6 +292,71 @@ const LibraryPage = () => {
     showSuperToast,
   } = authContext;
   const navigate = useNavigate();
+  const [gameIdsFetched, setGameIdsFetched] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // const changePage = async (direction) => {
+  //   if (direction === "forward") {
+  //     if (currentPage > data.length) {
+  //       await fetchNextPage();
+  //       currentPage(currentPage + 1);
+  //     } else {
+  //       currentPage(currentPage + 1);
+  //     }
+  //   } else if (currentPage !== 0) {
+  //     currentPage(currentPage - 1);
+  //   }
+  // };
+
+  // Data [[{},{},{}], [{},{},{}], [{},{},{}]] => [{},{},...]
+  const { data: usersGameData, isLoading: isLoadingUsersGames } = useQuery(
+    ["usersGameData", userId],
+    () => fetchUserGames(userId),
+    { enabled: !!userId } // ensure userId is not null or undefined
+  );
+
+  // const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
+  //   ["query", usersGameData, isLoadingUsersGames],
+  //   async ({ pageParam = 1 }) => {
+  //     const response = await fetchUserGamesExtraInfo(pageParam, usersGameData);
+  //     return response;
+  //   },
+  //   {
+  //     getNextPageParam: (_, pages) => {
+  //       return pages.length + 1;
+  //     },
+  //     refetchOnWindowFocus: false,
+  //   },
+  //   {
+  //     enabled: isLoadingUsersGames == false,
+  //   }
+  // );
+
+  const { data, fetchNextPage, isFetchingNextPage, canFetchNextPage } =
+    useInfiniteQuery(
+      ["userGamesExtraInfo", usersGameData],
+      ({ pageParam = 1 }) => fetchUserGamesExtraInfo(pageParam, usersGameData),
+      {
+        getNextPageParam: (lastPage, allPages) => allPages.length + 1,
+        enabled:
+          !isLoadingUsersGames &&
+          usersGameData !== undefined &&
+          usersGameData.length > 0,
+      }
+    );
+
+  const changePage = (direction) => {
+    if (direction === "forward") {
+      if (!isFetchingNextPage && canFetchNextPage) {
+        fetchNextPage();
+      }
+    } else if (direction === "backward" && currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const userGamesExtra = data?.pages;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -474,41 +372,6 @@ const LibraryPage = () => {
   }, []);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const lastListRef = useRef(null);
-  const { ref, entry } = useIntersection({
-    root: lastListRef.current,
-    threshold: 1,
-  });
-
-  const {
-    data: topGamesData,
-    isLoading: isLoadingTopGames,
-    isError,
-    error,
-  } = useQuery("topGames", fetchTopGames);
-
-  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-    ["query"],
-    async ({ pageParam = 1 }) => {
-      const response = await fetchGenre(pageParam);
-      return response;
-    },
-    {
-      getNextPageParam: (_, pages) => {
-        return pages.length + 1;
-      },
-      refetchOnWindowFocus: false,
-    }
-  );
-
-  useEffect(() => {
-    if (entry?.isIntersecting) {
-      console.log("INTERSECTING");
-      fetchNextPage();
-    }
-  }, [entry]);
-
-  const _genres = data?.pages.flatMap((page) => page);
 
   // Early return if not authenticated
   if (!isAuthenticated) {
@@ -678,24 +541,10 @@ const LibraryPage = () => {
                 />
               </form>
               <div className="flex items-center gap-x-4 lg:gap-x-6">
-                {/* <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon className="h-6 w-6" aria-hidden="true" />
-                </button> */}
-
-                {/* Separator */}
-                {/* <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10" aria-hidden="true" /> */}
-
                 {/* Profile dropdown */}
                 <Menu as="div" className="relative">
                   <Menu.Button className="-m-1.5 flex items-center p-1.5">
                     <span className="sr-only">Open user menu</span>
-                    {/* DO NOT REMOVE THIS: FUTURE FEATURE */}
-                    {/* <img
-                      className="h-8 w-8 rounded-full bg-gray-50"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
-                    /> */}
                     <span className="inline-block h-8 w-8 overflow-hidden rounded-full bg-gray-100">
                       <svg
                         className="h-full w-full text-gray-300"
@@ -753,18 +602,49 @@ const LibraryPage = () => {
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
           <main className="xl:pl-0 ">
             <div
-              ref={lastListRef}
               style={{ height: "calc(100vh - 120px)" }}
               className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
             >
               <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
                 {/* Main area */}
-                {/* Top 3 Games */}
                 <h1 className="text-gray-300 text-4xl p-5">Your Library</h1>
-                {!isLoadingTopGames && topGamesData !== undefined ? (
+
+                {usersGameData !== undefined && currentPage > 0 && (
+                  <button
+                    onClick={() => {
+                      changePage("backward");
+                    }}
+                  >
+                    <FaArrowLeft style={{ color: "white" }} />
+                  </button>
+                )}
+
+                {/* {usersGameData !== undefined && usersGameData.length && (
+                  <button
+                    onClick={() => {
+                      changePage(1);
+                    }}
+                  >
+                    <FaArrowRight style={{ color: "white" }} />
+                  </button>
+                )} */}
+
+                <button
+                  className="bg-white mb-2 text-blue-600"
+                  onClick={() => changePage("forward")}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage
+                    ? "Loading more..."
+                    : (data?.pages.length ?? 0) < 2
+                    ? "Load More"
+                    : "Nothing more to load"}
+                </button>
+
+                {!isFetchingNextPage && userGamesExtra !== undefined ? (
                   <>
                     <GridList
-                      games={topGamesData.slice(0, 5)}
+                      games={userGamesExtra[currentPage]}
                       listTitle={""}
                       width={"8/12"}
                       aspectHeight={8}
@@ -773,15 +653,15 @@ const LibraryPage = () => {
                       smCols="5"
                       lgCols="5"
                     ></GridList>
-                    <GridList
-                      games={topGamesData.slice(3, 9)}
+                    {/* <GridList
+                      games={usersGameData.slice(0, 6)}
                       width={"full"}
                       aspectHeight={8}
                       aspectWidth={36}
                       mdCols="5"
                       smCols="5"
                       lgCols="5"
-                    ></GridList>
+                    ></GridList> */}
                   </>
                 ) : (
                   <>
@@ -808,74 +688,10 @@ const LibraryPage = () => {
                     ></GridList>
                   </>
                 )}
-
-                {data !== undefined &&
-                  _genres?.map((genre, i) => {
-                    if (i === _genres.length - 1) {
-                      return (
-                        <HorizontalGameList
-                          ref={ref}
-                          key={genre.id}
-                          games={genre.data}
-                          listTitle={genre.title}
-                        ></HorizontalGameList>
-                      );
-                    }
-                    return (
-                      <HorizontalGameList
-                        key={genre.id}
-                        games={genre.data}
-                        listTitle={genre.title}
-                      ></HorizontalGameList>
-                    );
-                  })}
-                {(isFetchingNextPage || data == undefined) && (
-                  <>
-                    <HorizontalGameList
-                      skeleton={true}
-                      skeletoncount={10}
-                    ></HorizontalGameList>
-                    <HorizontalGameList
-                      skeleton={true}
-                      skeletoncount={10}
-                    ></HorizontalGameList>
-                  </>
-                )}
-
-                {/*                 
-                <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-                  {isFetchingNextPage
-                    ? 'Loading more...'
-                    : (data?.pages.length ?? 0) < 11
-                    ? 'Load More'
-                    : 'Nothing more to load'
-                  }
-                </button>  */}
               </div>
             </div>
           </main>
         </div>
-
-        {/* <aside className="fixed bottom-0 left-20 top-16 hidden w-96  border-r border-gray-200  py-5 sm:px-6 lg:px-8 xl:block">
-          Secondary column (hidden on smaller screens)
-          <div
-            style={{ height: "calc(100vh - 120px)" }}
-            className="px-4 py-10 sm:px-6 border-transparent  border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6  xl:shadow-md xl:shadow-gray-950"
-          >
-            <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
-              <p className="text-white text-3xl mb-3">Recommended for you</p>
-
-              <ToggleSwitch></ToggleSwitch>
-              <ul role="list" className="divide-y divide-gray-200">
-                {files.map((file, index) => (
-                  <li key={index} className="flex gap-x-4 py-5">
-                    <AsideCard game={file}></AsideCard>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </aside> */}
       </div>
     </>
   );
