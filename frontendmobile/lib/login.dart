@@ -65,7 +65,28 @@ class LoginScreen extends StatelessWidget {
               textColor: Colors.white,
               fontSize: 16.0,
             );
-        } else {
+        }
+        else if (response.statusCode == 403) {
+          Fluttertoast.showToast(
+            msg: "No user exists with that username.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green, // You can customize the background color
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+        else if (response.statusCode == 401) {
+          Fluttertoast.showToast(
+            msg: "Incorrect password.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green, // You can customize the background color
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+        else {
             Fluttertoast.showToast(
               msg: response.statusCode.toString(),
               toastLength: Toast.LENGTH_SHORT,
