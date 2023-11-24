@@ -15,10 +15,8 @@ function buildPath(route)
   }
 }
 
-
 const fetchGameInformation = async (gameId) =>
 {
-  console.log("GETTING Game INFO : ", gameId);
   var obj = {
     gameId: gameId,
     options: {
@@ -58,11 +56,8 @@ const fetchGameInformation = async (gameId) =>
     const jsonResponse = await response.json();
 
     let gameInfo = jsonResponse.gameInfo;
-    console.log("jsonResponse for gameInfo: ", gameInfo);
 
-    // return jsonResponse.gameInfo; // Remove Me!
-
-    // Retrieve the games
+    // Retrieve the similar games
     try
     {
       var obj = {
@@ -77,7 +72,6 @@ const fetchGameInformation = async (gameId) =>
           platformlogos: true,
         }
       };
-      console.log("request for similar games", obj);
       let js = JSON.stringify(obj);
 
       const similarGamesResponse = await fetch(buildPath("Games/api/getgameinfo"), {
@@ -94,21 +88,17 @@ const fetchGameInformation = async (gameId) =>
         throw new Error(`HTTP error! status: ${similarGamesResponse.status}`);
       }
 
-      gameInfo.similargames = similarGamesResponse.map((game, index) =>
+      let resolvedSimilarGames = await similarGamesResponse.json()
+
+      gameInfo.similargames = resolvedSimilarGames.map((game, index) =>
       {
         return { ...game };
       });
-
-      console.log("Similar Games: ", gameInfo.similarGames);
-
       return gameInfo;
     } catch (e)
     {
       console.error(e);
-      // setSearchResults(e.toString());
     }
-
-    return jsonResponse; // Accessing the 'result' property
   }
   catch (e)
   {
@@ -116,6 +106,7 @@ const fetchGameInformation = async (gameId) =>
     throw e; // Rethrow the error for React Query to catch
   }
 };
+
 
 function classNames(...classes)
 {
