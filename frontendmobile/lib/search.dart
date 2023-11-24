@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'modal.dart';
 
 class SearchPage extends StatefulWidget {
   final Map<String, dynamic> jsonResponse;
@@ -21,6 +22,51 @@ class _SearchPageState extends State<SearchPage> {
       return 'ERROR';
     }
     return '';
+  }
+
+  Future<Map<String, dynamic>> _getCover(dynamic game) async {
+    Map<String, dynamic> cover = {};
+    int id = game["IGDB_id"];
+    int size = 6;
+
+    final data = {
+      'id': id,
+      'size': size
+    };
+
+    final jsonData = jsonEncode(data);
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Cookie': 'jwt_access=${widget.jsonResponse['accessToken']}'
+    };
+
+    final response = await http.post(
+      Uri.parse('https://www.toptier.games/Games/api/getCover'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        cover = jsonDecode(response.body);
+      });
+    } else {
+      setState(() {
+        cover = {"image": "error"};
+      });
+    }
+
+    return cover;
+  }
+
+  void _fetchCovers(List<dynamic> games) async {
+    coversMap = {};
+
+    for (int i = 0; i < games.length; i++) {
+      Map<String, dynamic>? cover = await _getCover(games[i]);
+      coversMap[i] = cover;
+    }
   }
 
   void _handleSearch(BuildContext context) async {
@@ -70,52 +116,6 @@ class _SearchPageState extends State<SearchPage> {
         textColor: Colors.black,
         fontSize: 16.0,
       );
-    }
-  }
-
-  Future<Map<String, dynamic>> _getCover(dynamic game) async {
-    Map<String, dynamic> cover = {};
-    int id = game["IGDB_id"];
-    int size = 6;
-
-    final data = {
-      'id': id,
-      'size': size
-    };
-
-    final jsonData = jsonEncode(data);
-
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-      'Cookie': 'jwt_access=${widget.jsonResponse['accessToken']}'
-    };
-
-    final response = await http.post(
-      Uri.parse('https://www.toptier.games/Games/api/getCover'),
-      headers: headers,
-      body: jsonData,
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        cover = jsonDecode(response.body);
-      });
-    } else {
-      setState(() {
-        cover = {"image": "error"};
-      });
-    }
-
-    return cover;
-  }
-
-  void _fetchCovers(List<dynamic> games) async {
-    coversMap = {};
-
-    for (int i = 0; i < games.length; i++) {
-      print(games[i]['Name']);
-      Map<String, dynamic>? cover = await _getCover(games[i]);
-      coversMap[i] = cover;
     }
   }
 
@@ -190,7 +190,14 @@ class _SearchPageState extends State<SearchPage> {
                     final game = searchResults![index];
                     final cover = coversMap[index];
                     return GestureDetector(
-                      onTap: () {print("Tapped an icon");},
+                      onTap: () {
+                      showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                            return Modal.returnModal(context, game);
+                          },
+                        );
+                      },
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 8.0),
                         decoration: BoxDecoration(
