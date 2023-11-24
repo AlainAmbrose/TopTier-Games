@@ -1,6 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from "react";
-import
-{
+import React, {
+  Fragment,
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+} from "react";
+import { AuthContext } from "../components/Authorizations/AuthContext";
+import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
@@ -10,65 +16,61 @@ import LibraryContent from "../components/LibraryContent";
 const userNavigation = [
   { name: "Your profile", href: "#" },
   { name: "Home", href: "/home" },
-  { name: "Sign out", href: "/"},
+  { name: "Sign out", href: "/" },
 ];
 
-function classNames(...classes)
-{
+function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const LibraryPage = () =>
-{
-  var currentUser = localStorage.getItem("user_data");
-  var userData = JSON.parse(currentUser);
-  console.log(userData);
-  var fn = userData.firstname;
-  var ln = userData.lastname;
+const LibraryPage = () => {
+  const authContext = useContext(AuthContext);
+  const {
+    user,
+    isAuthenticated,
+    userSignup,
+    userLogin,
+    userLogout,
+    showSuperToast,
+  } = authContext;
+
+  var fn = user.firstname;
+  var ln = user.lastname;
 
   const [isClicked1, setIsClicked1] = useState(true);
   const [isClicked2, setIsClicked2] = useState(false);
   const [isClicked3, setIsClicked3] = useState(false);
   const [selectedTab, setTab] = useState("played");
 
-  const toggleColor1 = () =>
-  {
+  const toggleColor1 = () => {
     setIsClicked1(!isClicked1);
     setTab("played");
-    if (isClicked2)
-    {
+    if (isClicked2) {
       setIsClicked2(!isClicked2);
     }
-    if (isClicked3)
-    {
+    if (isClicked3) {
       setIsClicked3(!isClicked3);
     }
   };
 
-  const toggleColor2 = () =>
-  {
+  const toggleColor2 = () => {
     setIsClicked2(!isClicked2);
     setTab("wantToPlay");
-    if (isClicked1)
-    {
+    if (isClicked1) {
       setIsClicked1(!isClicked1);
     }
-    if (isClicked3)
-    {
+    if (isClicked3) {
       setIsClicked3(!isClicked3);
     }
   };
 
-  const toggleColor3 = () =>
-  {
+  const toggleColor3 = () => {
     setIsClicked3(!isClicked3);
     setTab("all");
-    if (isClicked1)
-    {
+    if (isClicked1) {
       setIsClicked1(!isClicked1);
     }
-    if (isClicked2)
-    {
+    if (isClicked2) {
       setIsClicked2(!isClicked2);
     }
   };
@@ -135,22 +137,25 @@ const LibraryPage = () =>
         </Transition>
       </Menu>
       <button
-        className={`${isClicked1 ? "bg-slate-800" : "bg-opacity-50"
-          } text-slate-50 top-[7.8rem] left-[41px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
+        className={`${
+          isClicked1 ? "bg-slate-800" : "bg-opacity-50"
+        } text-slate-50 top-[7.8rem] left-[41px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
         onClick={toggleColor1}
       >
         Played
       </button>
       <button
-        className={`${isClicked2 ? "bg-slate-800" : "bg-opacity-50"
-          } text-slate-50 top-[7.8rem] left-[191px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
+        className={`${
+          isClicked2 ? "bg-slate-800" : "bg-opacity-50"
+        } text-slate-50 top-[7.8rem] left-[191px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
         onClick={toggleColor2}
       >
         Want to Play
       </button>
       <button
-        className={`${isClicked3 ? "bg-slate-800" : "bg-opacity-50"
-          } text-slate-50 top-[7.8rem] left-[341px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
+        className={`${
+          isClicked3 ? "bg-slate-800" : "bg-opacity-50"
+        } text-slate-50 top-[7.8rem] left-[341px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
         onClick={toggleColor3}
       >
         All
