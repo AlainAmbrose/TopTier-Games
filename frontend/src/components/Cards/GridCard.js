@@ -18,6 +18,7 @@ const fetchGameInformation = async (gameId) => {
   var obj = {
     gameId: gameId,
     options: {
+      _id: true,
       id: true,
       name: true,
       coverURL: true,
@@ -32,6 +33,7 @@ const fetchGameInformation = async (gameId) => {
       videos: true,
       ageratings: true,
       similargames: true,
+      reviewcount: true,
     },
   };
   var js = JSON.stringify(obj);
@@ -89,7 +91,9 @@ const fetchGameInformation = async (gameId) => {
         throw new Error(`HTTP error! status: ${similarGamesResponse.status}`);
       }
 
-      gameInfo.similargames = similarGamesResponse.map((game, index) => {
+      let resolvedSimilarGames = await similarGamesResponse.json();
+
+      gameInfo.similargames = resolvedSimilarGames.map((game, index) => {
         return { ...game };
       });
 
