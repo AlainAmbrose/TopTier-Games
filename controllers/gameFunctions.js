@@ -210,9 +210,11 @@ module.exports = {
     if (game === null) return null;
 
     let gameInfo = {};
+    gameInfo._id = game._id;
     gameInfo.id = game.IGDB_id;
     gameInfo.name = game.Name;
-    gameInfo.coverURL = game.CoverURL;
+    let newURL = this.updateCoverURL(game.CoverURL, "1080p")
+    gameInfo.url = newURL;
     gameInfo.storyline = game.Summary;
     gameInfo.releasedate = game.ReleaseDate;
     gameInfo.genres = game.Genre;
@@ -226,6 +228,7 @@ module.exports = {
     gameInfo.videos = game.Videos;
     gameInfo.ageratings = game.AgeRating;
     gameInfo.similargames = game.SimilarGames;
+    gameInfo.reviewcount = game.ReviewCount;
 
     return gameInfo;
   },

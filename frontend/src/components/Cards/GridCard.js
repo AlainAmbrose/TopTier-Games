@@ -1,29 +1,25 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import CardPopup from "../CardPopup";
 import { useQuery } from "react-query";
 import { AuthContext } from "../Authorizations/AuthContext";
 
-
-function buildPath(route)
-{
-  if (process.env.NODE_ENV === 'production')
-  {
-    return 'https://www.toptier.games/' + route;
-  } else
-  {
-    return 'http://localhost:3001/' + route;
+function buildPath(route) {
+  if (process.env.NODE_ENV === "production") {
+    return "https://www.toptier.games/" + route;
+  } else {
+    return "http://localhost:3001/" + route;
   }
 }
 
 
 const fetchGameInformation = async (gameId) =>
 {
-  console.log("GETTING Game INFO : ", gameId);
   var obj = {
     gameId: gameId,
     options: {
+      _id: true,
       id: true,
       name: true,
       coverURL: true,
@@ -37,34 +33,30 @@ const fetchGameInformation = async (gameId) =>
       platformlogos: true,
       videos: true,
       ageratings: true,
-      similargames: true
+      similargames: true,
+      reviewcount: true,
     }
   };
   var js = JSON.stringify(obj);
 
-  try
-  {
+  try {
     const response = await fetch(buildPath("Games/api/getgameinfo"), {
-      method: 'POST',
+      method: "POST",
       body: js,
-      credentials: 'include',
+      credentials: "include",
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     });
 
-    if (!response.ok)
-    {
+    if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const jsonResponse = await response.json();
 
     let gameInfo = jsonResponse.gameInfo;
-    console.log("jsonResponse for gameInfo: ", gameInfo);
 
-    // return jsonResponse.gameInfo; // Remove Me!
-
-    // Retrieve the games
+    // Retrieve the similar games
     try
     {
       var obj = {
@@ -77,40 +69,36 @@ const fetchGameInformation = async (gameId) =>
           links: true,
           platforms: true,
           platformlogos: true,
-        }
+        },
       };
-      console.log("request for similar games", obj);
       let js = JSON.stringify(obj);
 
-      const similarGamesResponse = await fetch(buildPath("Games/api/getgameinfo"), {
-        method: 'POST',
-        body: js,
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
+      const similarGamesResponse = await fetch(
+        buildPath("Games/api/getgameinfo"),
+        {
+          method: "POST",
+          body: js,
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
-      if (!similarGamesResponse.ok)
-      {
+      if (!similarGamesResponse.ok) {
         throw new Error(`HTTP error! status: ${similarGamesResponse.status}`);
       }
 
-      gameInfo.similargames = similarGamesResponse.map((game, index) =>
+      let resolvedSimilarGames = await similarGamesResponse.json()
+
+      gameInfo.similargames = resolvedSimilarGames.map((game, index) =>
       {
         return { ...game };
       });
-
-      console.log("Similar Games: ", gameInfo.similarGames);
-
       return gameInfo;
-    } catch (e)
-    {
+    } catch (e) {
       console.error(e);
-      // setSearchResults(e.toString());
     }
-
-    return jsonResponse; // Accessing the 'result' property
   }
   catch (e)
   {
@@ -119,65 +107,90 @@ const fetchGameInformation = async (gameId) =>
   }
 };
 
-
-function classNames(...classes)
-{
+function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const GridCard = ({ game, skeleton }) =>
-{
+const GridCard = ({ game, skeleton, apsectHeight, apsectWidth }) => {
   const [open, setOpen] = useState(false);
   const authContext = useContext(AuthContext);
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
+  const { user, isAuthenticated, userSignup, userLogin, userLogout } =
+    authContext;
 
   // Triggers the query when the popup is open and the game ID is available
-  const { data: gameInfo, isLoading: isLoadingGameInfo, isError, error } = useQuery(
-    ['RecommendedGames', game.id],
+  const {
+    data: gameInfo,
+    isLoading: isLoadingGameInfo,
+    isError,
+    error,
+  } = useQuery(
+    ["RecommendedGames", game.id],
     () => fetchGameInformation(game.id),
     {
       enabled: open && game.id != null && skeleton === false,
     }
   );
-
-
-  const cardClasses = classNames(`group aspect-h-5 aspect-w-8 block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300
-  ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
-
+  // was h-5 and w-8
+  const cardClasses =
+    classNames(`group aspect-h-${apsectHeight} aspect-w-${apsectWidth} block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300 ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
 
   return (
     <>
       {/* Button */}
 
-      {!skeleton ? (<>
-        <div className={cardClasses}>
-          <img src={game.url} alt="" className="pointer-events-none object-cover group-hover:opacity-90" />
-          <button type="button" className="absolute  inset-0 focus:outline-none" onClick={() => { setOpen(true); }}>
-            <span className="sr-only">View details for {game.name}</span>
-          </button>
-        </div>
-        <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-300">
-          {game.name}
-        </p>
-        <p className="pointer-events-none block text-sm font-medium text-gray-500">
-          {game.id}
-        </p>
-      </>) :
-        (<>
+      {!skeleton ? (
+        <>
           <div className={cardClasses}>
-            <SkeletonTheme baseColor="black" borderRadius="0.5rem" highlightColor="#202020">
+            <img
+              src={game.url}
+              alt=""
+              className="pointer-events-none object-cover group-hover:opacity-90"
+            />
+            <button
+              type="button"
+              className="absolute  inset-0 focus:outline-none"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              <span className="sr-only">View details for {game.name}</span>
+            </button>
+          </div>
+          <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-300">
+            {game.name}
+          </p>
+          <p className="pointer-events-none block text-sm font-medium text-gray-500">
+            {game.id}
+          </p>
+        </>
+      ) : (
+        <>
+          <div className={cardClasses}>
+            <SkeletonTheme
+              baseColor="black"
+              borderRadius="0.5rem"
+              highlightColor="#202020"
+            >
               <Skeleton className="pointer-events-none object-cover aspect-h-7 aspect-w-10 group-hover:opacity-90"></Skeleton>
             </SkeletonTheme>
           </div>
           <p className="pointer-events-none w-8/12 mt-2 block truncate ">
             <SkeletonTheme baseColor="black" highlightColor="#202020">
-              <Skeleton count={2} ></Skeleton>
+              <Skeleton count={2}></Skeleton>
             </SkeletonTheme>
           </p>
-        </>)}
+        </>
+      )}
 
       {/* POP UP */}
-      <CardPopup game={game} gameInfo={gameInfo} isLoadingGameInfo={isLoadingGameInfo} open={open} setOpen={setOpen} skeleton={skeleton}></CardPopup>
+      <CardPopup
+        game={game}
+        gameInfo={gameInfo}
+        isLoadingGameInfo={isLoadingGameInfo}
+        open={open}
+        setOpen={setOpen}
+        skeleton={skeleton}
+      ></CardPopup>
     </>
   );
 };
@@ -195,7 +208,7 @@ GridCard.defaultProps = {
   game: {
     name: "loading",
     id: -1,
-    url: "/#"
+    url: "/#",
   },
   skeleton: false,
 };

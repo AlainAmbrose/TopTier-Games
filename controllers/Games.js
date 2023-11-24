@@ -26,17 +26,27 @@ const insertGame = async (req, res) => {
   await functions
     .getGame(search)
     .then(async (data) => {
-      data.forEach(async function (obj) {
+      let errorFlag = false;
+      for (let obj of data) {
         let game = obj;
 
         const newGame = new Game();
 
         if (game.id) newGame.IGDB_id = game.id;
-        else return res.sendStatus(403);
+        else {
+          errorFlag = true;
+          break;
+        }
         if (game.name) newGame.Name = game.name;
-        else return res.sendStatus(403);
+        else {
+          errorFlag = true;
+          break;
+        }
         if (game.cover && game.cover.url) newGame.CoverURL = game.cover.url;
-        else return res.sendStatus(403);
+        else {
+          errorFlag = true;
+          break;
+        }
         if (game.storyline) newGame.Summary = game.storyline;
         if (game.first_release_date)
           newGame.ReleaseDate = new Date(game.first_release_date * 1000);
@@ -46,7 +56,13 @@ const insertGame = async (req, res) => {
           newGame.GameRanking = functions.getGameRatingOutOf5(
             game.total_rating
           );
-        else return res.sendStatus(403);
+        else {
+          errorFlag = true;
+          break;
+        }
+
+        if (game.total_rating_count)
+          newGame.ReviewCount = game.total_rating_count;
 
         if (game.screenshots)
           newGame.Images = await functions.getGameImages(game.screenshots);
@@ -70,14 +86,20 @@ const insertGame = async (req, res) => {
               p_logos
             );
         }
+
         if (game.videos)
           newGame.Videos = await functions.getGameVideos(game.videos);
+
         if (game.age_ratings)
           newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
+
         if (game.similar_games) newGame.SimilarGames = game.similar_games;
 
         await newGame.save();
-      });
+      }
+
+      if (errorFlag)
+        return res.status(400).json({ id: -1, message: "Bad Entry" });
 
       return res
         .status(200)
@@ -205,6 +227,7 @@ const getCover = async (req, res) => {
 // Retrieves game info
 const getGameInfo = async (req, res) => {
   const converter = {
+    _id: "_id",
     id: "IGDB_id",
     name: "Name",
     coverURL: "CoverURL",
@@ -219,6 +242,7 @@ const getGameInfo = async (req, res) => {
     videos: "Videos",
     ageratings: "AgeRating",
     similargames: "SimilarGames",
+    reviewcount: "ReviewCount",
   };
   let gameIds = req.body.gameId;
 

@@ -91,13 +91,17 @@ const login = async (req, res) => {
       const accessToken = jwt.sign(
         { userId: user._id },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" }
+        {
+          expiresIn: "15m",
+        }
       );
 
       const refreshToken = jwt.sign(
         { userId: user._id },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1h" }
+        {
+          expiresIn: "1h",
+        }
       );
 
       user.DateLastLoggedIn = new Date();
@@ -143,8 +147,10 @@ const login = async (req, res) => {
         id: user._id,
         firstname: user.FirstName,
         lastname: user.LastName,
+        email: user.Email,
         exp: accessTokenExpiryTime,
         accessToken: accessToken,
+        refreshToken: refreshToken,
         message: "User Successfully Logged In",
       });
     } else {
@@ -224,6 +230,7 @@ const getUser = async (req, res) => {
       id: user._id,
       firstname: user.FirstName,
       lastname: user.LastName,
+      email: user.Email,
       message: "User Successful",
     });
   }
@@ -293,7 +300,6 @@ const deleteUser = async (req, res) => {
 
 const logout = async (req, res) => {
   let cookies = req.cookies;
-
   if (!cookies?.jwt_refresh) return res.sendStatus(401);
 
   const refreshToken = cookies.jwt_refresh;

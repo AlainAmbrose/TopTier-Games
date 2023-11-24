@@ -1,20 +1,20 @@
 import PropTypes from "prop-types";
 // Import the classnames utility
-import classNames from 'classnames';
-import GridCard from '../Cards/GridCard';
-import { useQuery, QueryClient } from 'react-query'
+import classNames from "classnames";
+import GridCard from "../Cards/GridCard";
+import { useQuery, QueryClient } from "react-query";
 
-const GridList = (
-  {
-    games, 
-    skeleton,
-    skeletoncount,
-    listTitle, 
-    smCols,
-    mdCols,
-    lgCols,
-  }) => {
-    
+const GridList = ({
+  games,
+  skeleton,
+  skeletoncount,
+  listTitle,
+  aspectHeight = 8,
+  aspectWidth = 36,
+  smCols,
+  mdCols,
+  lgCols,
+}) => {
   /*
     Note: Tailwind cannot handle dynamic class names unless the class name is somewhere in the source code.
     This is because when we deploy tailwind parses the code and creates a style sheet based on what it sees
@@ -46,37 +46,43 @@ const GridList = (
   const gridClasses = classNames(
     `mb-6 grid ${mdGridClassStyles[mdCols]} gap-x-4 gap-y-8  sm:gap-x-6 ${smGridClassStyles[smCols]} ${lgGridClassStyles[lgCols]} xl:gap-x-8`
   );
-  if (games !== undefined) {
-    // console.log("TOPGAMESSSSSSSS", games);
-  }
-
+  
   return (
     <div>
       <div className={`${listTitle === "" ? "hidden" : "relative mb-5 "}`}>
         <div className="relative flex justify-start">
-          <p className="bg-black pr-3 text-4xl text-gray-200">
-            {listTitle}
-          </p>
+          <p className="bg-black pr-3 text-4xl text-gray-200">{listTitle}</p>
         </div>
       </div>
-      {!skeleton ? (<>
-      <ul role="list" className={gridClasses}>
-        {games.map((game, index) => (
-          <li key={index} className="relative">
-            <GridCard game={game} ></GridCard>
-          </li>
-        ))}
-      </ul>
-      </>) : (<>
-        <ul role="list" className={gridClasses}>
-          {[...Array(skeletoncount)].map((_, index) => (
-            <li key={index} className="relative">
-              <GridCard skeleton={true} ></GridCard>
-            </li>
-          ))}
-        </ul>
-      </>)}
-      
+      {!skeleton ? (
+        <>
+          <ul role="list" className={gridClasses}>
+            {games.map((game, index) => (
+              <li key={index} className="relative">
+                <GridCard
+                  game={game}
+                  aspectHeight={aspectHeight}
+                  aspectWidth={aspectWidth}
+                ></GridCard>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <>
+          <ul role="list" className={gridClasses}>
+            {[...Array(skeletoncount)].map((_, index) => (
+              <li key={index} className="relative">
+                <GridCard
+                  skeleton={true}
+                  aspectHeight={aspectHeight}
+                  aspectWidth={aspectWidth}
+                ></GridCard>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 };
@@ -85,8 +91,8 @@ const GridList = (
 GridList.propTypes = {
   listTitle: PropTypes.string.isRequired,
   width: PropTypes.string.isRequired,
-  aspectHeight: PropTypes.number.isRequired,
-  aspectWidth: PropTypes.number.isRequired,
+  aspectHeight: PropTypes.number,
+  aspectWidth: PropTypes.number,
   games: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
@@ -97,7 +103,7 @@ GridList.propTypes = {
   smCols: PropTypes.string.isRequired,
   mdCols: PropTypes.string.isRequired,
   lgCols: PropTypes.string.isRequired,
-  skeleton: PropTypes.bool.isRequired, 
+  skeleton: PropTypes.bool.isRequired,
   skeletoncount: PropTypes.number,
 };
 
