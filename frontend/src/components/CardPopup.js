@@ -1,12 +1,14 @@
-import React from "react";
+import React from 'react'
+import PropTypes from "prop-types";
 import { Dialog, RadioGroup, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { Rating } from "react-simple-star-rating";
 import { useQuery } from "react-query";
 import HorizontalGameList from "./Lists/HorizontalGameList";
 import LongText from "./LongText";
+import { Rating } from 'react-simple-star-rating'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 const mongoose = require("mongoose");
 
@@ -58,23 +60,12 @@ function buildPath(route) {
 }
 
 const convertDate = (dateStr) => {
-    // // Assuming releaseDate is in seconds. If it's in milliseconds, you don't need to multiply by 1000.
-    // const releaseDate = new Date(date * 1000);
-
-    // // Options for formatting the date
-    // const options = { year: 'numeric', month: 'long', day: 'numeric' };
-
-    // // Format the date
-    // const formattedDate = releaseDate.toLocaleDateString('en-US', options);
-    console.log("Date: ", dateStr);
     const dateObj = new Date(dateStr);
-
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formattedDate = dateObj.toLocaleDateString("en-US", options);
-    console.log(formattedDate); // Outputs: February 25, 2022
-
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = dateObj.toLocaleDateString('en-US', options);
     return formattedDate;
-};
+}
+
 
 const checkUserGames = async (userId, gameId) => {
     let js = JSON.stringify({ userId: userId, gameId: gameId });
@@ -220,111 +211,83 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                                                     <h2 className="text-4xl font-bold text-gray-200 sm:pr-12">
                                                         {game.name}
                                                     </h2>
-
+                                                    {/* START HERE  */}
                                                     <section
                                                         aria-labelledby="information-heading"
                                                         className="mt-2"
                                                     >
-                                                        <h3
-                                                            id="information-heading"
-                                                            className="sr-only"
-                                                        >
+                                                        <h3 id="information-heading" className="sr-only">
                                                             Game information
                                                         </h3>
-                                                        {!isLoadingGameInfo &&
-                                                            gameInfo !== undefined &&
-                                                            gameInfo.releasedate !== undefined && (
-                                                                <p className="text-2xl text-gray-200">
-                                                                    <span className="text-2xl text-blue-600">
-                                                                        Release Date:{" "}
-                                                                    </span>{" "}
-                                                                    {convertDate(
-                                                                        gameInfo.releasedate
-                                                                    )}
+                                                        {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.releasedate !== undefined) ?
+                                                            (<p className="text-2xl text-gray-200">
+                                                                <span className="text-2xl text-blue-600">Release Date: </span> {convertDate(gameInfo.releasedate)}
+                                                            </p>) :
+                                                            (<>
+                                                                <p className="pointer-events-none w-4/12 h-5 mt-2 block truncate ">
+                                                                    <SkeletonTheme baseColor="black" highlightColor="#202020">
+                                                                        <Skeleton count={1} ></Skeleton>
+                                                                    </SkeletonTheme>
                                                                 </p>
-                                                            )}
+                                                            </>)
+                                                        }
+
 
                                                         {/* Reviews */}
                                                         <div className="mt-6">
                                                             <h4 className="sr-only">Reviews</h4>
                                                             <div className="flex items-center">
                                                                 <div className="flex items-center">
-                                                                    {!isLoadingGameInfo &&
-                                                                        gameInfo !== undefined &&
-                                                                        gameInfo.gameranking !==
-                                                                            undefined && (
+                                                                    {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) ?
+                                                                        (
                                                                             <Rating
                                                                                 size={25}
                                                                                 transition
-                                                                                initialValue={
-                                                                                    gameInfo
-                                                                                        .gameranking
-                                                                                        .$numberDecimal
-                                                                                }
+                                                                                initialValue={gameInfo.gameranking.$numberDecimal}
                                                                                 allowFraction
-                                                                                fillColorArray={
-                                                                                    fillColorArray
-                                                                                }
+                                                                                fillColorArray={fillColorArray}
                                                                                 emptyColor="black"
-                                                                                SVGstyle={{
-                                                                                    display:
-                                                                                        "inline",
-                                                                                }}
+                                                                                SVGstyle={{ 'display': "inline" }}
+                                                                                readonly={true}
+                                                                            />) :
+                                                                        (<>
+                                                                            <Rating
+                                                                                size={25}
+                                                                                transition
+                                                                                initialValue={0}
+                                                                                allowFraction
+                                                                                fillColorArray={fillColorArray}
+                                                                                emptyColor="gray"
+                                                                                SVGstyle={{ 'display': "inline" }}
                                                                                 readonly={true}
                                                                             />
-                                                                        )}
+                                                                        </>)
+                                                                    }
+
+
                                                                 </div>
-                                                                {!isLoadingGameInfo &&
-                                                                    gameInfo !== undefined &&
-                                                                    gameInfo.gameranking !==
-                                                                        undefined && (
-                                                                        <>
-                                                                            <p className="sr-only">
-                                                                                {
-                                                                                    gameInfo
-                                                                                        .gameranking
-                                                                                        .$numberDecimal
-                                                                                }{" "}
-                                                                                out of 5 stars
-                                                                            </p>
-                                                                            <a
-                                                                                href="#"
-                                                                                className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
-                                                                            >
-                                                                                {!isLoadingGameInfo &&
-                                                                                    gameInfo !==
-                                                                                        undefined &&
-                                                                                    gameInfo.reviewcount !==
-                                                                                        undefined && (
-                                                                                        <>
-                                                                                            {
-                                                                                                gameInfo.reviewcount
-                                                                                            }{" "}
-                                                                                            ratings
-                                                                                        </>
-                                                                                    )}
-                                                                            </a>
-                                                                        </>
-                                                                    )}
+                                                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) &&
+                                                                    (<>
+                                                                        <p className="sr-only">
+                                                                            {gameInfo.gameranking.$numberDecimal} out of 5 stars
+                                                                        </p>
+                                                                        <a
+                                                                            href="#"
+                                                                            className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
+                                                                        >
+                                                                            {/*  */}
+                                                                            {(!isLoadingGameInfo && gameInfo.reviewcount) && (<>{gameInfo.reviewcount} ratings </>)}
+                                                                        </a>
+                                                                    </>)}
                                                             </div>
                                                         </div>
 
                                                         {/* Description */}
                                                         <div className="mt-6">
-                                                            <h4 className="sr-only">
-                                                                Game Description
-                                                            </h4>
+                                                            <h4 className="sr-only">Game Description</h4>
 
                                                             {/* <p className="text-base text-gray-200"> */}
-                                                            {!isLoadingGameInfo &&
-                                                                gameInfo !== undefined &&
-                                                                gameInfo.storyline !==
-                                                                    undefined && (
-                                                                    <LongText
-                                                                        content={gameInfo.storyline}
-                                                                        limit={150}
-                                                                    ></LongText>
-                                                                )}
+                                                            {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.storyline !== undefined) && <LongText content={gameInfo.storyline} limit={150}></LongText>}
                                                             {/* </p> */}
                                                         </div>
                                                     </section>
@@ -342,19 +305,19 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
 
                                                         <form>
                                                             {!isLoadingLibraryFlag &&
-                                                            libraryFlag !== undefined &&
-                                                            libraryFlag ? (
+                                                                libraryFlag !== undefined &&
+                                                                libraryFlag ? (
                                                                 <>
                                                                     <button
                                                                         type="submit"
                                                                         className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-red-500 px-8 py-3 text-base font-medium text-white hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2"
-                                                                        /*onClick={(event) =>
-                                                                            deleteUserGame(
-                                                                                event,
-                                                                                userId,
-                                                                                gameInfo._id
-                                                                            )
-                                                                        }*/
+                                                                    /*onClick={(event) =>
+                                                                        deleteUserGame(
+                                                                            event,
+                                                                            userId,
+                                                                            gameInfo._id
+                                                                        )
+                                                                    }*/
                                                                     >
                                                                         Remove from library
                                                                     </button>
@@ -364,13 +327,13 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                                                                     <button
                                                                         type="submit"
                                                                         className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-green-500 px-8 py-3 text-base font-medium text-white hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2"
-                                                                        // onClick={(event) =>
-                                                                        //     addUserGame(
-                                                                        //         event,
-                                                                        //         userId,
-                                                                        //         gameInfo._id
-                                                                        //     )
-                                                                        // }
+                                                                    // onClick={(event) =>
+                                                                    //     addUserGame(
+                                                                    //         event,
+                                                                    //         userId,
+                                                                    //         gameInfo._id
+                                                                    //     )
+                                                                    // }
                                                                     >
                                                                         Add to library
                                                                     </button>
@@ -385,33 +348,17 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                                                         aria-labelledby="options-heading"
                                                         className="mt-10 "
                                                     >
-                                                        <h3
-                                                            id="options-heading"
-                                                            className="sr-only"
-                                                        >
+                                                        <h3 id="options-heading" className="sr-only">
                                                             Similar Games
                                                         </h3>
 
-                                                        <div>
-                                                            <h4 className="text-sm font-medium text-3xl text-gray-300">
-                                                                Similar Games
-                                                            </h4>
-                                                            {!isLoadingGameInfo &&
-                                                            gameInfo !== undefined &&
-                                                            gameInfo.similargames !== undefined ? (
-                                                                <HorizontalGameList
-                                                                    games={gameInfo.similargames}
-                                                                ></HorizontalGameList>
-                                                            ) : (
-                                                                <HorizontalGameList
-                                                                    skeleton={true}
-                                                                    skeletoncount={10}
-                                                                ></HorizontalGameList>
-                                                            )}
-                                                            <HorizontalGameList
-                                                                skeleton={true}
-                                                                skeletoncount={10}
-                                                            ></HorizontalGameList>
+                                                        <div >
+                                                            <h4 className="text-sm font-medium text-3xl text-gray-300">Similar Games</h4>
+                                                            {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.similargames !== undefined) ?
+                                                                <HorizontalGameList games={gameInfo.similargames} ></HorizontalGameList> :
+                                                                <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList>
+                                                            }
+                                                            {/* <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList> */}
                                                         </div>
                                                     </section>
                                                 </div>
@@ -428,4 +375,29 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
     );
 };
 
-export default CardPopup;
+CardPopup.propTypes = {
+    game: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        id: PropTypes.number.isRequired,
+        url: PropTypes.string.isRequired,
+    }).isRequired,
+    gameInfo: PropTypes.object, // This allows both object and undefined
+    isLoadingGameInfo: PropTypes.bool.isRequired,
+    open: PropTypes.bool.isRequired,
+    setOpen: PropTypes.func.isRequired,
+    skeleton: PropTypes.bool.isRequired,
+};
+
+CardPopup.defaultProps = {
+    game: {
+        name: "loading",
+        id: -1,
+        url: "/#"
+    },
+    isLoadingGameInfo: true,
+    setOpen: () => { },
+    skeleton: true,
+};
+
+
+export default CardPopup

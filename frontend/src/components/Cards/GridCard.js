@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import CardPopup from "../CardPopup";
@@ -13,8 +13,9 @@ function buildPath(route) {
   }
 }
 
-const fetchGameInformation = async (gameId) => {
-  console.log("GETTING Game INFO : ", gameId);
+
+const fetchGameInformation = async (gameId) =>
+{
   var obj = {
     gameId: gameId,
     options: {
@@ -34,7 +35,7 @@ const fetchGameInformation = async (gameId) => {
       ageratings: true,
       similargames: true,
       reviewcount: true,
-    },
+    }
   };
   var js = JSON.stringify(obj);
 
@@ -54,12 +55,10 @@ const fetchGameInformation = async (gameId) => {
     const jsonResponse = await response.json();
 
     let gameInfo = jsonResponse.gameInfo;
-    console.log("jsonResponse for gameInfo: ", gameInfo);
 
-    // return jsonResponse.gameInfo; // Remove Me!
-
-    // Retrieve the games
-    try {
+    // Retrieve the similar games
+    try
+    {
       var obj = {
         gameId: gameInfo.similargames,
         options: {
@@ -72,7 +71,6 @@ const fetchGameInformation = async (gameId) => {
           platformlogos: true,
         },
       };
-      console.log("request for similar games", obj);
       let js = JSON.stringify(obj);
 
       const similarGamesResponse = await fetch(
@@ -91,22 +89,19 @@ const fetchGameInformation = async (gameId) => {
         throw new Error(`HTTP error! status: ${similarGamesResponse.status}`);
       }
 
-      let resolvedSimilarGames = await similarGamesResponse.json();
+      let resolvedSimilarGames = await similarGamesResponse.json()
 
-      gameInfo.similargames = resolvedSimilarGames.map((game, index) => {
+      gameInfo.similargames = resolvedSimilarGames.map((game, index) =>
+      {
         return { ...game };
       });
-
-      console.log("Similar Games: ", gameInfo.similarGames);
-
       return gameInfo;
     } catch (e) {
       console.error(e);
-      // setSearchResults(e.toString());
     }
-
-    return jsonResponse; // Accessing the 'result' property
-  } catch (e) {
+  }
+  catch (e)
+  {
     alert(e.toString());
     throw e; // Rethrow the error for React Query to catch
   }
@@ -135,10 +130,9 @@ const GridCard = ({ game, skeleton, apsectHeight, apsectWidth }) => {
       enabled: open && game.id != null && skeleton === false,
     }
   );
-
+  // was h-5 and w-8
   const cardClasses =
-    classNames(`group aspect-h-${apsectHeight} aspect-w-${apsectWidth} block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300
-  ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
+    classNames(`group aspect-h-${apsectHeight} aspect-w-${apsectWidth} block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300 ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
 
   return (
     <>

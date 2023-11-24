@@ -14,7 +14,7 @@ const GameSchema = mongoose.Schema({
         required: true,
     },
     ReviewCount: {
-        type: Number
+        type: Number,
     },
     CoverURL: {
         type: String,

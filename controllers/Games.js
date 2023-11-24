@@ -64,10 +64,13 @@ const insertGame = async (req, res) => {
               p_logos
             );
         }
+
         if (game.videos)
           newGame.Videos = await functions.getGameVideos(game.videos);
+        
         if (game.age_ratings)
           newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
+
         if (game.similar_games) newGame.SimilarGames = game.similar_games;
 
         await newGame.save();
