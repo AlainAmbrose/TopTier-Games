@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'appbar.dart';
 import 'gameFunctions.dart';
 
 class LibraryPage extends StatelessWidget {
@@ -30,28 +31,7 @@ class LibraryPage extends StatelessWidget {
         length: 3,
       child: Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-            'TopTier',
-            style: TextStyle(
-                fontFamily: 'Inter-Bold',
-                fontWeight: FontWeight.w800,
-                fontStyle: FontStyle.italic,
-                fontSize: 25),
-        ),
-        backgroundColor: Colors.black,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: Text(
-              "${jsonResponse["firstname"]} ${jsonResponse["lastname"]}",
-              style: const TextStyle(fontSize: 18),
-            )
-          )
-        ]
-      ),
-
+      appBar: TopTierAppBar.returnAppBar(context, jsonResponse),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(

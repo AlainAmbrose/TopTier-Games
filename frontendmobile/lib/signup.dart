@@ -62,10 +62,11 @@ class SignupScreen extends StatelessWidget {
         final headers = <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         };
-        
-        final response = await http.post(Uri.parse('https://www.toptier.games/Users/api/signup'),
-        headers: headers,
-        body: jsonData,
+
+        final response = await http.post(
+          Uri.parse('https://www.toptier.games/Users/api/signup'),
+          headers: headers,
+          body: jsonData,
         );
 
         if (response.statusCode == 200) {
@@ -140,54 +141,69 @@ class SignupScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24.0),
                 Container(
+                  width: 400,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(20.0),
                     color: Colors.black.withOpacity(0.5),
                   ),
                   child: TextField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
                       ),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)), //
                     ),
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
                 Container(
+                  width: 400,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(20.0),
                     color: Colors.black.withOpacity(0.5),
                   ),
                   child: TextField(
                     controller: _loginController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Username',
-                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
                       ),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)), //
                     ),
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
                 Container(
+                  width: 400,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(20.0),
                     color: Colors.black.withOpacity(0.5),
                   ),
                   child: TextField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
                       ),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)), //
                     ),
                     style: const TextStyle(color: Colors.white),
                     obscureText: true,
@@ -195,36 +211,46 @@ class SignupScreen extends StatelessWidget {
                 ),
               const SizedBox(height: 10.0),
                 Container(
+                  width: 400,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(20.0),
                     color: Colors.black.withOpacity(0.5),
                   ),
                   child: TextField(
                     controller: _firstnameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'First Name',
-                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
                       ),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)), //
                     ),
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
               const SizedBox(height: 10.0),
                 Container(
+                  width: 400,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
+                    borderRadius: BorderRadius.circular(20.0),
                     color: Colors.black.withOpacity(0.5),
                   ),
                   child: TextField(
                     controller: _lastnameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Last Name',
-                      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
                       ),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.green),
+                          borderRadius: BorderRadius.circular(20.0)), //
                     ),
                     style: const TextStyle(color: Colors.white),
                   ),
