@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'modal.dart';
+import 'appbar.dart';
 
 class SearchPage extends StatefulWidget {
   final Map<String, dynamic> jsonResponse;
@@ -123,27 +124,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: false,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'TopTier',
-          style: TextStyle(
-              fontFamily: 'Inter-Bold',
-              fontWeight: FontWeight.w800,
-              fontStyle: FontStyle.italic,
-              fontSize: 25),
-
-        ),
-        backgroundColor: Colors.black,
-          actions: [
-            Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                child: Text(
-                  "${widget.jsonResponse["firstname"]} ${widget.jsonResponse["lastname"]}",
-                  style: const TextStyle(fontSize: 18),
-                )
-            )]
-          ),
+      appBar: TopTierAppBar.returnAppBar(context, widget.jsonResponse),
           body: Stack(
             alignment: Alignment.topCenter,
             children: [

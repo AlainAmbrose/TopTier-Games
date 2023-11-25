@@ -20,7 +20,9 @@ class Modal {
     return "${dt.month}/${dt.day}/${dt.year}";
   }
 
-  void _addToLibrary(BuildContext context, Map<String, dynamic> game, Map<String, dynamic> userInfo) async {
+  void _addToLibrary(BuildContext context,
+                    Map<String, dynamic> game,
+                    Map<String, dynamic> userInfo) async {
     String userId = userInfo['id'];
     String gameId = game['_id'];
 
