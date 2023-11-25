@@ -194,7 +194,7 @@ class _SearchPageState extends State<SearchPage> {
                       showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                            return Modal.returnModal(context, game);
+                            return Modal().returnModal(context, game, cover);
                           },
                         );
                       },
