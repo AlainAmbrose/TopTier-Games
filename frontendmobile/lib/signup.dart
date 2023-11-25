@@ -62,7 +62,7 @@ class SignupScreen extends StatelessWidget {
         final headers = <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         };
-        
+
         final response = await http.post(
           Uri.parse('https://www.toptier.games/Users/api/signup'),
           headers: headers,

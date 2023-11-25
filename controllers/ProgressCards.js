@@ -1,69 +1,108 @@
-var express = require("express");
-var router = express.Router();
-
 require("dotenv").config();
 
 const Progress = require("../models/ProgressCard");
+const Ranking = require("../models/RankingCard");
 
-const app_name = "poosd-large-project-group-8-1502fa002270";
-function buildPath(route) {
-  if (process.env.NODE_ENV === "production") {
-    return "https://" + app_name + ".herokuapp.com/" + route;
-  } else {
-    return "http://localhost:5001/" + route;
-  }
+function buildPath(route)
+{
+    if (process.env.NODE_ENV === 'production')
+    {
+        return 'https://www.toptier.games/' + route;
+    } else
+    {
+        return 'http://localhost:3001/' + route;
+    }
 }
 
-router.post("/api/addusergame", async (req, res) => {
-  const newCard = new Progress();
-  newCard.UserId = req.body.userId;
-  newCard.GameId = req.body.gameId;
-  newCard.HoursPlayed = 0.0;
-  newCard.DateLastPlayed = new Date();
-  newCard.Status = 0;
+const addUserGame = async (req, res) =>
+{
+    const newPCard = new Progress();
+    newPCard.UserId = req.body.userId;
+    newPCard.GameId = req.body.gameId;
+    newPCard.HoursPlayed = 0.00;
+    newPCard.DateLastPlayed = new Date();
+    newPCard.DateAdded = new Date();
+    newPCard.Status = 0;
 
-  await newCard.save();
+    await newPCard.save();
 
-  return res
-    .status(200)
-    .json({ id: 1, message: "User game added successfully." });
-});
+    const newRCard = new Ranking();
+    newRCard.UserId = req.body.userId;
+    newRCard.GameId = req.body.gameId;
 
-router.post("/api/getusergame", async (req, res) => {
-  let userId = req.body.userId;
+    await newRCard.save();
 
-  let card = await Progress.find({ UserId: userId });
+    return res.status(200).json({ id: 1, message: "User game added successfully." });
+};
 
-  if (card === null) {
-    return res.status(400).json({ games: [], message: "No games found." });
-  } else {
-    return res.status(200).json({ games: card, message: "Games found." });
-  }
-});
+const getUserGame = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let pcard = await Progress.find({ UserId: userId });
+    let rcard = await Ranking.find({ UserId: userId });
 
-router.post("/api/deleteusergame", async (req, res) => {
-  let userId = req.body.userId;
-  let gameId = req.body.gameId;
+    let objects = [];
 
-  let card = await Progress.findOne({ UserId: userId, GameId: gameId });
 
-  if (card === null) {
-    return res.status(400).json({ id: -1, message: "No games found." });
-  } else {
-    let result = await Progress.deleteOne({ UserId: userId, GameId: gameId });
-
-    if (result.deletedCount == 1) {
-      return res
-        .status(200)
-        .json({ id: 1, message: "User game deleted successfully." });
-    } else {
-      return res
-        .status(400)
-        .json({
-          id: -1,
-          message: "User game deleted unsuccessfully. Please try again.",
-        });
+    if (pcard === null || rcard === null) 
+    {
+        return res.status(400).json({ games: [], message: "No games found." });
     }
-  }
-});
-module.exports = router;
+    else
+    {
+        let len = pcard.length;
+
+        for (let i = 0; i < len; i++)
+        {
+            let obj = {};
+
+            obj.UserId = pcard[i].UserId;
+            obj.GameId = pcard[i].GameId;
+            obj.HoursPlayed = pcard[i].HoursPlayed;
+            obj.Status = pcard[i].Status;
+            obj.Ranking = rcard[i].Ranking;
+            obj.Review = rcard[i].Review;
+
+            objects.push(obj);
+        }
+
+        return res.status(200).json({ games: objects, message: "Games found." });
+    }
+};
+
+const deleteUserGame = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let gameId = req.body.gameId;
+
+    let pcard = await Progress.findOne({ UserId: userId, GameId: gameId });
+    let rcard = await Progress.findOne({ UserId: userId, GameId: gameId });
+
+
+    if (pcard === undefined || rcard === undefined) 
+    {
+        return res.status(400).json({ id: -1, message: "No games found." });
+    }
+    else
+    {
+        let presult = await Progress.deleteOne({ UserId: userId, GameId: gameId });
+        let rresult = await Ranking.deleteOne({ UserId: userId, GameId: gameId });
+
+
+        if (presult.deletedCount == 1 && rresult.deletedCount == 1)
+        {
+            return res.status(200).json({ id: 1, message: "User game deleted successfully." });
+
+        }
+        else
+        {
+            return res.status(400).json({ id: -1, message: "User game deleted unsuccessfully. Please try again." });
+        }
+    }
+};
+module.exports =
+{
+    addUserGame,
+    getUserGame,
+    deleteUserGame
+};

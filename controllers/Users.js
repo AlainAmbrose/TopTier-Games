@@ -1,122 +1,339 @@
-var express = require("express");
-var router = express.Router();
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const User = require("../models/User");
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const crypto = require("crypto");
+var authCode, passResetCode;
 
-const app_name = "poosd-large-project-group-8-1502fa002270";
-function buildPath(route) {
-  if (process.env.NODE_ENV === "production") {
-    return "https://" + app_name + ".herokuapp.com/" + route;
-  } else {
-    return "http://localhost:5001/" + route;
-  }
+function secure()
+{
+    if (process.env.NODE_ENV === 'production')
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // Sign up for users
-router.post("/api/signup", async (req, res) => {
-  // email verification and password strength check
-  const newUser = new User();
-  newUser.Login = req.body.login;
-  newUser.FirstName = req.body.firstname;
-  newUser.LastName = req.body.lastname;
-  newUser.DateCreated = new Date();
-  newUser.DateLastLoggedIn = new Date();
-  newUser.Email = req.body.email;
+const signUp = async (req, res) =>
+{
+    // email verification and password strength check
 
-  newUser.createHash(req.body.password);
-  await newUser.save();
+    const newUser = new User();
+    newUser.Login = req.body.login;
+    newUser.FirstName = req.body.firstname;
+    newUser.LastName = req.body.lastname;
+    newUser.DateCreated = new Date();
+    newUser.DateLastLoggedIn = new Date();
+    newUser.Email = req.body.email;
 
-  return res.status(200).json({
-    id: newUser._id,
-    firstname: newUser.FirstName,
-    lastname: newUser.LastName,
-    message: "User created successfully.",
-  });
-});
+    newUser.createHash(req.body.password);
+    await newUser.save();
 
-router.post("/api/login", async (req, res) => {
-  // Find user with requested email
-  let user = await User.findOne({ Login: req.body.login });
+    return res.status(200).json({
+        id: newUser._id,
+        firstname: newUser.FirstName,
+        lastname: newUser.LastName,
+        message: "User Successfully Created",
+     });
+};
 
-  if (user === null) {
-    return res.status(400).json({ id: -1, message: "User not found." });
-  } else {
-    if (await user.validatePassword(req.body.password)) {
-      user.DateLastLoggedIn = new Date();
-      await user.save();
+const sendAuthEmail = async (req, res) =>
+{
+    authCode = crypto.randomBytes(10).toString('hex');
 
-      return res.status(200).json({
-        id: user._id,
-        firstname: user.FirstName,
-        lastname: user.LastName,
-        message: "User Successfully Logged In",
-      });
-    } else {
-      return res.status(400).json({ id: -1, message: "Incorrect Password" });
+    const msg = {
+        to: req.body.email,
+        from: 'TopTierGames.ucf@gmail.com',
+        subject: 'Verify your email with TopTier Games!',
+        text: 'Hello ' + req.body.firstname + ',\nCopy the verification code below to verify your email with TopTier Games:\n\n' + authCode,
+      }
+      sgMail
+        .send(msg)
+        .then(() =>
+        {
+          console.log('Email sent')
+          return res.status(200).json({
+            message: "Email Sent Successfully"
+          });
+        })
+        .catch((error) =>
+        {
+          console.error(error)
+          return res.status(400).json({
+            message: "Error Sending Email"
+          });
+        })
+};
+
+const verifyAuthCode = async (req, res) =>
+{
+    if (authCode !== null && req.body.authCode === authCode) {
+        return res.status(200).json({
+            message: "Email Verified Successfully"
+        });
     }
-  }
-});
+    else {
+        return res.status(400).json({
+            message: "Incorrect Authorization Code"
+        });
+    }
+}
 
-router.post("/api/updateuser", async (req, res) => {
-  let newLogin = req.body.login;
-  let newPassword = req.body.password;
-  let newFirstName = req.body.firstname;
-  let newLastName = req.body.lastname;
-  let newEmail = req.body.email;
+const login = async (req, res) =>
+{
+    const accessExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+    const refreshExpirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
+    let user = await User.findOne({ Login: req.body.login });
 
-  let id = req.body.userId;
+    if (user === null)
+    {
+        return res.sendStatus(403);
+    }
+    else
+    {
+        
+        if (await user.validatePassword(req.body.password))
+        {
+            const accessToken = jwt.sign(
+                { 'userId': user._id },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: '15m' });
 
-  let user = await User.findOne({ _id: id });
+            const refreshToken = jwt.sign(
+                { 'userId': user._id },
+                process.env.REFRESH_TOKEN_SECRET,
+                { expiresIn: '1h' });
 
-  if (user === null) {
-    return res.status(400).json({ id: -1, message: "User not found." });
-  } else {
-    if (newLogin !== undefined) {
-      user.Login = newLogin;
+            user.DateLastLoggedIn = new Date();
+            user.RefreshToken = refreshToken;
+            await user.save();
+            console.log('Access token created @login');
+            console.log('Refresh token created @login');
+            if (secure())
+            {
+                console.log('Secure mode @login');
+                res.cookie('jwt_access', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: accessExpirationTime, path: '/' });
+                res.cookie('jwt_refresh', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', maxAge: refreshExpirationTime, path: '/' });
+            }
+            else
+            {
+                console.log('Insecure mode @login');
+                res.cookie('jwt_access', accessToken, { httpOnly: true, sameSite: 'strict', maxAge: accessExpirationTime, path: '/' });
+                res.cookie('jwt_refresh', refreshToken, { httpOnly: true, sameSite: 'strict', maxAge: refreshExpirationTime, path: '/' });
+            }
+            const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+            const accessTokenExpiryTime = currentTimeInSeconds + (accessExpirationTime / 1000); // 15 minutes added to the current time
+            return res.status(200).json({
+                id: user._id,
+                firstname: user.FirstName,
+                lastname: user.LastName,
+                exp: accessTokenExpiryTime,
+                accessToken: accessToken,
+                message: "User Successfully Logged In",
+            });
+        } else
+        {
+            return res.sendStatus(401);
+        }
+    }
+};
+
+const sendPassResetEmail = async (req, res) =>
+{
+    passResetCode = crypto.randomBytes(10).toString('hex');
+
+    const msg = {
+        to: req.body.email,
+        from: 'TopTierGames.ucf@gmail.com',
+        subject: 'Password Reset Request from TopTier Games!',
+        text: 'Hello ' + req.body.firstname + ',\nWe have recieved a request that you would like to reset your password. If this is accurate, enter the verification code below into TopTier Games to continue:\n\n' + passResetCode,
+      }
+      sgMail
+        .send(msg)
+        .then(() =>
+        {
+          console.log('Email sent')
+          return res.status(200).json({
+            message: "Email Sent Successfully"
+          });
+        })
+        .catch((error) =>
+        {
+          console.error(error)
+          return res.status(400).json({
+            message: "Error Sending Email"
+          });
+        })
+};
+
+const resetPass = async (req, res) =>
+{
+    //verify passResetCode
+    if (passResetCode === null || req.body.authCode !== passResetCode)
+    {
+        return res.status(400).json({
+            message: "Incorrect Authorization Code"
+        });
     }
 
-    if (newFirstName !== undefined) {
-      user.FirstName = newFirstName;
+    //get user
+    let user = await User.findOne({ Login: req.body.login });
+
+    if (user === null)
+    {
+        return res.status(400).json({
+            message: "User not found.",
+        });
     }
 
-    if (newLastName !== undefined) {
-      user.LastName = newLastName;
-    }
-
-    if (newEmail !== undefined) {
-      user.Email = newEmail;
-    }
-
-    if (newPassword !== undefined) {
-      user.createHash(newPassword);
-    }
-
+    //update password
+    user.createHash(req.body.newPassword);
     await user.save();
-    return res
-      .status(200)
-      .json({ id: 1, message: "User updated successfully." });
-  }
-});
 
-router.post("/api/deleteuser", async (req, res) => {
-  let userId = req.body.userId;
-  let user = await User.findOne({ _id: userId });
+    return res.status(200).json({ 
+        Login: user.Login,
+        message: "Password successfully updated.",
+     });
+};
 
-  if (user === null) {
-    return res.status(400).json({ id: -1, message: "Error: User not found." });
-  } else {
-    let result = await User.deleteOne({ _id: userId });
-    if (result.deletedCount == 1) {
-      return res
-        .status(200)
-        .json({ id: 1, message: "User deleted successfully." });
-    } else {
-      return res.status(400).json({
-        id: -1,
-        message: "Error: User deleted unsuccessfully, please try again.",
-      });
+const getUser = async (req, res) =>
+{
+    let user = await User.findOne({ _id: req.body.id });
+
+    if (user === null)
+    {
+        return res.status(400).json({
+            id: -1,
+            firstname: "",
+            lastname: "",
+            message: "User not found.",
+        });
     }
-  }
-});
+    else
+    {
+        return res.status(200).json({
+            id: user._id,
+            firstname: user.FirstName,
+            lastname: user.LastName,
+            message: "User Successful",
+        });
+    }
+};
 
-module.exports = router;
+const updateUser = async (req, res) =>
+{
+    let newLogin = req.body.login;
+    let newPassword = req.body.password;
+    let newFirstName = req.body.firstname;
+    let newLastName = req.body.lastname;
+    let newEmail = req.body.email;
+
+    let id = req.body.userId;
+
+    let user = await User.findOne({ _id: id });
+
+    if (user === null)
+    {
+        return res.status(400).json({ id: -1, message: "User not found.", });
+    }
+    else
+    {
+        if (newLogin !== undefined)
+        {
+            user.Login = newLogin;
+        }
+
+        if (newFirstName !== undefined)
+        {
+            user.FirstName = newFirstName;
+        }
+
+        if (newLastName !== undefined)
+        {
+            user.LastName = newLastName;
+        }
+
+        if (newEmail !== undefined)
+        {
+            user.Email = newEmail;
+        }
+
+        if (newPassword !== undefined)
+        {
+            user.createHash(newPassword);
+        }
+
+        await user.save();
+        return res.status(200).json({ id: 1, message: "User updated successfully.", });
+    }
+};
+
+const deleteUser = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let user = await User.findOne({ _id: userId });
+
+    if (user === null)
+    {
+        return res.status(400).json({ id: -1, message: "Error: User not found." });
+    } else
+    {
+        let result = await User.deleteOne({ _id: userId });
+        if (result.deletedCount == 1)
+        {
+            return res
+                .status(200)
+                .json({ id: 1, message: "User deleted successfully." });
+        } else
+        {
+            return res.status(400).json({
+                id: -1,
+                message: "Error: User deleted unsuccessfully, please try again.",
+            });
+        }
+    }
+
+};
+
+const logout = async (req, res) =>
+{
+    let cookies = req.cookies;
+
+    if (!cookies?.jwt_refresh) return res.sendStatus(401);
+
+    const refreshToken = cookies.jwt_refresh;
+
+    let user = await User.findOne({ RefreshToken: refreshToken });
+
+    if (user !== undefined)
+    {
+        console.log("user found: ", user);
+        user.RefreshToken = '';
+        await user.save();
+    }
+
+    res.clearCookie('jwt_refresh');
+    res.clearCookie('jwt_access');
+
+    return res.sendStatus(200);
+};
+
+module.exports =
+{
+    signUp,
+    sendAuthEmail,
+    verifyAuthCode,
+    sendPassResetEmail,
+    resetPass,
+    login,
+    updateUser,
+    getUser,
+    deleteUser,
+    logout
+};

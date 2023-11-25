@@ -1,57 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AuthContext } from '../components/Authorizations/AuthContext'; // Adjust the path as necessary
 
 const SignUpPage = () => {
+  const authContext = useContext(AuthContext);
   var firstname;
   var lastname;
   var login;
   var password;
   var email;
 
-  const app_name = "poosd-large-project-group-8-1502fa002270";
-  function buildPath(route) {
-    if (process.env.NODE_ENV === "production") {
-      return "https://" + app_name + ".herokuapp.com/" + route;
-    } else {
-      return "http://localhost:5001/" + route;
-    }
-  }
-
-  const [message, setMessage] = useState("");
-  const initSignUp = async (event) => {
-    event.preventDefault();
-
-    var obj = {
-      firstname: firstname.value,
-      lastname: lastname.value,
-      login: login.value,
-      password: password.value,
-      email: email.value,
-    };
-    var js = JSON.stringify(obj);
-
-    try {
-      const response = await fetch(buildPath("Users/api/signup"), {
-        method: "POST",
-        body: js,
-        headers: { "Content-Type": "application/json" },
-      });
-      var res = JSON.parse(await response.text());
-      if (res.message === "User created successfully.") {
-        var user = {
-          id: res.id,
-          firstname: res.firstname,
-          lastname: res.lastname,
-        };
-        localStorage.setItem("user_data", user);
-        setMessage(res.message);
-        console.log(message);
-        window.location.href = "/home";
-      }
-    } catch (e) {
-      alert(e.toString());
-      return;
-    }
-  };
+  // Now you can access values from the context
+  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
 
   return (
     <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -61,7 +22,7 @@ const SignUpPage = () => {
         alt=""
         className="absolute inset-0 -z-30 h-full w-full object-cover"
       />
-      <form className="space-y-6" action="#" onSubmit={initSignUp}>
+      <form className="space-y-6" action="#" onSubmit={(event) => userSignup(event, firstname, lastname, login, password, email, toast)}>
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
           Sign up for a new account
         </h2>
@@ -150,12 +111,13 @@ const SignUpPage = () => {
           <button
             type="submit"
             className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
-            onClick={initSignUp}
+            // onClick={(event) => userSignup(event, firstname, lastname, login, password, email, toast)}
           >
             Sign up
           </button>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 };
