@@ -95,6 +95,7 @@ const fetchGameInformation = async (gameId) =>
       {
         return { ...game };
       });
+      console.log(gameInfo);
       return gameInfo;
     } catch (e) {
       console.error(e);
@@ -132,7 +133,7 @@ const GridCard = ({ game, skeleton, apsectHeight, apsectWidth }) => {
   );
   // was h-5 and w-8
   const cardClasses =
-    classNames(`group aspect-h-${apsectHeight} aspect-w-${apsectWidth} block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300 ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
+    classNames(`group aspect-h-8 aspect-w-36 block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300 ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
 
   return (
     <>
@@ -171,7 +172,7 @@ const GridCard = ({ game, skeleton, apsectHeight, apsectWidth }) => {
               borderRadius="0.5rem"
               highlightColor="#202020"
             >
-              <Skeleton className="pointer-events-none object-cover aspect-h-7 aspect-w-10 group-hover:opacity-90"></Skeleton>
+              <Skeleton className="pointer-events-none object-cover aspect-h-9 aspect-w-8 group-hover:opacity-90"></Skeleton>
             </SkeletonTheme>
           </div>
           <p className="pointer-events-none w-8/12 mt-2 block truncate ">

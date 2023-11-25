@@ -90,11 +90,46 @@ const searchGame = async (req, res) => {
   let search = req.body.search;
   let pattern = `${search}`;
 
+  const converter = {
+    AgeRating: "ageratings", 
+    CoverURL: "url",
+    GameRanking: "gameranking",
+    Genre: "genres",
+    IGDB_id: "id",
+    Images: "images",
+    Links: "links",
+    Name: "name",
+    PlatformLogos: "platformlogos",
+    Platforms: "platforms",
+    ReleaseDate: "releasedate",
+    ReviewCount: "reviewcount",
+    SimilarGames: "similargames",
+  };
+
+
+
+
   let games = await Game.find({ Name: { $regex: pattern, $options: "i" } });
   if (games === null) {
     return res.status(400).json({ games: [], message: "Game not found." });
   } else {
-    return res.status(200).json({ games: games, message: "Games Found" });
+    console.log("before",games[0]);
+
+    newGames = games.map((game) => {
+      // Convert the Mongoose document to a JavaScript object
+      let gameObj = game.toObject();
+      let newGame = {};
+      for (const key of Object.keys(gameObj)) {
+        if (key in converter && "CoverURL" !== key) {
+          newGame[converter[key]] = gameObj[key];
+        } else if ( key in converter && "CoverURL" === key) {
+          newGame[converter[key]] = functions.updateCoverURL(gameObj[key], "1080p");
+        }
+      }
+      return newGame;
+    });
+    console.log("After", newGames[0]);
+    return res.status(200).json({ games: newGames, message: "Games Found" });
   }
 };
 

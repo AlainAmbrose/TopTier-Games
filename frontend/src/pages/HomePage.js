@@ -1,6 +1,7 @@
 import { Fragment, useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, Menu, Transition } from "@headlessui/react";
+import { debounce } from 'lodash';
 import {
   Bars3Icon,
   BellIcon,
@@ -11,10 +12,12 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
+  ArrowLeftIcon
 } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
+  // ArrowSmallLeftIcon
 } from "@heroicons/react/20/solid";
 import HorizontalGameList from "../components/Lists/HorizontalGameList";
 import ToggleSwitch from "../components/ToggleSwitch";
@@ -25,6 +28,23 @@ import { useInfiniteQuery, useQuery } from "react-query";
 import { useIntersection } from "@mantine/hooks";
 import { AuthContext } from "../components/Authorizations/AuthContext";
 
+const updateCoverURL = (coverURL, size) => {
+  return coverURL.replace(/thumb/g, size);
+}
+
+function chunkArray(array, chunkSize) {
+  const result = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+      result.push(array.slice(i, i + chunkSize));
+  }
+  return result;
+}
+
+function doubleChunkArray(array, firstChunkSize, secondChunkSize) {
+  const firstLevelChunks = chunkArray(array, firstChunkSize);
+  return firstLevelChunks.map(subArray => chunkArray(subArray, secondChunkSize));
+}
+
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
   { name: "Library", href: "/library", icon: FolderIcon, current: false },
@@ -33,59 +53,6 @@ const navigation = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-
-const files = [
-  {
-    title: "IMG_4985.HEIC6",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC7",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC8",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC9",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC10",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC11",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC12",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-  {
-    title: "IMG_4985.HEIC13",
-    size: "3.9 MB",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  },
-
-  // More files...
-];
 
 const genres = [
   {
@@ -304,7 +271,51 @@ async function fetchTopGames() {
   }
 }
 
+const fetchSearchGroup = async (page, searchGroup) => {
+  // Promisified setTimeout
+  console.log("sdaiogoasdgbasdgbiasdbgoasdigba,", searchGroup)
+  await new Promise(resolve => setTimeout(resolve, 500));
+  console.log("page: ", page, "searchGroup: ", searchGroup, "searchGroup.slice((page - 1) * 2, page * 2): ", searchGroup.slice((page - 1) * 2, page * 2) || "[]");
+  // Assuming 'searchGroup' is an array of arrays and 'page' is the page number
+  
+  return searchGroup.slice((page - 1) * 2, page * 2) || [];
+};
+
+async function fetchSearchResults(searchTerm) {
+  var obj = { search: searchTerm };
+  var js = JSON.stringify(obj);
+  console.log("SEARCH request: ", js);
+  try {
+    const response = await fetch(buildPath("Games/api/searchGame"), {
+      method: "POST",
+      body: js,
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    let jsonResponse = await response.json();
+    
+
+    jsonResponse = doubleChunkArray(jsonResponse.games, 14, 7);
+    console.log("SEARCH RESULTS1: ", jsonResponse);
+    return jsonResponse; 
+  } catch (e) {
+    console.error(`Error thrown when fetching search results: ${e}`);
+    throw e; // Rethrow the error for React Query to catch
+  }
+}
+
 const HomePage = () => {
+  // State for the sidebar for mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
+
+  // Pulling in the user context
   const authContext = useContext(AuthContext);
   const {
     user,
@@ -313,15 +324,18 @@ const HomePage = () => {
     userLogin,
     userLogout,
     showSuperToast,
+    checkUser,
   } = authContext;
   const navigate = useNavigate();
 
+  // This kicks the user back to the login page if they are not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!checkUser()) {
       console.log(
         "isAuthenticated: ",
         isAuthenticated,
         localStorage.getItem("user_data")
+        // user
       );
       showSuperToast("Please login to view the homepage.", "not-authenticated");
       userLogout();
@@ -329,13 +343,9 @@ const HomePage = () => {
     }
   }, []);
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const lastListRef = useRef(null);
-  const { ref, entry } = useIntersection({
-    root: lastListRef.current,
-    threshold: 1,
-  });
+  // ==============Genre=================
 
+  // Code to query the top games on the homepage (only runs once)
   const {
     data: topGamesData,
     isLoading: isLoadingTopGames,
@@ -343,6 +353,15 @@ const HomePage = () => {
     error,
   } = useQuery("topGames", fetchTopGames);
 
+  // Code to detect when the user scrolls to the bottom of the page (Works with the code below)
+  const lastListRef = useRef(null);
+  const { ref, entry } = useIntersection({
+    root: lastListRef.current,
+    threshold: 1,
+  });
+
+
+  // Code to query the genres on the homepage (runs every time the user scrolls to the bottom of the page)
   const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
     ["query"],
     async ({ pageParam = 1 }) => {
@@ -356,15 +375,94 @@ const HomePage = () => {
       refetchOnWindowFocus: false,
     }
   );
-
-  useEffect(() => {
+  
+  // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
+  useEffect(() => { 
     if (entry?.isIntersecting) {
       console.log("INTERSECTING");
       fetchNextPage();
     }
   }, [entry]);
 
+  // Code to flatten the data from the query
   const _genres = data?.pages.flatMap((page) => page);
+
+  // ==============Genre=================
+
+
+  // ===================Search===================
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  useEffect(() => {
+      // Create a debounced function that updates the debounced search term
+      const debounced = debounce(() => {
+          setDebouncedSearchTerm(searchTerm);
+      }, 500); // 500ms delay
+
+      debounced();
+
+      // Cleanup function to cancel the debounce if the component unmounts
+      return () => {
+          debounced.cancel();
+      };
+  }, [searchTerm]);
+
+  const { data: searchResults, isLoading: isLoadingSearch, isError: searchIsError, error: searchError } = useQuery(
+      ['search', debouncedSearchTerm], 
+      () => fetchSearchResults(debouncedSearchTerm), 
+      {
+          enabled: debouncedSearchTerm.length > 0
+      }
+  );
+
+  // Code to detect when the user scrolls to the bottom of the page (Works with the code below)
+  const searchLastListRef = useRef(null);
+  const { ref: searchRef, entry: searchEntry } = useIntersection({
+    root: searchLastListRef.current,
+    threshold: 1,
+  });
+
+
+  // Code to query the genres on the homepage (runs every time the user scrolls to the bottom of the page)
+  const { data: searchGroups, fetchNextPage: fetchNextGroup, isFetchingNextPage: isFetchingNextGroup } = useInfiniteQuery(
+    ["query", searchResults],
+    async ({ pageParam = 1 }) => {
+      const response = await fetchSearchGroup(pageParam, searchResults);
+      return response;
+    },
+    {
+      getNextPageParam: (lastPage, pages) => {
+        // Assuming each page contains a fixed number of items, e.g., 5
+        const MAX_ITEMS_PER_PAGE = 7;
+        // If the number of items in the last page is less than the max, it's the last page
+        if (lastPage.length.length < MAX_ITEMS_PER_PAGE) {
+          console.log("LAST PAGE")
+          return undefined;
+        }
+        return pages.length + 1;
+      },
+      refetchOnWindowFocus: false,
+      enabled: debouncedSearchTerm.length > 0 && !!searchResults && searchResults.length > 0
+    }
+  );
+  
+  // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
+  useEffect(() => { 
+    if (searchEntry?.isIntersecting) {
+      console.log("INTERSECTING");
+      fetchNextGroup();
+    }
+  }, [searchEntry]);
+
+  useEffect(() => {
+    console.log("SEARCH GROUPSsssss===========: ", searchGroups?.pages.flatMap((page) => page).flatMap((page) => page), searchGroups);
+  }, [searchGroups]);
+
+  // Code to flatten the data from the query
+  const _searchGroups = searchGroups?.pages.flatMap((page) => page).flatMap((page) => page);
+
+  // ===================Search===================
 
   // Early return if not authenticated
   if (!isAuthenticated) {
@@ -373,6 +471,7 @@ const HomePage = () => {
 
   let fn = "";
   let ln = "";
+
   if (localStorage.getItem("user_data") !== null) {
     var currentUser = localStorage.getItem("user_data");
     var userData = JSON.parse(currentUser);
@@ -381,15 +480,29 @@ const HomePage = () => {
     ln = userData.lastname;
   }
 
+  // if (user !== null) {
+  //   fn = user.firstname;
+  //   ln = user.lastname;
+  // }
+
+  // User navigation
   const userNavigation = [
     { name: "Your profile", href: "#", action: () => navigate("#") },
-    {
-      name: "Your Library",
-      href: "/library",
-      action: () => navigate("/library"),
-    },
+    { name: "Your Library", href: "/library", action: () => navigate("/library")},
     { name: "Sign out", href: "/", action: () => userLogout("/") },
   ];
+
+  const handleFocus = () => {
+    setInputFocused(true);
+  };
+
+  const handleBlur = () => {
+    setInputFocused(false);
+    setSearchTerm(""); // This line clears the search term
+  };
+
+
+  
 
   return (
     <>
@@ -525,24 +638,102 @@ const HomePage = () => {
             />
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 ">
-              <form className="relative flex flex-1" action="#" method="GET">
+              <div className="relative flex flex-1 mt-[20px]" >
                 <label htmlFor="search-field" className="sr-only">
                   Search
                 </label>
-                <MagnifyingGlassIcon
-                  className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
-                  aria-hidden="true"
-                />
+                {/* <div className=" absolute left-0  top-[-20px] flex w-16 justify-center pt-5"> */}
+                  {/* <button
+                    type="button"
+                    className=" pointer-events-none absolute inset-y-0 left-0 h-full w-6"
+                    onClick={() => handleBlur()}
+                  >
+                    <span className="sr-only">Close Search</span>
+             
+                  </button> */}
+                {/* </div> */}
+                {/* {(inputFocused) ? (<ArrowLeftIcon
+                      className=" absolute inset-y-0 mt-[1px] left-0 h-full w-6 text-gray-400"
+                      aria-hidden="true"
+                      onClick={() => handleBlur()}
+                    />) : (
+                  <MagnifyingGlassIcon
+                    className="pointer-events-none absolute  inset-y-0 left-0 h-full w-6 text-gray-400"
+                    aria-hidden="true"
+                  /> 
+                )} */}
+                <Transition
+                  show={inputFocused}  className="font-bold"
+                  enter="transition-opacity duration-150"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="transition-opacity duration-150"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0" 
+                >
+                  <ArrowLeftIcon
+                        className="absolute cursor-pointer  ml-[20px] inset-y-0 mt-[1px] left-0 h-full w-8 text-gray-400"
+                        aria-hidden="true"
+                        onClick={() => handleBlur()}
+                  />
+                </Transition>
+                {/* <Transition
+                  show={inputFocused}  className="font-bold"
+                  enter="transition-opacity duration-150"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="transition-opacity duration-150"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0" 
+                  >
+                  <MagnifyingGlassIcon
+                    className=" ml-[34%] pointer-events-none absolute inset-y-0 left-0 h-full w-8 text-gray-400"
+                    aria-hidden="true"
+                  /> 
+                  </Transition>
                 <input
                   id="search-field"
-                  className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-0 focus:bg-gray-800 focus:bg-opacity-25 rounded-md
-                   sm:text-sm"
-                  placeholder="Search..."
+                  className="block ml-[36%] w-1/3 border-0 py-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700  focus:ring-gray-400 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm"
+                  placeholder="Search"
                   type="search"
                   name="search"
                   autoComplete="off"
+                  onFocus={handleFocus}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  // onBlur={handleBlur}
                 />
-              </form>
+               */}
+                <div className="relative ml-[40%] block w-1/3">
+                  <Transition
+                    show={inputFocused} 
+                    className="font-bold"
+                    enter="transition-opacity duration-150"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="transition-opacity duration-150"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0" 
+                  >
+                    <MagnifyingGlassIcon
+                      className="absolute ml-[9px] inset-y-0 left-0 h-full w-6 text-gray-400"
+                      aria-hidden="true"
+                    /> 
+                  </Transition>
+                  <input
+                    id="search-field"
+                    className={`block w-full h-full border-0 py-0 transition-all left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-gray-400 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10" : "pl-2"}`}
+                    placeholder="Search"
+                    type="search"
+                    name="search"
+                    autoComplete="off"
+                    onFocus={handleFocus}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    // onBlur={handleBlur}
+                  />
+                </div>
+              </div>
               <div className="flex items-center gap-x-4 lg:gap-x-6">
                 {/* <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
                   <span className="sr-only">View notifications</span>
@@ -618,104 +809,209 @@ const HomePage = () => {
 
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
           <main className="xl:pl-0 ">
+            {/* DEFAULT MAIN */}
+            <Transition 
+              show={!inputFocused} className="font-bold"
+              enter="transition-opacity duration-150"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="transition-opacity duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
             <div
               ref={lastListRef}
               style={{ height: "calc(100vh - 120px)" }}
-              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none bg- lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
             >
               <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
-                {/* Main area */}
-                <HorizontalButtonList genres={genres}></HorizontalButtonList>
-                {/* Top 3 Games */}
+                  {/* Main area */}
+                  <HorizontalButtonList genres={genres}></HorizontalButtonList>
+                  {/* Top 3 Games */}
 
-                {!isLoadingTopGames && topGamesData !== undefined ? (
-                  <>
-                    <GridList
-                      games={topGamesData.slice(0, 4)}
-                      listTitle={"Top Games"}
-                      width={"8/12"}
-                      mdCols="4"
-                      smCols="4"
-                      lgCols="4"
-                    ></GridList>
-                    <GridList
-                      games={topGamesData.slice(4, 10)}
-                      width={"full"}
-                      mdCols="5"
-                      smCols="5"
-                      lgCols="5"
-                    ></GridList>
-                  </>
-                ) : (
-                  <>
-                    <GridList
-                      skeleton={true}
-                      skeletoncount={3}
-                      listTitle={"Top Games"}
-                      width={"8/12"}
-                      aspectHeight={8}
-                      aspectWidth={5}
-                      mdCols="3"
-                      smCols="3"
-                      lgCols="3"
-                    ></GridList>
-                    <GridList
-                      skeleton={true}
-                      skeletoncount={5}
-                      width={"full"}
-                      aspectHeight={5}
-                      aspectWidth={8}
-                      mdCols="5"
-                      smCols="5"
-                      lgCols="5"
-                    ></GridList>
-                  </>
-                )}
+                  {!isLoadingTopGames && topGamesData !== undefined ? (
+                    <>
+                      <GridList
+                        games={topGamesData.slice(0, 4)}
+                        listTitle={"Top Games"}
+                        width={"8/12"}
+                        mdCols="4"
+                        smCols="4"
+                        lgCols="4"
+                      ></GridList>
+                      <GridList
+                        games={topGamesData.slice(4, 10)}
+                        width={"full"}
+                        mdCols="5"
+                        smCols="5"
+                        lgCols="5"
+                      ></GridList>
+                    </>
+                  ) : (
+                    <>
+                      <GridList
+                        skeleton={true}
+                        skeletoncount={4}
+                        listTitle={"Top Games"}
+                        width={"8/12"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="4"
+                        smCols="4"
+                        lgCols="4"
+                      ></GridList>
+                      <GridList
+                        skeleton={true}
+                        skeletoncount={5}
+                        width={"full"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="5"
+                        smCols="5"
+                        lgCols="5"
+                      ></GridList>
+                    </>
+                  )}
 
-                {data !== undefined &&
-                  _genres?.map((genre, i) => {
-                    if (i === _genres.length - 1) {
+                  {data !== undefined &&
+                    _genres?.map((genre, i) => {
+                      if (i === _genres.length - 1) {
+                        return (
+                          <HorizontalGameList
+                            ref={ref}
+                            key={genre.id}
+                            games={genre.data}
+                            listTitle={genre.title}
+                          ></HorizontalGameList>
+                        );
+                      }
                       return (
                         <HorizontalGameList
-                          ref={ref}
                           key={genre.id}
                           games={genre.data}
                           listTitle={genre.title}
                         ></HorizontalGameList>
                       );
-                    }
-                    return (
+                    })}
+                  {(isFetchingNextPage || data == undefined) && (
+                    <>
                       <HorizontalGameList
-                        key={genre.id}
-                        games={genre.data}
-                        listTitle={genre.title}
+                        skeleton={true}
+                        skeletoncount={10}
                       ></HorizontalGameList>
-                    );
+                      <HorizontalGameList
+                        skeleton={true}
+                        skeletoncount={10}
+                      ></HorizontalGameList>
+                    </>
+                  )}
+
+                  {/*                 
+                  <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                    {isFetchingNextPage
+                      ? 'Loading more...'
+                      : (data?.pages.length ?? 0) < 11
+                      ? 'Load More'
+                      : 'Nothing more to load'
+                    }
+                  </button>  */}
+                </div>
+            </div>
+          </Transition>
+          {/* SEARCH MAIN */}
+          <Transition 
+            show={inputFocused}  className="font-bold"
+            enter="transition-opacity duration-150"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0" 
+          >
+            <div
+              ref={searchLastListRef}
+              style={{ height: "calc(100vh - 120px)" }}
+              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+            >
+              <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
+                {/*Search Main area */}
+
+                {searchGroups !== undefined &&
+                  _searchGroups?.map((group, i) => {
+                    if (i === _searchGroups.length - 1  ) {
+                      console.log(`Group ${i}`, group)
+                      return (
+                        <GridList
+                        ref={searchRef}
+                        games={group}
+                        width={"8/12"}
+                        mdCols="7"
+                        smCols="7"
+                        lgCols="7"
+                        ></GridList>
+                      )
+                    } else if (group.length === 0) {
+                      return (
+                        <GridList
+                        skeleton={true}
+                        skeletoncount={7}
+                        width={"8/12"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="7"
+                        smCols="7"
+                        lgCols="7"
+                        ></GridList>
+                      )
+                    } else {
+                      return (
+                        <GridList
+                        games={group}
+                        width={"8/12"}
+                        mdCols="7"
+                        smCols="7"
+                        lgCols="7"
+                        ></GridList>
+                      );
+                    }
                   })}
-                {(isFetchingNextPage || data == undefined) && (
+                {(isFetchingNextGroup ) && (
                   <>
-                    <HorizontalGameList
+                    <GridList
                       skeleton={true}
-                      skeletoncount={10}
-                    ></HorizontalGameList>
-                    <HorizontalGameList
+                      skeletoncount={7}
+                      width={"8/12"}
+                      aspectHeight={8}
+                      aspectWidth={36}
+                      mdCols="7"
+                      smCols="5"
+                      lgCols="7"
+                    ></GridList>
+                    <GridList
                       skeleton={true}
-                      skeletoncount={10}
-                    ></HorizontalGameList>
+                      skeletoncount={7}
+                      width={"8/12"}
+                      aspectHeight={8}
+                      aspectWidth={36}
+                      mdCols="7"
+                      smCols="5"
+                      lgCols="7"
+                    ></GridList>
                   </>
+                  
                 )}
 
-                {/*                 
-                <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-                  {isFetchingNextPage
+{/*                                 
+                <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextGroup()} disabled={isFetchingNextGroup}>
+                  {isFetchingNextGroup
                     ? 'Loading more...'
-                    : (data?.pages.length ?? 0) < 11
-                    ? 'Load More'
-                    : 'Nothing more to load'
+                    : 'Load More'
                   }
                 </button>  */}
               </div>
             </div>
+          </Transition>
+
           </main>
         </div>
 

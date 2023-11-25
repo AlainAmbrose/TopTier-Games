@@ -93,6 +93,7 @@ export const AuthProvider = ({ children, navigate }) =>
           id: res.id,
           firstname: res.firstname,
           lastname: res.lastname,
+          isAuthenticated: true,
         };
         console.log("User has logged in.================");
         localStorage.setItem("user_data", JSON.stringify(user));
@@ -163,6 +164,7 @@ export const AuthProvider = ({ children, navigate }) =>
             id: res.id,
             firstname: res.firstname,
             lastname: res.lastname,
+            isAuthenticated: true,
           };
           localStorage.setItem("user_data", user);
           scheduleTokenRefresh(res.exp);
@@ -201,11 +203,13 @@ export const AuthProvider = ({ children, navigate }) =>
         console.log("Navigating to login page...");
       }
 
-      if (localStorage.getItem("user_data") !== null)
+      if (user !== null)
       {
         console.log("clearing local storage================");
         localStorage.removeItem("user_data");
         console.log("===============localStorage: ", localStorage.getItem("user_data"));
+        setUser(null)
+        console.log("User has logged out.================");
       }
     } catch (error)
     {
@@ -274,6 +278,25 @@ export const AuthProvider = ({ children, navigate }) =>
     }, 10 * 60 * 1000); // 10 minutes of inactivity
   }
 
+  // Return True if user is Authorized and False if not
+  const checkUser = async () => {
+    if (!isAuthenticated && localStorage.getItem("user_data") === null) {
+      return false;
+    } else if (!isAuthenticated) {
+      var currentUser = localStorage.getItem("user_data");
+      var userData = JSON.parse(currentUser);
+      console.log(userData);
+      if (userData.isAuthenticated === false) {
+        return false;
+      } else {
+        setIsAuthenticated(true)
+        return true;
+      }
+    }
+
+    return true;
+  }
+
 
   const contextValue = {
     user,
@@ -282,6 +305,7 @@ export const AuthProvider = ({ children, navigate }) =>
     userLogin,
     userLogout,
     showSuperToast,
+    checkUser,
   };
 
   return (

@@ -198,16 +198,8 @@ function buildPath(route) {
     }
 }
 
-let fn = "";
-let ln = "";
-if (localStorage.getItem("user_data") !== null) {
-    var currentUser = localStorage.getItem("user_data");
-    var userData = JSON.parse(currentUser);
-    console.log(userData);
-    fn = userData.firstname;
-    ln = userData.lastname;
-    var userId = new mongoose.Types.ObjectId(userData.id);
-}
+
+
 
 // ONLY THING IT SHOULD BE GETTING IS [ids, ids , ids ]
 const fetchUserGames = async (userId) => {
@@ -279,12 +271,31 @@ const fetchUserGamesExtraInfo = async (page, userGameInfo) => {
 
 const LibraryPage = () => {
     const authContext = useContext(AuthContext);
-    const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast } =
+    const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast, checkUser } =
         authContext;
     const navigate = useNavigate();
     const [gameIdsFetched, setGameIdsFetched] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(0);
+
+    let fn = "";
+    let ln = "";
+    if (localStorage.getItem("user_data") !== null) {
+        var currentUser = localStorage.getItem("user_data");
+        var userData = JSON.parse(currentUser);
+        console.log(userData);
+        fn = userData.firstname;
+        ln = userData.lastname;
+        var userId = new mongoose.Types.ObjectId(userData.id);
+    }
+
+    // if (user !== null) {
+    //     console.log("User Data on Library Page",user);
+    //     fn = user.firstname;
+    //     ln = user.lastname;
+    //     var userId = new mongoose.Types.ObjectId(user.id);
+    // }
+
 
     // const changePage = async (direction) => {
     //   if (direction === "forward") {
@@ -347,7 +358,7 @@ const LibraryPage = () => {
     console.log(userGamesExtra);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!checkUser()) {
             console.log("isAuthenticated: ", isAuthenticated, localStorage.getItem("user_data"));
             showSuperToast("Please login to view the homepage.", "not-authenticated");
             userLogout();
