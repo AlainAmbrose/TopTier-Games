@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Modal {
   String _generatePlatformString(List platforms) {
@@ -17,11 +20,92 @@ class Modal {
     return "${dt.month}/${dt.day}/${dt.year}";
   }
 
-  void _addToLibrary(BuildContext context) async {
+  void _addToLibrary(BuildContext context, Map<String, dynamic> game, Map<String, dynamic> userInfo) async {
+    String userId = userInfo['id'];
+    String gameId = game['_id'];
 
+    final addData = {
+      'userId': userId,
+      'gameId': gameId
+    };
+
+    final checkData = {
+      'userId': userId
+    };
+
+    final jsonAddData = jsonEncode(addData);
+    final jsonCheckData = jsonEncode(checkData);
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Cookie': 'jwt_access=${userInfo['accessToken']}'
+    };
+
+    final checkResponse = await http.post(
+      Uri.parse('https://www.toptier.games/Progress/api/getusergame'),
+      headers: headers,
+      body: jsonCheckData,
+    );
+
+    if (checkResponse.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(checkResponse.body);
+
+      for (int i = 0; i < jsonResponse['games'].length; i++) {
+        if (jsonResponse['games'][i]['GameId'] == gameId) {
+          Fluttertoast.showToast(
+            msg: "Game already in library!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+          return;
+        }
+      }
+
+      final response = await http.post(
+        Uri.parse('https://www.toptier.games/Progress/api/addusergame'),
+        headers: headers,
+        body: jsonAddData,
+      );
+
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: "Game added to library!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+      else {
+        Fluttertoast.showToast(
+          msg: response.statusCode.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+    }
+    else {
+      Fluttertoast.showToast(
+        msg: checkResponse.statusCode.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
   }
 
-  Dialog returnModal(BuildContext context, Map<String, dynamic> game, Map<String, dynamic> cover) {
+  Dialog returnModal(BuildContext context,
+                    Map<String, dynamic> game,
+                    Map<String, dynamic> cover,
+                    Map<String, dynamic> userInfo) {
     return Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
@@ -100,7 +184,7 @@ class Modal {
                     ),
                       ElevatedButton(
                           onPressed: () {
-                            _addToLibrary(context);
+                            _addToLibrary(context, game, userInfo);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
@@ -115,7 +199,6 @@ class Modal {
                   ]
               )
           ),
-
           ])
         )
     );
