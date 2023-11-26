@@ -131,7 +131,7 @@ class _SearchPageState extends State<SearchPage> {
             Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.black, Color.fromARGB(255, 105, 105, 105)],
+                colors: [Colors.black, Color.fromARGB(255, 141, 141, 141)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
