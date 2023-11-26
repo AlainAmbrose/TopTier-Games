@@ -462,7 +462,9 @@ const HomePage = () => {
                   </Transition>
                   <input
                     id="search-field"
-                    className={`block w-full h-full border-0 py-0 transition-all  left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-gray-400 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10 " : "pl-2"}`}
+                    // className={`block w-full h-full border-0 py-0 transition-all  left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10 " : "pl-2"}`}
+                    className={`block w-full h-full border-0 py-0 outline-none transition-all duration-75 left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10" : "pl-2"}`}
+                    style={{ transition: "box-shadow 50ms ease-in-out;" }}
                     placeholder="Search"
                     type="search" 
                     name="search"
@@ -615,6 +617,14 @@ const HomePage = () => {
 
                     {data !== undefined &&
                       _genres?.map((genre, i) => {
+                        if (genre === undefined) {
+                          return (<HorizontalGameList
+                          skeleton={true}
+                          skeletoncount={10}
+                          ></HorizontalGameList>)
+                        }
+
+
                         if (i === _genres.length - 1) {
                           return (
                             <HorizontalGameList

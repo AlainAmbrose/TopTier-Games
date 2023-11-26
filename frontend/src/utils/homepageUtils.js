@@ -175,7 +175,7 @@ export const fetchGenre = async (page) => {
 
     try {
         const fetchPromises = genreIds.map(async (id) => {
-        let obj = { genre: id, size: 7 };
+        let obj = { genre: id, size: 7, limit: 25};
         let js = JSON.stringify(obj);
         console.log("request", js);
 
@@ -205,9 +205,8 @@ export const fetchGenre = async (page) => {
 
         return retval;
     } catch (e) {
-        console.error(`Error thrown when fetching genre: ${e}`);
-        // alert(e.toString());
-        // setSearchResults(e.toString());
+      console.error(`Error thrown when fetching genre: ${e}`);
+      throw new Error(`HTTP error! status: ${e}`);
     }
 };
 

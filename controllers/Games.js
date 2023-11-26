@@ -208,7 +208,7 @@ const populateHomePage = async (req, res) => {
   }
 
   await functions
-    .getGenre(body)
+    .getGenre(body, limit)
     .then(async (data) => {
       let objects = [];
 
@@ -292,6 +292,7 @@ const getGameInfo = async (req, res) => {
     similargames: "SimilarGames",
     reviewcount: "ReviewCount",
   };
+  
   let gameIds = req.body.gameId;
 
   let options = req.body.options;
