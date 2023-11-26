@@ -11,7 +11,7 @@ const ScrollCard = ({ game, skeleton }) =>
 {
   const [open, setOpen] = useState(false);
   const authContext = useContext(AuthContext);
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
+  const { user, userSignup, userLogin, userLogout } = authContext;
 
   // Triggers the query when the popup is open and the game ID is available
   const { data: gameInfo, isLoading: isLoadingGameInfo, isError, error } = useQuery(

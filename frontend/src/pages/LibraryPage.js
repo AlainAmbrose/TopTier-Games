@@ -236,7 +236,7 @@ export const fetchGameGroup = async (page, gameGroup) => {
 
 const LibraryPage = () => {
   const authContext = useContext(AuthContext);
-  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
+  const { user, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
   const navigate = useNavigate();
 
   // Handle Fetch Errors 
@@ -246,8 +246,7 @@ const LibraryPage = () => {
       showSuperToast("Something went wrong. Please try logging in again.", "fetch-error");
       console.log(
       "isAuthenticated: ",
-      isAuthenticated,
-      localStorage.getItem("user_data")
+      localStorage.getItem("user_data").isAuthenticated
       // user
     );
       showSuperToast("Please login to view the homepage.", "not-authenticated");
@@ -340,33 +339,24 @@ const LibraryPage = () => {
   }, [isFetchingUserGameData]);
   // ===================UseDataFetch===================
 
-    useEffect(() => {
-      if (!checkUser()) {
-          console.log("isAuthenticated: ", isAuthenticated, localStorage.getItem("user_data"));
-          showSuperToast("Please login to view the homepage.", "not-authenticated");
-          userLogout();
-          navigate("/login");
-      }
-    }, []);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+//   // Early return if not authenticated
+//   if (!localStorage.getItem("user_data") !== null && localStorage.getItem("user_data").isAuthenticated !== false ) {
+//     return null; // or some loading indicator or minimal component
+//   }
 
-    // Early return if not authenticated
-    if (!isAuthenticated) {
-        return null; // or some loading indicator or minimal component
-    }
+  const userNavigation = [
+      { name: "Your profile", href: "#", action: () => navigate("#") },
+      { name: "Home", href: "/home", action: () => navigate("/home")},
+      { name: "Sign out", href: "/", action: () => userLogout("/") },
+  ];
 
-    const userNavigation = [
-        { name: "Your profile", href: "#", action: () => navigate("#") },
-        { name: "Home", href: "/home", action: () => navigate("/home")},
-        { name: "Sign out", href: "/", action: () => userLogout("/") },
-    ];
-
-    const navigation = [
-      { name: "Homepage", href: "/home", icon: HomeIcon, current: false },
-      { name: "Library", href: "/#", icon: FolderIcon, current: true },
-    ];
-    
+  const navigation = [
+    { name: "Homepage", href: "/home", icon: HomeIcon, current: false },
+    { name: "Library", href: "/#", icon: FolderIcon, current: true },
+  ];
+  
 
     return (
         <>

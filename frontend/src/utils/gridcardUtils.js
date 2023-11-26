@@ -85,6 +85,7 @@ export const fetchGameInformation = async (gameId) =>
       return gameInfo;
     } catch (e) {
       console.error(e);
+      throw new Error(`HTTP error! status: ${e}`);
     }
   }
   catch (e)

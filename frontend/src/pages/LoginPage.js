@@ -9,7 +9,7 @@ const LoginPage = () => {
   let loginPassword;
 
   // Now you can access values from the context
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
+  const { user, userSignup, userLogin, userLogout } = authContext;
 
   return (
     <div className="sm:mx-auto sm:w-full sm:max-w-sm">

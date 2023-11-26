@@ -10,7 +10,7 @@ import { fetchGameInformation } from "../../utils/gridcardUtils";
 const GridCard = ({ game, skeleton, apsectHeight, apsectWidth }) => {
   const [open, setOpen] = useState(false);
   const authContext = useContext(AuthContext);
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } =
+  const { user, userSignup, userLogin, userLogout } =
     authContext;
 
   // Triggers the query when the popup is open and the game ID is available

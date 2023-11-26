@@ -23,7 +23,7 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
   }
 
   const authContext = useContext(AuthContext);
-  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast } = authContext;
+  const { user, userSignup, userLogin, userLogout, showSuperToast } = authContext;
   const navigate = useNavigate();
 
   // if (user !== null) {

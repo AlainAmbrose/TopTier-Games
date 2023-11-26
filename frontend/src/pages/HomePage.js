@@ -49,7 +49,7 @@ const HomePage = () => {
 
   // Pulling in the user context
   const authContext = useContext(AuthContext);
-  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
+  const { user, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
 
   const navigate = useNavigate();
 
@@ -60,8 +60,7 @@ const HomePage = () => {
       showSuperToast("Something went wrong. Please try logging in again.", "fetch-error");
       console.log(
         "isAuthenticated: ",
-        isAuthenticated,
-        localStorage.getItem("user_data")
+        localStorage.getItem("user_data").isAuthenticated
         // user
       );
       showSuperToast("Please login to view the homepage.", "not-authenticated");
@@ -72,7 +71,7 @@ const HomePage = () => {
 
   // This kicks the user back to the login page if they are not authenticated
   useEffect(() => {
-    handleError("user may not be authenticated")
+    handleError("user may not be authenticated on mounted")
   }, []);
 
   // ==============Genre=================
@@ -206,10 +205,10 @@ const HomePage = () => {
   }, [isFetchingSearch]);
   // ===================Search===================
 
-  // Early return if not authenticated
-  if (!isAuthenticated) {
-    return null; // or some loading indicator or minimal component
-  }
+  // // Early return if not authenticated
+  // if (!localStorage.getItem("user_data") !== null && localStorage.getItem("user_data").isAuthenticated !== false ) {
+  //   return null; // or some loading indicator or minimal component
+  // }
 
   let fn = "";
   let ln = "";
@@ -217,7 +216,7 @@ const HomePage = () => {
   if (localStorage.getItem("user_data") !== null) {
     var currentUser = localStorage.getItem("user_data");
     var userData = JSON.parse(currentUser);
-    console.log(userData);
+    console.log("Loading in firstname and lastname from: ", userData);
     fn = userData.firstname;
     ln = userData.lastname;
   }
