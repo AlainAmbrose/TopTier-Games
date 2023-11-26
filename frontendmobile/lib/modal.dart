@@ -80,7 +80,9 @@ class Modal {
   }
 
   String _setESRBRating(dynamic ageRating) {
-    if (ageRating.runtimeType != List || !ageRating[0].containsKey('rating')) {
+    if (ageRating.runtimeType != List ||
+        ageRating.length == 0 ||
+        !ageRating[0].containsKey('rating')) {
       return "ESRB: N/A";
     }
 
