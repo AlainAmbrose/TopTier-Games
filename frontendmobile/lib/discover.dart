@@ -257,8 +257,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: TopTierAppBar.returnAppBar(context, jsonResponse),
+      extendBodyBehindAppBar: false,
+      appBar: TopTierAppBar.returnAppBar(context, widget.jsonResponse),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(

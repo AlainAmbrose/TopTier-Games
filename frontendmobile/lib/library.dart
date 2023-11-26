@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'appbar.dart';
-import 'gameFunctions.dart';
 
 class LibraryPage extends StatefulWidget {
   Map<String, dynamic> jsonResponse;
@@ -22,6 +21,11 @@ class _LibraryPageState extends State<LibraryPage> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<String> getCoverInfo(String gameId) async {
     var data = {
       'id': gameId,
@@ -36,7 +40,7 @@ class _LibraryPageState extends State<LibraryPage> {
     };
 
     var response = await http.post(
-      Uri.parse(' https://www.toptier.games/Games/api/getcover'),
+      Uri.parse('https://www.toptier.games/Games/api/getcover'),
       headers: headers,
       body: jsonData,
     );
@@ -49,7 +53,7 @@ class _LibraryPageState extends State<LibraryPage> {
     Map<String, dynamic> jsonSendData = <String, dynamic>{};
 
     jsonSendData = {
-      'id': widget.jsonResponse['id'],
+      'userId': '${widget.jsonResponse['id']}',
     };
 
     final jsonData = jsonEncode(jsonSendData);
@@ -74,6 +78,7 @@ class _LibraryPageState extends State<LibraryPage> {
           .where((userGame) => userGame['result']['status'] == tabNumber);
       return filteredGames.toList();
     } else {
+      print(response.statusCode);
       throw Exception("Unable to Load Games :(");
     }
   }
@@ -149,25 +154,7 @@ class _LibraryPageState extends State<LibraryPage> {
       length: 3,
       child: Scaffold(
         extendBodyBehindAppBar: false,
-        appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: const Text(
-              'TopTier',
-              style: TextStyle(
-                  fontFamily: 'Inter-Bold',
-                  fontWeight: FontWeight.w800,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 25),
-            ),
-            backgroundColor: Colors.black,
-            actions: [
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                  child: Text(
-                    "${widget.jsonResponse["firstname"]} ${widget.jsonResponse["lastname"]}",
-                    style: const TextStyle(fontSize: 18),
-                  ))
-            ]),
+        appBar: TopTierAppBar.returnAppBar(context, widget.jsonResponse),
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
