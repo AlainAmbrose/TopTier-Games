@@ -3,6 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjust the path as necessary
 import { useNavigate } from "react-router-dom";
+import zxcvbn from "zxcvbn";
 
 const SignUpPage = () => {
   const authContext = useContext(AuthContext);
@@ -27,6 +28,15 @@ const SignUpPage = () => {
     email
   ) => {
     event.preventDefault();
+
+    const passwordStrength = zxcvbn(password.value);
+
+    if (passwordStrength.score < 2) {
+      const feedback = passwordStrength.feedback.suggestions.join(" ");
+
+      toast.error(`Password is too weak: ${feedback}`);
+      return;
+    }
     var user = {
       firstname: firstname.value,
       lastname: lastname.value,

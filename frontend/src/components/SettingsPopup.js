@@ -2,11 +2,14 @@ import React, { Fragment, useContext, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { AuthContext } from "../components/Authorizations/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SettingsPopup = ({ open, setOpen }) => {
   const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
   const { user, showSuperToast } = authContext;
 
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({
     username: user.username,
@@ -19,6 +22,7 @@ const SettingsPopup = ({ open, setOpen }) => {
   const firstname = editedUser.firstname;
   const lastname = editedUser.lastname;
   const email = editedUser.email;
+  var deletePhrase = "";
 
   function buildPath(route) {
     if (process.env.NODE_ENV === "production") {
@@ -30,6 +34,34 @@ const SettingsPopup = ({ open, setOpen }) => {
 
   const handleEdit = () => {
     setIsEditMode(true);
+  };
+
+  const toggleDeleteConfirmation = async () => {
+    setShowConfirmation(!showConfirmation);
+  };
+
+  const deleteUser = async () => {
+    var obj = {
+      userId: user.id,
+    };
+    var js = JSON.stringify(obj);
+
+    try {
+      const response = await fetch(buildPath("Users/api/deleteuser"), {
+        method: "POST",
+        body: js,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.status === 200) {
+        var res = JSON.parse(await response.text());
+        showSuperToast("You're outa there!");
+      }
+      navigate("/");
+    } catch (e) {
+      return;
+    }
   };
 
   const handleSave = async () => {
@@ -63,6 +95,14 @@ const SettingsPopup = ({ open, setOpen }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedUser((prevUser) => ({ ...prevUser, [name]: value }));
+  };
+
+  const tryDeleteUser = (e) => {
+    const { value } = e.target;
+    if (value === "DELETE") {
+      navigate("/login");
+      deleteUser();
+    }
   };
 
   return (
@@ -180,12 +220,45 @@ const SettingsPopup = ({ open, setOpen }) => {
                             Edit
                           </button>
                         )}
-                        <button
-                          className="bg-red-500 text-white w-full px-4 py-2 rounded"
-                          onClick={() => showSuperToast("Deleted Account!")}
-                        >
-                          Delete Account
-                        </button>
+                        {showConfirmation ? (
+                          <button
+                            className="bg-red-500 text-white w-full px-4 py-2 rounded"
+                            onClick={() => toggleDeleteConfirmation()}
+                          >
+                            Cancel
+                          </button>
+                        ) : (
+                          <button
+                            className="bg-red-500 text-white w-full px-4 py-2 rounded"
+                            onClick={() => toggleDeleteConfirmation()}
+                          >
+                            Delete Account
+                          </button>
+                        )}
+                        {showConfirmation ? (
+                          <div>
+                            <div className="text-gray-100 ">
+                              Type DELETE below to delete
+                            </div>
+                            {/* <input
+                              type="text"
+                              name="deleteConfirmation"
+                              value={isDeleted}
+                              onChange={tryDeleteUser}
+                              className="p-0 bg-gray-900 text-gray-100 hover:bg-gray-500 rounded-md"
+                            /> */}
+                            <input
+                              id="deleteConfirmation"
+                              name="deleteConfirmation"
+                              type="text"
+                              className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-red-500 sm:text-sm sm:leading-6"
+                              ref={(c) => (deletePhrase = c)}
+                              onKeyPress={tryDeleteUser}
+                            />
+                          </div>
+                        ) : (
+                          <div></div>
+                        )}
                       </div>
                     </div>
                   </div>
