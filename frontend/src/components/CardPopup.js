@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from "prop-types";
 import { Dialog, RadioGroup, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -6,6 +7,7 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { Rating } from 'react-simple-star-rating'
 import HorizontalGameList from './Lists/HorizontalGameList';
 import LongText from './LongText';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 const product = {
   name: "The Game Name",
@@ -47,21 +49,9 @@ const fillColorArray = [
 ];
 
 const convertDate = (dateStr) => {
-  // // Assuming releaseDate is in seconds. If it's in milliseconds, you don't need to multiply by 1000.
-  // const releaseDate = new Date(date * 1000);
-
-  // // Options for formatting the date
-  // const options = { year: 'numeric', month: 'long', day: 'numeric' };
-
-  // // Format the date
-  // const formattedDate = releaseDate.toLocaleDateString('en-US', options);
-  console.log("Date: ", dateStr)
   const dateObj = new Date(dateStr);
-
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   const formattedDate = dateObj.toLocaleDateString('en-US', options);
-  console.log(formattedDate); // Outputs: February 25, 2022
-
   return formattedDate;
 }
   
@@ -76,7 +66,6 @@ const CardPopup = ({
   }) => {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
-
 
   return (
     <>
@@ -138,10 +127,17 @@ const CardPopup = ({
                             <h3 id="information-heading" className="sr-only">
                               Game information
                             </h3>
-                            {(!isLoadingGameInfo && gameInfo !== undefined) && 
-                              <p className="text-2xl text-gray-200">
-                                <span className="text-2xl text-blue-600">Release Date: </span> {convertDate(gameInfo.releaseDate)}
-                              </p>
+                            {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.releasedate !== undefined) ?
+                              (<p className="text-2xl text-gray-200">
+                                <span className="text-2xl text-blue-600">Release Date: </span> {convertDate(gameInfo.releasedate)}
+                              </p>) :  
+                              (<>
+                                <p className="pointer-events-none w-4/12 h-5 mt-2 block truncate ">
+                                  <SkeletonTheme baseColor="black" highlightColor="#202020">
+                                    <Skeleton count={1} ></Skeleton>
+                                  </SkeletonTheme>
+                                </p>
+                              </>)
                             }
                             
 
@@ -150,31 +146,45 @@ const CardPopup = ({
                               <h4 className="sr-only">Reviews</h4>
                               <div className="flex items-center">
                                 <div className="flex items-center">
-                                  { (!isLoadingGameInfo && gameInfo !== undefined) &&                
+                                  { (!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) ?                
+                                    (
                                     <Rating
-                                    size={25}
-                                    transition
-                                    initialValue={gameInfo.rating}
-                                    allowFraction
-                                    fillColorArray={fillColorArray}
-                                    emptyColor="black"
-                                    SVGstyle={ {'display' : "inline"}}
-                                    readonly={true}
-                                  /> }
+                                      size={25}
+                                      transition
+                                      initialValue={gameInfo.gameranking.$numberDecimal}
+                                      allowFraction
+                                      fillColorArray={fillColorArray}
+                                      emptyColor="black"
+                                      SVGstyle={ {'display' : "inline"}}
+                                      readonly={true}
+                                    />) :
+                                    (<>
+                                      <Rating
+                                      size={25}
+                                      transition
+                                      initialValue={0}
+                                      allowFraction
+                                      fillColorArray={fillColorArray}
+                                      emptyColor="gray"
+                                      SVGstyle={ {'display' : "inline"}}
+                                      readonly={true}
+                                      />
+                                    </>)
+                                    }
                               
                                 
                                 </div>
-                                {(!isLoadingGameInfo && gameInfo !== undefined) && 
+                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) && 
                                 (<>
                                   <p className="sr-only">
-                                    {gameInfo.rating} out of 5 stars
+                                    {gameInfo.gameranking.$numberDecimal} out of 5 stars
                                   </p>
                                   <a
                                     href="#"
                                     className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
                                   >
                                     {/*  */}
-                                    {product.reviewCount} ratings 
+                                    {(!isLoadingGameInfo && gameInfo.reviewcount) && (<>{gameInfo.reviewcount} ratings </>) }
                                   </a>
                                 </>)}
                               </div>
@@ -186,7 +196,7 @@ const CardPopup = ({
                               <h4 className="sr-only">Game Description</h4>
 
                               {/* <p className="text-base text-gray-200"> */}
-                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.summary !== undefined) && <LongText content={gameInfo.summary} limit={150}></LongText> }
+                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.storyline !== undefined) && <LongText content={gameInfo.storyline} limit={150}></LongText> }
                               {/* </p> */}
                             </div>
                           </section>
@@ -221,11 +231,11 @@ const CardPopup = ({
 
                               <div >
                                 <h4 className="text-sm font-medium text-3xl text-gray-300">Similar Games</h4>
-                                {/* {  (!isLoadingGameInfo || gameInfo !== undefined) ? 
-                                  <HorizontalGameList games={gameInfo.similarGames} ></HorizontalGameList> :
+                                {  (!isLoadingGameInfo && gameInfo !== undefined && gameInfo.similargames !== undefined) ? 
+                                  <HorizontalGameList games={gameInfo.similargames} ></HorizontalGameList> :
                                   <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList> 
-                                } */}
-                                <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList>
+                                }
+                                {/* <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList> */}
                               </div>
                           </section>
 
@@ -242,5 +252,30 @@ const CardPopup = ({
     </>
   )
 }
+
+CardPopup.propTypes = {
+  game: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+    url: PropTypes.string.isRequired,
+  }).isRequired,
+  gameInfo: PropTypes.object, // This allows both object and undefined
+  isLoadingGameInfo: PropTypes.bool.isRequired,
+  open: PropTypes.bool.isRequired, 
+  setOpen: PropTypes.func.isRequired,
+  skeleton: PropTypes.bool.isRequired,
+};
+
+CardPopup.defaultProps = {
+  game: {
+    name: "loading",
+    id: -1,
+    url: "/#"
+  },
+  isLoadingGameInfo : true,
+  setOpen : () => {},
+  skeleton: true,
+};
+
 
 export default CardPopup

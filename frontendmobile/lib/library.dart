@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'appbar.dart';
+import 'gameFunctions.dart';
 
 class LibraryPage extends StatefulWidget {
   Map<String, dynamic> jsonResponse;

@@ -3,12 +3,11 @@ require("dotenv").config();
 
 const Game = require("../models/Game");
 
-const app_name = "poosd-large-project-group-8-1502fa002270";
 function buildPath(route)
 {
     if (process.env.NODE_ENV === 'production')
     {
-        return 'https://' + app_name + '.herokuapp.com/' + route;
+        return 'https://www.toptier.games/' + route;
     } else
     {
         return 'http://localhost:3001/' + route;
@@ -33,21 +32,24 @@ const insertGame = async (req, res) =>
 
     await functions.getGame(search).then(async data =>
     {
-        data.forEach(async function (obj)
-        {
+        let errorFlag = false;
+        
+        for (const obj of data) {
             let game = obj;
 
             const newGame = new Game();
 
-            if (game.id) newGame.IGDB_id = game.id; else return res.sendStatus(403);
-            if (game.name) newGame.Name = game.name; else return res.sendStatus(403);
-            if (game.cover && game.cover.url) newGame.CoverURL = game.cover.url; else return res.sendStatus(403);
+            if (game.id) newGame.IGDB_id = game.id; else {errorFlag = true; break;}
+            if (game.name) newGame.Name = game.name; else {errorFlag = true; break;}
+            if (game.cover && game.cover.url) newGame.CoverURL = game.cover.url; else {errorFlag = true; break;}
             if (game.storyline) newGame.Summary = game.storyline;
             if (game.first_release_date) newGame.ReleaseDate = new Date(game.first_release_date * 1000);
             if (game.genres) newGame.Genre = game.genres;
 
             if (game.total_rating) newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
-            else return res.sendStatus(403);
+            else {errorFlag = true; break;}
+
+            if (game.total_rating_count) newGame.ReviewCount = game.total_rating_count;
 
             if (game.screenshots) newGame.Images = await functions.getGameImages(game.screenshots);
             if (game.websites) newGame.Links = await functions.getGameLinks(game.websites);
@@ -73,7 +75,9 @@ const insertGame = async (req, res) =>
             if (game.similar_games) newGame.SimilarGames = game.similar_games;
 
             await newGame.save();
-        });
+        };
+
+        if (errorFlag) return res.status(403).json({ id: -1, message: "Bad Entry" });
 
         return res.status(200).json({ id: 1, message: "Game Inserted Successfully" });
     }).catch((err) =>
@@ -149,7 +153,7 @@ const populateHomePage = async (req, res) =>
 
             if (game === null)
             {
-                let js = JSON.stringify({ gameId: obj.id });
+                let js = JSON.stringify({gameId: obj.id});
                 let response = await fetch(buildPath("Games/api/insertgame"),
                     {
                         method: 'POST',
@@ -167,7 +171,7 @@ const populateHomePage = async (req, res) =>
                     return result.status;
                 }
             }
-        });
+         });
 
 
         for (let i = 0; i < data.length; i++)
@@ -230,7 +234,8 @@ const getGameInfo = async (req, res) =>
         platformlogos: "PlatformLogos",
         videos: "Videos",
         ageratings: "AgeRating",
-        similargames: "SimilarGames"
+        similargames: "SimilarGames",
+        reviewcount: "ReviewCount",
     };
     let gameIds = req.body.gameId;
 
@@ -257,6 +262,7 @@ const getGameInfo = async (req, res) =>
 
     if (gameIds instanceof Array)
     {
+        console.log("Array of gameIds: ", gameIds)
         let gameInfo = [];
 
         for (let id of gameIds)
@@ -267,14 +273,9 @@ const getGameInfo = async (req, res) =>
             setTimeout(() => { ; }, 250);
         }
 
-        if (gameInfo.some(g => g === null))
-        {
-            return res.status(400).json({ message: "Please try again." });
-        }
-
+        gameInfo = gameInfo.filter(g => g !== null);
         return res.status(200).json(gameInfo);
-    } else
-    {
+    } else {
         let gameInfo = await functions.getGameFromDB(gameIds, opts, cookies);
 
         if (gameInfo === null)

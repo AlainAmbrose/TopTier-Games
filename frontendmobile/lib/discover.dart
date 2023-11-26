@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:flutter/material.dart';
+import 'appbar.dart';
 import 'package:http/http.dart' as http;
 import 'genres.dart';
 import 'dart:convert';
@@ -256,27 +257,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text(
-            'TopTier',
-            style: TextStyle(
-                fontFamily: 'Inter-Bold',
-                fontWeight: FontWeight.w800,
-                fontStyle: FontStyle.italic,
-                fontSize: 25),
-          ),
-          backgroundColor: Colors.black,
-          actions: [
-            Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                child: Text(
-                  "${widget.jsonResponse["firstname"]} ${widget.jsonResponse["lastname"]}",
-                  style: const TextStyle(fontSize: 18),
-                )
-            )
-          ]
-      ),
+      extendBodyBehindAppBar: true,
+      appBar: TopTierAppBar.returnAppBar(context, jsonResponse),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(

@@ -46,10 +46,6 @@ const GridList = (
   const gridClasses = classNames(
     `mb-6 grid ${mdGridClassStyles[mdCols]} gap-x-4 gap-y-8  sm:gap-x-6 ${smGridClassStyles[smCols]} ${lgGridClassStyles[lgCols]} xl:gap-x-8`
   );
-  if (games !== undefined) {
-    // console.log("TOPGAMESSSSSSSS", games);
-  }
-
   return (
     <div>
       <div className={`${listTitle === "" ? "hidden" : "relative mb-5 "}`}>

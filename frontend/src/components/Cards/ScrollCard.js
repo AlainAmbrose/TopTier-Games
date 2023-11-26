@@ -1,43 +1,45 @@
 import PropTypes from "prop-types";
-import Skeleton, {SkeletonTheme} from 'react-loading-skeleton'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import CardPopup from "../CardPopup";
 import { useQuery } from "react-query";
 import { useState, useContext } from "react";
 import { AuthContext } from "../Authorizations/AuthContext";
-const app_name = "poosd-large-project-group-8-1502fa002270"
-function buildPath(route) {
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://' + app_name + '.herokuapp.com/' + route
-  } else {
-    return 'http://localhost:3001/' + route
+function buildPath(route)
+{
+  if (process.env.NODE_ENV === 'production')
+  {
+    return 'https://www.toptier.games/' + route;
+  } else
+  {
+    return 'http://localhost:3001/' + route;
   }
 }
 
-
-const fetchGameInformation = async (gameId) => {
-  console.log("GETTING Game INFO : ", gameId)
-  var obj = { 
+const fetchGameInformation = async (gameId) =>
+{
+  var obj = {
     gameId: gameId,
     options: {
-      id : true,
-      name : true,
-      coverURL : true,
-      storyline : true,
-      releasedate : true,
-      genres : true,
-      gameranking : true,
-      images : true,
-      links : true,
-      platforms : true,
-      platformlogos : true,
-      videos : true,
-      ageratings : true,
-      similargames : true
-    } 
+      id: true,
+      name: true,
+      coverURL: true,
+      storyline: true,
+      releasedate: true,
+      genres: true,
+      gameranking: true,
+      images: true,
+      links: true,
+      platforms: true,
+      platformlogos: true,
+      videos: true,
+      ageratings: true,
+      similargames: true
+    }
   };
   var js = JSON.stringify(obj);
-  
-  try {
+
+  try
+  {
     const response = await fetch(buildPath("Games/api/getgameinfo"), {
       method: 'POST',
       body: js,
@@ -47,33 +49,31 @@ const fetchGameInformation = async (gameId) => {
       }
     });
 
-    if (!response.ok) {
+    if (!response.ok)
+    {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const jsonResponse = await response.json();
-    
+
     let gameInfo = jsonResponse.gameInfo;
-    console.log("jsonResponse for gameInfo: ", gameInfo);
 
-    // return jsonResponse.gameInfo; // Remove Me!
-
-    // Retrieve the games
-    try {
-      var obj = { 
+    // Retrieve the similar games
+    try
+    {
+      var obj = {
         gameId: gameInfo.similargames,
         options: {
-          id : true,
-          name : true,
-          coverURL : true,
-          gameranking : true,
-          links : true,
-          platforms : true,
-          platformlogos : true,
-        } 
+          id: true,
+          name: true,
+          coverURL: true,
+          gameranking: true,
+          links: true,
+          platforms: true,
+          platformlogos: true,
+        }
       };
-      console.log("request for similar games", obj);
       let js = JSON.stringify(obj);
-        
+
       const similarGamesResponse = await fetch(buildPath("Games/api/getgameinfo"), {
         method: 'POST',
         body: js,
@@ -83,36 +83,38 @@ const fetchGameInformation = async (gameId) => {
         }
       });
 
-      if (!similarGamesResponse.ok) {
+      if (!similarGamesResponse.ok)
+      {
         throw new Error(`HTTP error! status: ${similarGamesResponse.status}`);
       }
-  
-      gameInfo.similargames = similarGamesResponse.map((game, index) => {
-        return {...game};
+
+      let resolvedSimilarGames = await similarGamesResponse.json()
+
+      gameInfo.similargames = resolvedSimilarGames.map((game, index) =>
+      {
+        return { ...game };
       });
-
-      console.log("Similar Games: ", gameInfo.similarGames);
-  
       return gameInfo;
-    } catch (e) {
-      console.error(e)
-      // setSearchResults(e.toString());
+    } catch (e)
+    {
+      console.error(e);
     }
-
-    return jsonResponse; // Accessing the 'result' property
   }
-  catch(e)
+  catch (e)
   {
-      alert(e.toString());
-      throw e; // Rethrow the error for React Query to catch
+    alert(e.toString());
+    throw e; // Rethrow the error for React Query to catch
   }
-}
+};
 
-function classNames(...classes) {
+
+function classNames(...classes)
+{
   return classes.filter(Boolean).join(" ");
 }
 
-const ScrollCard = ({ game, skeleton}) => {
+const ScrollCard = ({ game, skeleton }) =>
+{
   const [open, setOpen] = useState(false);
   const authContext = useContext(AuthContext);
   const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
@@ -120,24 +122,24 @@ const ScrollCard = ({ game, skeleton}) => {
 
   // Triggers the query when the popup is open and the game ID is available
   const { data: gameInfo, isLoading: isLoadingGameInfo, isError, error } = useQuery(
-    ['RecommendedGames', game.id], 
-    () => fetchGameInformation(game.id), 
-    { 
+    ['RecommendedGames', game.id],
+    () => fetchGameInformation(game.id),
+    {
       enabled: open && game.id != null && skeleton === false,
     }
   );
 
 
   const cardClasses = classNames(`group aspect-h-8 aspect-w-36 block w-full overflow-hidden rounded-lg bg-black transform transition-transform duration-300
-  ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`)
-  
+  ease-in-out group hover:scale-105  hover:shadow-md  hover:shadow-gray-950`);
+
   return (
     <>
       {/* Button */}
       {!skeleton ? (<>
         <div className={cardClasses}>
           <img src={game.url} alt="" className="pointer-events-none object-cover group-hover:opacity-90" />
-          <button type="button" className="absolute inset-0 focus:outline-none" onClick={() => {setOpen(true)}}>
+          <button type="button" className="absolute inset-0 focus:outline-none" onClick={() => { setOpen(true); }}>
             <span className="sr-only">View details for {game.name}</span>
           </button>
         </div>
@@ -147,19 +149,19 @@ const ScrollCard = ({ game, skeleton}) => {
         <p className="pointer-events-none block text-sm font-medium text-gray-500">
           {game.id}
         </p>
-      </>) : 
-      (<>
-        <div className={cardClasses}>
-          <SkeletonTheme baseColor="black" borderRadius="0.5rem" highlightColor="#202020">
-            <Skeleton className="pointer-events-none object-cover aspect-h-9 aspect-w-8 group-hover:opacity-90"></Skeleton>
-          </SkeletonTheme>
-        </div>
-        <p className="pointer-events-none w-8/12 mt-2 block truncate ">
-          <SkeletonTheme baseColor="black" highlightColor="#202020">
-            <Skeleton  count={2} ></Skeleton>
-          </SkeletonTheme>
-        </p>
-      </>)}
+      </>) :
+        (<>
+          <div className={cardClasses}>
+            <SkeletonTheme baseColor="black" borderRadius="0.5rem" highlightColor="#202020">
+              <Skeleton className="pointer-events-none object-cover aspect-h-9 aspect-w-8 group-hover:opacity-90"></Skeleton>
+            </SkeletonTheme>
+          </div>
+          <p className="pointer-events-none w-8/12 mt-2 block truncate ">
+            <SkeletonTheme baseColor="black" highlightColor="#202020">
+              <Skeleton count={2} ></Skeleton>
+            </SkeletonTheme>
+          </p>
+        </>)}
 
       {/* POP UP */}
       <CardPopup game={game} gameInfo={gameInfo} isLoadingGameInfo={isLoadingGameInfo} open={open} setOpen={setOpen} skeleton={skeleton}></CardPopup>
@@ -174,7 +176,7 @@ ScrollCard.propTypes = {
     id: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
   }).isRequired,
-  skeleton: PropTypes.bool.isRequired, 
+  skeleton: PropTypes.bool.isRequired,
 };
 
 // If you want to specify default values for your props, you can do so as follows:

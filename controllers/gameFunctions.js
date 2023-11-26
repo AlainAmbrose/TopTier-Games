@@ -4,7 +4,7 @@ function buildPath(route)
 {
   if (process.env.NODE_ENV === 'production')
   {
-    return 'https://' + app_name + '.herokuapp.com/' + route;
+    return 'https://www.toptier.games/' + route;
   } else
   {
     return 'http://localhost:3001/' + route;
@@ -212,7 +212,8 @@ module.exports = {
     let gameInfo = {};
     gameInfo.id = game.IGDB_id;
     gameInfo.name = game.Name;
-    gameInfo.coverURL = game.CoverURL;
+    newURL = this.updateCoverURL(game.CoverURL, "1080p");
+    gameInfo.url = newURL;
     gameInfo.storyline = game.Summary;
     gameInfo.releasedate = game.ReleaseDate;
     gameInfo.genres = game.Genre;
@@ -226,6 +227,7 @@ module.exports = {
     gameInfo.videos = game.Videos;
     gameInfo.ageratings = game.AgeRating;
     gameInfo.similargames = game.SimilarGames;
+    gameInfo.reviewcount = game.ReviewCount;
 
     return gameInfo;
   },
