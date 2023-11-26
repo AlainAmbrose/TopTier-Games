@@ -84,12 +84,18 @@ export const AuthProvider = ({ children, navigate }) => {
           lastname: res.lastname,
           username: obj.login,
           password: obj.password,
-          email: "dummyemail@gmail.com",
+          email: res.email,
         };
         console.log("User has logged in.================");
+        localStorage.setItem("user_data", JSON.stringify(user));
         scheduleTokenRefresh(res.exp);
         setIsAuthenticated(true);
-        console.log("isAuthenticated: ", isAuthenticated);
+        console.log(
+          "isAuthenticated: ",
+          isAuthenticated,
+          localStorage.getItem("user_data")
+        );
+
         setUser(user);
 
         navigate("/home");
@@ -102,7 +108,7 @@ export const AuthProvider = ({ children, navigate }) => {
   };
 
   const userSignup = async (
-    event,
+    // event,
     firstname,
     lastname,
     login,
@@ -110,15 +116,20 @@ export const AuthProvider = ({ children, navigate }) => {
     email,
     toast
   ) => {
-    event.preventDefault();
+    // event.preventDefault();
     let allFieldsFilled = true;
+    console.log("firstname", firstname, typeof firstname);
+    console.log("lastname", lastname, typeof lastname);
+    console.log("Login", login, typeof login);
+    console.log("password", password, typeof password);
+    console.log("email", email, typeof email);
 
     var obj = {
-      firstname: firstname.value,
-      lastname: lastname.value,
-      login: login.value,
-      password: password.value,
-      email: email.value,
+      firstname: firstname,
+      lastname: lastname,
+      login: login,
+      password: password,
+      email: email,
     };
 
     const keys = Object.keys(obj);
@@ -134,28 +145,27 @@ export const AuthProvider = ({ children, navigate }) => {
     if (allFieldsFilled) {
       var js = JSON.stringify(obj);
       try {
-        const response = await fetch(buildPath("Users/api/signup"), {
+        let response = await fetch(buildPath("Users/api/signup"), {
           method: "POST",
           body: js,
           credentials: "include",
           headers: { "Content-Type": "application/json" },
         });
-        var res = JSON.parse(await response.text());
-        if (res.message === "User created successfully.") {
+        response = await response.text();
+        var res = JSON.parse(response);
+        if (res.message === "User Successfully Created") {
           var user = {
             id: res.id,
             firstname: res.firstname,
             lastname: res.lastname,
             username: obj.login,
-            password: obj.password,
             email: obj.email,
           };
-          localStorage.setItem("user_data", user);
-          scheduleTokenRefresh(res.exp);
-          setIsAuthenticated(true);
+          localStorage.setItem("user_data", JSON.stringify(user));
           setUser(user);
-          navigate("/home");
+          navigate("/login");
         } else {
+          console.log(res.message);
         }
       } catch (e) {
         alert(e.toString());

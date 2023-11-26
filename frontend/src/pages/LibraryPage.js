@@ -205,6 +205,7 @@ let fn = "";
 let ln = "";
 if (localStorage.getItem("user_data") !== null) {
   var currentUser = localStorage.getItem("user_data");
+  console.log("currentUser", currentUser);
   var userData = JSON.parse(currentUser);
   console.log(userData);
   fn = userData.firstname;

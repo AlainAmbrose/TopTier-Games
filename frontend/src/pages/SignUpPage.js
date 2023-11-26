@@ -1,18 +1,47 @@
 import React, { useState, useContext } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from '../components/Authorizations/AuthContext'; // Adjust the path as necessary
+import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjust the path as necessary
+import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
   const authContext = useContext(AuthContext);
-  var firstname;
-  var lastname;
-  var login;
-  var password;
-  var email;
+  let firstname;
+  let lastname;
+  let login;
+  let password;
+  let email;
 
   // Now you can access values from the context
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
+  const { user, isAuthenticated, userSignup, userLogin, userLogout } =
+    authContext;
+
+  const navigate = useNavigate();
+
+  const handleUserLogin = (
+    event,
+    firstname,
+    lastname,
+    login,
+    password,
+    email
+  ) => {
+    event.preventDefault();
+    var user = {
+      firstname: firstname.value,
+      lastname: lastname.value,
+      login: login.value,
+      password: password.value,
+      email: email.value,
+    };
+    console.log("firstname: " + firstname);
+    console.log("lastname: " + lastname);
+    console.log("login: " + login);
+    let signUpUser = JSON.stringify(user);
+    localStorage.setItem("temp_user_data", signUpUser);
+    console.log("made it to user login!");
+    navigate("/auth");
+  };
 
   return (
     <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -22,7 +51,13 @@ const SignUpPage = () => {
         alt=""
         className="absolute inset-0 -z-30 h-full w-full object-cover"
       />
-      <form className="space-y-6" action="#" onSubmit={(event) => userSignup(event, firstname, lastname, login, password, email, toast)}>
+      <form
+        className="space-y-6"
+        action="#"
+        onSubmit={(event) =>
+          handleUserLogin(event, firstname, lastname, login, password, email)
+        }
+      >
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
           Sign up for a new account
         </h2>

@@ -5,7 +5,6 @@ const User = require("../models/User");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const crypto = require("crypto");
-var authCode, passResetCode;
 
 function secure() {
   if (process.env.NODE_ENV === "production") {
@@ -38,9 +37,37 @@ const signUp = async (req, res) => {
   });
 };
 
-const sendAuthEmail = async (req, res) => {
-  authCode = crypto.randomBytes(10).toString("hex");
+const checkUsername = async (req, res) => {
+  let user = await User.find({ Login: req.body.login });
 
+  if (user === undefined) {
+    return res.status(200).json({ isValid: true });
+  } else {
+    return res.status(200).json({ isValid: false });
+  }
+};
+
+const sendAuthEmail = async (req, res) => {
+  let authCode = crypto.randomBytes(10).toString("hex");
+
+  if (secure()) {
+    res.cookie("authCode", authCode, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 5 * 60 * 1000,
+      path: "/",
+    });
+  } else {
+    res.cookie("authCode", authCode, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 5 * 60 * 1000,
+      path: "/",
+    });
+  }
+
+  console.log(req.body.email);
   const msg = {
     to: req.body.email,
     from: "TopTierGames.ucf@gmail.com",
@@ -49,31 +76,36 @@ const sendAuthEmail = async (req, res) => {
       "Hello " +
       req.body.firstname +
       ",\nCopy the verification code below to verify your email with TopTier Games:\n\n" +
-      authCode,
+      authCode +
+      "\n\nThis code is valid for 5 minutes only.",
   };
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log("Email sent");
-      return res.status(200).json({
-        message: "Email Sent Successfully",
-      });
-    })
-    .catch((error) => {
-      console.error(error);
-      return res.status(400).json({
-        message: "Error Sending Email",
-      });
-    });
+  try {
+    await sgMail.send(msg);
+    console.log("Email sent successfully");
+    return res.status(200).json({ message: "Email Sent Successfully" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return res.status(400).json({ message: "Error Sending Email" });
+  }
 };
 
 const verifyAuthCode = async (req, res) => {
-  if (authCode !== null && req.body.authCode === authCode) {
+  let cookies = req.cookies;
+
+  if (!cookies?.authCode)
+    return res.status(400).json({ message: "Resend Auth Code" });
+
+  let authCode = cookies.authCode;
+
+  console.log("cookies=====", authCode);
+  console.log("request=====", req.body.authCode);
+
+  if (authCode !== null && req.body.authCode == authCode) {
     return res.status(200).json({
       message: "Email Verified Successfully",
     });
   } else {
-    return res.status(400).json({
+    return res.status(200).json({
       message: "Incorrect Authorization Code",
     });
   }
@@ -160,7 +192,24 @@ const login = async (req, res) => {
 };
 
 const sendPassResetEmail = async (req, res) => {
-  passResetCode = crypto.randomBytes(10).toString("hex");
+  let passResetCode = crypto.randomBytes(10).toString("hex");
+
+  if (secure()) {
+    res.cookie("passResetCode", passResetCode, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 5 * 60 * 1000,
+      path: "/",
+    });
+  } else {
+    res.cookie("passResetCode", passResetCode, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 5 * 60 * 1000,
+      path: "/",
+    });
+  }
 
   const msg = {
     to: req.body.email,
@@ -170,34 +219,38 @@ const sendPassResetEmail = async (req, res) => {
       "Hello " +
       req.body.firstname +
       ",\nWe have recieved a request that you would like to reset your password. If this is accurate, enter the verification code below into TopTier Games to continue:\n\n" +
-      passResetCode,
+      passResetCode +
+      "\n\nThis code is valid for 5 minutes only.",
   };
-  sgMail
+
+  await sgMail
     .send(msg)
     .then(() => {
       console.log("Email sent");
-      return res.status(200).json({
-        message: "Email Sent Successfully",
-      });
+      return res.status(200).json({ message: "Email Sent Successfully" });
     })
     .catch((error) => {
       console.error(error);
-      return res.status(400).json({
-        message: "Error Sending Email",
-      });
+      return res.status(400).json({ message: "Error Sending Email" });
     });
 };
 
 const resetPass = async (req, res) => {
   //verify passResetCode
-  if (passResetCode === null || req.body.authCode !== passResetCode) {
+  let cookies = req.cookies;
+  if (!cookies?.passResetCode)
+    return res.status(400).json({ message: "Resend password reset code." });
+
+  let passResetCode = cookies.passResetCode;
+
+  if (passResetCode === null || req.body.passResetCode !== passResetCode) {
     return res.status(400).json({
-      message: "Incorrect Authorization Code",
+      message: "Incorrect Password Reset Code",
     });
   }
 
   //get user
-  let user = await User.findOne({ Login: req.body.login });
+  let user = await User.findOne({ _id: req.body.userId });
 
   if (user === null) {
     return res.status(400).json({
@@ -206,7 +259,7 @@ const resetPass = async (req, res) => {
   }
 
   //update password
-  user.createHash(req.body.newPassword);
+  user.createHash(req.body.newassword);
   await user.save();
 
   return res.status(200).json({
@@ -238,7 +291,6 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   let newLogin = req.body.login;
-  let newPassword = req.body.password;
   let newFirstName = req.body.firstname;
   let newLastName = req.body.lastname;
   let newEmail = req.body.email;
@@ -264,10 +316,6 @@ const updateUser = async (req, res) => {
 
     if (newEmail !== undefined) {
       user.Email = newEmail;
-    }
-
-    if (newPassword !== undefined) {
-      user.createHash(newPassword);
     }
 
     await user.save();
@@ -320,6 +368,7 @@ const logout = async (req, res) => {
 
 module.exports = {
   signUp,
+  checkUsername,
   sendAuthEmail,
   verifyAuthCode,
   sendPassResetEmail,
