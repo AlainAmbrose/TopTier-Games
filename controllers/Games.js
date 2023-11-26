@@ -93,6 +93,8 @@ const searchGame = async (req, res) => {
   let games = [];
 
   const converter = {
+    _id: "_id",
+    Summary: "storyline",
     AgeRating: "ageratings", 
     CoverURL: "url",
     GameRanking: "gameranking",

@@ -245,8 +245,8 @@ export const AuthProvider = ({ children, navigate }) =>
     console.warn('Time until expiry:', timeUntilExpiry, 'seconds.');
     console.warn("Access Token Expires in:", (timeUntilExpiry / 60), 'minutes.');
 
-    // Set a buffer time, e.g., refresh the token 14.5 minutes before it expires
-    const bufferTime = 14.75 * 60;
+    // Set a buffer time, e.g., refresh the token 5 minutes before it expires
+    const bufferTime = 5 * 60;
     const refreshTime = Math.max(0, timeUntilExpiry - bufferTime) * 1000;
 
     

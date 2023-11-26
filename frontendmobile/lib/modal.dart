@@ -185,7 +185,7 @@ class Modal {
 
   Dialog returnModal(BuildContext context,
                     Map<String, dynamic> game,
-                    Map<String, dynamic> cover,
+                    String coverUrl,
                     Map<String, dynamic> userInfo) {
     return Dialog(
         shape: RoundedRectangleBorder(
@@ -211,7 +211,7 @@ class Modal {
                     Align(
                       alignment: Alignment.center,
                       child:
-                        Text(game['Name'],
+                        Text(game['name'],
                           style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -228,7 +228,7 @@ class Modal {
                             borderRadius: BorderRadius.circular(15.0),
                             border: Border.all(width: 2.0, color: Colors.white),
                             image: DecorationImage(
-                                image: NetworkImage("https:${cover!["image"]}"),
+                                image: NetworkImage("https:$coverUrl"),
                                 fit: BoxFit.fill
                             )
                         ),
@@ -243,12 +243,12 @@ class Modal {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(
                               5,
-                                (index) => _setRatingStars(index, game['GameRanking']['\$numberDecimal']),
+                                (index) => _setRatingStars(index, game['gameranking']['\$numberDecimal']),
                             ),
                           ),
                           const SizedBox(width: 10.0),
                           Text(
-                            "${double.parse(game['GameRanking']['\$numberDecimal']).toStringAsFixed(2)}   ${game['ReviewCount']} Reviews",
+                            "${double.parse(game['gameranking']['\$numberDecimal']).toStringAsFixed(2)}   ${game['reviewcount']} Reviews",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15.0
@@ -256,28 +256,28 @@ class Modal {
                           )
                         ]
                     ),
-                    Text(_generatePlatformString(game['Platforms']),
+                    Text(_generatePlatformString(game['platforms']),
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15.0
                           ),
                         textAlign: TextAlign.left,
                     ),
-                    Text(_generateGenreString(game['Genre']),
+                    Text(_generateGenreString(game['genres']),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15.0
                           ),
                         textAlign: TextAlign.left,
                     ),
-                    Text("Release date: ${_formatDate(game['ReleaseDate'])}",
+                    Text("Release date: ${_formatDate(game['releasedate'])}",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15.0
                             ),
                           textAlign: TextAlign.left,
                     ),
-                    Text(_setESRBRating(game['AgeRating']),
+                    Text(_setESRBRating(game['ageratings']),
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15.0
@@ -293,8 +293,8 @@ class Modal {
                         ),
                         textAlign: TextAlign.left,
                     ),
-                    Text((game['Summary'] != null)
-                        ? "${game['Summary']}"
+                    Text((game['storyline'] != null)
+                        ? "${game['storyline']}"
                         : "None",
                           style: const TextStyle(
                               color: Colors.white,
