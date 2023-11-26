@@ -151,6 +151,7 @@ class _SearchPageState extends State<SearchPage> {
                         leading: Text(game['name'],
                           style: const TextStyle(
                               fontSize: 20,
+                              color: Colors.white,
                               fontFamily: 'Inter-Bold')),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
