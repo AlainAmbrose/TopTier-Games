@@ -177,13 +177,11 @@ import { useInfiniteQuery, useQuery } from "react-query";
 import { useIntersection } from "@mantine/hooks";
 import { AuthContext } from "../components/Authorizations/AuthContext";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { TailSpin } from 'react-loading-icons'
+import { doubleChunkArray } from "../utils/utils";
 
 const mongoose = require("mongoose");
 
-const navigation = [
-    { name: "Homepage", href: "#", icon: HomeIcon, current: false },
-    { name: "Library", href: "#", icon: FolderIcon, current: true },
-];
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -198,172 +196,157 @@ function buildPath(route) {
     }
 }
 
-
-
-
-// ONLY THING IT SHOULD BE GETTING IS [ids, ids , ids ]
+// ONLY THING IT SHOULD BE GETTING IS [{}, {} ,{}] => [[[],[]], {}, ...]
 const fetchUserGames = async (userId) => {
     let obj = { userId: userId };
     let js = JSON.stringify(obj);
-
-    const response = await fetch(buildPath("Progress/api/populatelibrarypage"), {
-        method: "POST",
-        body: js,
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data);
-    return data.games;
-};
-
-// Requests a singe page [id,id,id]
-// Return [{ id, thumbnail, name },{ id, thumbnail, name },{ id, thumbnail, name }]
-const fetchUserGamesExtraInfo = async (page, userGameInfo) => {
-    // if (userGameInfo === undefined) {
-    //   return [];
-    // }
-
-    const gamesToFetch = userGameInfo.slice((page - 1) * 15, page * 15);
-    let arrayGamesToFetch = [];
-    gamesToFetch.forEach((game) => {
-        arrayGamesToFetch.push(game.id);
-    });
-
-    console.log("GamesToFetch, ", arrayGamesToFetch);
     try {
-        // Fetch games using userId [{}, {}, ...]
-        let obj = {
-            gameIds: arrayGamesToFetch,
-            options: {
-                id: true,
-                name: true,
-                coverURL: true,
-            },
-        };
-        let js = JSON.stringify(obj);
-        console.log("GamesToFetch object, ", obj);
-        const response = await fetch(buildPath("Games/api/getgameinfo"), {
-            method: "POST",
-            body: js,
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log("===============>", data, data.gameInfo);
-        return data;
-    } catch {}
+      const response = await fetch(buildPath("Progress/api/populatelibrarypage"), {
+          method: "POST",
+          body: js,
+          credentials: "include",
+          headers: {
+              "Content-Type": "application/json",
+          },
+      });
+  
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log(data);
+      let jsonResponse = doubleChunkArray(data.games, 14, 7);
+      return jsonResponse;
+    } catch (e) {
+      throw new Error(`Error thrown when fetching user games: ${e}`);
+    }
 };
+
+export const fetchGameGroup = async (page, gameGroup) => {
+  // Promisified setTimeout
+  console.log("sdaiogoasdgbasdgbiasdbgoasdigba,", gameGroup)
+  await new Promise(resolve => setTimeout(resolve, 500));
+  console.log("page: ", page, "gameGroup: ", gameGroup, "gameGroup.slice((page - 1) * 2, page * 2): ", gameGroup.slice((page - 1) * 2, page * 2) || "[]");
+  // Assuming 'gameGroup' is an array of arrays and 'page' is the page number
+
+  return gameGroup.slice((page - 1) * 2, page * 2) || [];
+};
+
 
 const LibraryPage = () => {
-    const authContext = useContext(AuthContext);
-    const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast, checkUser } =
-        authContext;
-    const navigate = useNavigate();
-    const [gameIdsFetched, setGameIdsFetched] = useState(false);
+  const authContext = useContext(AuthContext);
+  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
+  const navigate = useNavigate();
 
-    const [currentPage, setCurrentPage] = useState(0);
-
-    let fn = "";
-    let ln = "";
-    if (localStorage.getItem("user_data") !== null) {
-        var currentUser = localStorage.getItem("user_data");
-        var userData = JSON.parse(currentUser);
-        console.log(userData);
-        fn = userData.firstname;
-        ln = userData.lastname;
-        var userId = new mongoose.Types.ObjectId(userData.id);
+  // Handle Fetch Errors 
+  const handleError = (error) => {
+    console.warn('Handling Error: ', error);
+    if (!checkUser()) {
+      showSuperToast("Something went wrong. Please try logging in again.", "fetch-error");
+      console.log(
+      "isAuthenticated: ",
+      isAuthenticated,
+      localStorage.getItem("user_data")
+      // user
+    );
+      showSuperToast("Please login to view the homepage.", "not-authenticated");
+      userLogout();
+      navigate("/login");
     }
+  };
 
-    // if (user !== null) {
-    //     console.log("User Data on Library Page",user);
-    //     fn = user.firstname;
-    //     ln = user.lastname;
-    //     var userId = new mongoose.Types.ObjectId(user.id);
-    // }
+  // This kicks the user back to the login page if they are not authenticated
+  useEffect(() => {
+    handleError("user may not be authenticated")
+  }, []);
+
+  let fn = "";
+  let ln = "";
+  if (localStorage.getItem("user_data") !== null) {
+    var currentUser = localStorage.getItem("user_data");
+    var userData = JSON.parse(currentUser);
+    console.log(userData);
+    fn = userData.firstname;
+    ln = userData.lastname;
+    var userId = new mongoose.Types.ObjectId(userData.id);
+  }
 
 
-    // const changePage = async (direction) => {
-    //   if (direction === "forward") {
-    //     if (currentPage > data.length) {
-    //       await fetchNextPage();
-    //       currentPage(currentPage + 1);
-    //     } else {
-    //       currentPage(currentPage + 1);
-    //     }
-    //   } else if (currentPage !== 0) {
-    //     currentPage(currentPage - 1);
-    //   }
-    // };
+  // ===================UseDataFetch===================
 
-    // Data [[{},{},{}], [{},{},{}], [{},{},{}]] => [{},{},...]
-    const { data: usersGameData, isLoading: isLoadingUsersGames } = useQuery(
-        ["usersGameData", userId],
-        () => fetchUserGames(userId),
-        { enabled: !!userId } // ensure userId is not null or undefined
-    );
+  const { data: usersGameData, isFetching: isFetchingUserGameData } = useQuery( 
+    ["usersGameData", userId],
+    () => fetchUserGames(userId),
+    { 
+      enabled: !!userId,
+      onError: handleError, // Set the onError callback here
+    } // ensure userId is not null or undefined
+  );
 
-    // const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-    //   ["query", usersGameData, isLoadingUsersGames],
-    //   async ({ pageParam = 1 }) => {
-    //     const response = await fetchUserGamesExtraInfo(pageParam, usersGameData);
-    //     return response;
-    //   },
-    //   {
-    //     getNextPageParam: (_, pages) => {
-    //       return pages.length + 1;
-    //     },
-    //     refetchOnWindowFocus: false,
-    //   },
-    //   {
-    //     enabled: isLoadingUsersGames == false,
-    //   }
-    // );
+  // Code to detect when the user scrolls to the bottom of the page (Works with the code below)
+  const gameLastListRef = useRef(null);
+  const { ref: gamesRef, entry: gamesEntry } = useIntersection({
+    root: gameLastListRef.current,
+    threshold: 1,
+  });
 
-    const { data, fetchNextPage, isFetchingNextPage, canFetchNextPage } = useInfiniteQuery(
-        ["userGamesExtraInfo", usersGameData],
-        ({ pageParam = 1 }) => fetchUserGamesExtraInfo(pageParam, usersGameData),
-        {
-            getNextPageParam: (lastPage, allPages) => allPages.length + 1,
-            enabled:
-                !isLoadingUsersGames && usersGameData !== undefined && usersGameData.length > 0,
+
+  // Code to query the genres on the homepage (runs every time the user scrolls to the bottom of the page)
+  const { data: gameDataGroups, fetchNextPage: fetchNextGroup, isFetchingNextPage: isFetchingNextGroup } = useInfiniteQuery(
+    ["usersGameData", usersGameData],
+    async ({ pageParam = 1 }) => {
+      const response = await fetchGameGroup(pageParam, usersGameData);
+      return response;
+    },
+    {
+      getNextPageParam: (lastPage, pages) => {
+        // Assuming each page contains a fixed number of items, e.g., 5
+        const MAX_ITEMS_PER_PAGE = 7;
+        // If the number of items in the last page is less than the max, it's the last page
+        if (lastPage.length.length < MAX_ITEMS_PER_PAGE) {
+          console.log("LAST PAGE")
+          return undefined;
         }
-    );
+        return pages.length + 1;
+      },
+      refetchOnWindowFocus: false,
+      enabled: !!usersGameData && usersGameData.length > 0,
+      onError: handleError, // Set the onError callback here
+    }
+  );
 
-    const changePage = (direction) => {
-        if (direction === "forward") {
-            if (!isFetchingNextPage && canFetchNextPage) {
-                fetchNextPage();
-            }
-        } else if (direction === "backward" && currentPage > 0) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
+  // Code to flatten the data from the query
+  const _gameDataGroups = gameDataGroups?.pages.flatMap((page) => page).flatMap((page) => page);
+  
+  // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
+  useEffect(() => { 
+      if (gamesEntry?.isIntersecting && _gameDataGroups.length < usersGameData.length) {
+      console.log("INTERSECTING");
+      fetchNextGroup();
+      }
+  }, [gamesEntry]);
 
-    const userGamesExtra = data?.pages;
-    console.log(userGamesExtra);
+  useEffect(() => {
+      console.log("SEARCH GROUPSsssss===========: ", gameDataGroups?.pages.flatMap((page) => page).flatMap((page) => page), gameDataGroups);
+  }, [gameDataGroups]);
+
+  // Log isFetchingUserGameData on each render
+  console.log("isFetchingUserGameData (render):", isFetchingUserGameData);
+
+  // Log isFetchingUserGameData when it changes
+  useEffect(() => {
+      console.log("isFetchingUserGameData (effect):", isFetchingUserGameData);
+  }, [isFetchingUserGameData]);
+  // ===================UseDataFetch===================
 
     useEffect(() => {
-        if (!checkUser()) {
-            console.log("isAuthenticated: ", isAuthenticated, localStorage.getItem("user_data"));
-            showSuperToast("Please login to view the homepage.", "not-authenticated");
-            userLogout();
-            navigate("/login");
-        }
+      if (!checkUser()) {
+          console.log("isAuthenticated: ", isAuthenticated, localStorage.getItem("user_data"));
+          showSuperToast("Please login to view the homepage.", "not-authenticated");
+          userLogout();
+          navigate("/login");
+      }
     }, []);
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -375,13 +358,15 @@ const LibraryPage = () => {
 
     const userNavigation = [
         { name: "Your profile", href: "#", action: () => navigate("#") },
-        {
-            name: "Home",
-            href: "/home",
-            action: () => navigate("/home"),
-        },
+        { name: "Home", href: "/home", action: () => navigate("/home")},
         { name: "Sign out", href: "/", action: () => userLogout("/") },
     ];
+
+    const navigation = [
+      { name: "Homepage", href: "/home", icon: HomeIcon, current: false },
+      { name: "Library", href: "/#", icon: FolderIcon, current: true },
+    ];
+    
 
     return (
         <>
@@ -597,7 +582,7 @@ const LibraryPage = () => {
                                 {/* Main area */}
                                 <h1 className="text-gray-300 text-4xl p-5">Your Library</h1>
 
-                                {usersGameData !== undefined && currentPage > 0 && (
+                                {/* {usersGameData !== undefined && currentPage > 0 && (
                                     <button
                                         onClick={() => {
                                             changePage("backward");
@@ -605,19 +590,19 @@ const LibraryPage = () => {
                                     >
                                         <FaArrowLeft style={{ color: "white" }} />
                                     </button>
-                                )}
+                                )}  */}
 
                                 {/* {usersGameData !== undefined && usersGameData.length && (
-                  <button
-                    onClick={() => {
-                      changePage(1);
-                    }}
-                  >
-                    <FaArrowRight style={{ color: "white" }} />
-                  </button>
-                )} */}
+                                    <button
+                                      onClick={() => {
+                                        changePage(1);
+                                      }}
+                                    >
+                                      <FaArrowRight style={{ color: "white" }} />
+                                    </button>
+                                  )} */}
 
-                                <button
+                                {/* <button
                                     className="bg-white mb-2 text-blue-600"
                                     onClick={() => changePage("forward")}
                                     disabled={isFetchingNextPage}
@@ -627,55 +612,75 @@ const LibraryPage = () => {
                                         : (data?.pages.length ?? 0) < 2
                                         ? "Load More"
                                         : "Nothing more to load"}
-                                </button>
+                                </button> */}
 
-                                {!isFetchingNextPage && userGamesExtra !== undefined ? (
-                                    <>
-                                        <GridList
-                                            games={userGamesExtra[currentPage]}
-                                            listTitle={""}
-                                            width={"8/12"}
-                                            aspectHeight={8}
-                                            aspectWidth={36}
-                                            mdCols="5"
-                                            smCols="5"
-                                            lgCols="5"
-                                        ></GridList>
-                                        {/* <GridList
-                      games={usersGameData.slice(0, 6)}
-                      width={"full"}
-                      aspectHeight={8}
-                      aspectWidth={36}
-                      mdCols="5"
-                      smCols="5"
-                      lgCols="5"
-                    ></GridList> */}
-                                    </>
-                                ) : (
-                                    <>
-                                        <GridList
-                                            skeleton={true}
-                                            skeletoncount={5}
-                                            listTitle={""}
-                                            width={"8/12"}
-                                            aspectHeight={8}
-                                            aspectWidth={5}
-                                            mdCols="5"
-                                            smCols="5"
-                                            lgCols="5"
-                                        ></GridList>
-                                        <GridList
-                                            skeleton={true}
-                                            skeletoncount={5}
-                                            width={"full"}
-                                            aspectHeight={5}
-                                            aspectWidth={8}
-                                            mdCols="5"
-                                            smCols="5"
-                                            lgCols="5"
-                                        ></GridList>
-                                    </>
-                                )}
+                          
+                              {gameDataGroups !== undefined &&
+                                _gameDataGroups?.map((group, i) => {
+                                  if (i === _gameDataGroups.length - 1) {
+                                    console.log(`Group ${i}`, group)
+                                    return (
+                                      <GridList
+                                      ref={gamesRef}
+                                      games={group}
+                                      width={"8/12"}
+                                      mdCols="7"
+                                      smCols="7"
+                                      lgCols="7"
+                                      ></GridList>
+                                    )
+                                  } else if (group.length === 0) {
+                                    return (
+                                      <GridList
+                                      skeleton={true}
+                                      skeletoncount={7}
+                                      width={"8/12"}
+                                      aspectHeight={8}
+                                      aspectWidth={36}
+                                      mdCols="7"
+                                      smCols="7"
+                                      lgCols="7"
+                                      ></GridList>
+                                    )
+                                  } else {
+                                    return (
+                                      <GridList
+                                      games={group}
+                                      width={"8/12"}
+                                      mdCols="7"
+                                      smCols="7"
+                                      lgCols="7"
+                                      ></GridList>
+                                    );
+                                  }
+                                })
+                              }
+                              {(isFetchingNextGroup ) && (
+                              <>
+                                <GridList
+                                  skeleton={true}
+                                  skeletoncount={7}
+                                  width={"8/12"}
+                                  aspectHeight={8}
+                                  aspectWidth={36}
+                                  mdCols="7"
+                                  smCols="5"
+                                  lgCols="7"
+                                ></GridList>
+                                <GridList
+                                  skeleton={true}
+                                  skeletoncount={7}
+                                  width={"8/12"}
+                                  aspectHeight={8}
+                                  aspectWidth={36}
+                                  mdCols="7"
+                                  smCols="5"
+                                  lgCols="7"
+                                ></GridList>
+                              </>
+                            )}
+
+                              {(isFetchingUserGameData) && (<TailSpin className="mx-auto my-auto h-full w-[10%] "  stroke="#374151" />)}
                             </div>
                         </div>
                     </main>

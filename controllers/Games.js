@@ -88,7 +88,9 @@ const insertGame = async (req, res) => {
 // Search game in database
 const searchGame = async (req, res) => {
   let search = req.body.search;
+  let genreFlag = req.body.genreFlag;
   let pattern = `${search}`;
+  let games = [];
 
   const converter = {
     AgeRating: "ageratings", 
@@ -106,10 +108,44 @@ const searchGame = async (req, res) => {
     SimilarGames: "similargames",
   };
 
+  const genres = {
+    "Point-and-click": 2,
+    "Fighting": 4,
+    "Shooter": 5,
+    "Music": 7,
+    "Platform": 8,
+    "Puzzle": 9,
+    "Racing": 10,
+    "Real Time Strategy (RTS)": 11,
+    "Role-playing (RPG)": 12,
+    "Simulator": 13,
+    "Sport":14,
+    "Strategy":15,
+    "Turn-based strategy (TBS)":16,
+    "Tactical":24,
+    "Hack and slash/Beat 'em up":25,
+    "Quiz/Trivia":26,
+    "Pinball":30,
+    "Adventure":31,
+    "Indie":32,
+    "Arcade":33,
+    "Visual Novel":34,
+    "Card & Board Game":35,
+    "MOBA":36
+  }
+
+  if (genreFlag === undefined) genreFlag = false;
+  
+  if (genreFlag)
+  {
+    games = await Game.find({Genre: genres[search]})
+  }
+  else
+  {
+    games = await Game.find({ Name: { $regex: pattern, $options: "xi" } });
+  }
 
 
-
-  let games = await Game.find({ Name: { $regex: pattern, $options: "i" } });
   if (games === null) {
     return res.status(400).json({ games: [], message: "Game not found." });
   } else {

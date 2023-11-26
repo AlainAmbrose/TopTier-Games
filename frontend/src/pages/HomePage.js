@@ -1,7 +1,7 @@
 import { Fragment, useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import { debounce } from 'lodash';
+import _, { debounce, set } from 'lodash';
 import {
   Bars3Icon,
   BellIcon,
@@ -27,287 +27,19 @@ import AsideCard from "../components/Cards/AsideCard";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { useIntersection } from "@mantine/hooks";
 import { AuthContext } from "../components/Authorizations/AuthContext";
-
-const updateCoverURL = (coverURL, size) => {
-  return coverURL.replace(/thumb/g, size);
-}
-
-function chunkArray(array, chunkSize) {
-  const result = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
-      result.push(array.slice(i, i + chunkSize));
-  }
-  return result;
-}
-
-function doubleChunkArray(array, firstChunkSize, secondChunkSize) {
-  const firstLevelChunks = chunkArray(array, firstChunkSize);
-  return firstLevelChunks.map(subArray => chunkArray(subArray, secondChunkSize));
-}
+import { classNames } from '../utils/utils'; // Update the path accordingly
+import { fetchGenre, fetchTopGames, fetchSearchGroup, fetchSearchResults, genres } from '../utils/homepageUtils'; 
+import { TailSpin } from 'react-loading-icons'
 
 const navigation = [
   { name: "Homepage", href: "#", icon: HomeIcon, current: true },
   { name: "Library", href: "/library", icon: FolderIcon, current: false },
 ];
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
-const genres = [
-  {
-    id: 2,
-    title: "Point-and-click",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 4,
-    title: "Fighting",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 5,
-    title: "Shooter",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 7,
-    title: "Music",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 8,
-    title: "Platform",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 9,
-    title: "Puzzle",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 10,
-    title: "Racing",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 11,
-    title: "Real Time Strategy (RTS)",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 12,
-    title: "Role-playing (RPG)",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 13,
-    title: "Simulator",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 14,
-    title: "Sport",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 15,
-    title: "Strategy",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 16,
-    title: "Turn-based strategy (TBS)",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 24,
-    title: "Tactical",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 25,
-    title: "Hack and slash/Beat 'em up",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 26,
-    title: "Quiz/Trivia",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 30,
-    title: "Pinball",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 31,
-    title: "Adventure",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 32,
-    title: "Indie",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 33,
-    title: "Arcade",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 34,
-    title: "Visual Novel",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 35,
-    title: "Card & Board Game",
-    href: "/#",
-    data: [],
-  },
-  {
-    id: 36,
-    title: "MOBA",
-    href: "/#",
-    data: [],
-  },
-];
-
-function buildPath(route) {
-  if (process.env.NODE_ENV === "production") {
-    return "https://www.toptier.games/" + route;
-  } else {
-    return "http://localhost:3001/" + route;
-  }
-}
-
-const fetchGenre = async (page) => {
-  const genreToFetch = genres.slice((page - 1) * 2, page * 2);
-  const genreIds = genreToFetch.map((genre) => genre.id);
-  console.log("GenreToFetch: ", genreIds);
-
-  try {
-    const fetchPromises = genreIds.map(async (id) => {
-      let obj = { genre: id, size: 7 };
-      let js = JSON.stringify(obj);
-      console.log("request", js);
-
-      const response = await fetch(buildPath("Games/api/populatehomepage"), {
-        method: "POST",
-        body: js,
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.result;
-    });
-
-    const results = await Promise.all(fetchPromises);
-
-    const retval = genreToFetch.map((genre, index) => {
-      return { ...genre, data: results[index] };
-    });
-    console.log("Updated Genres: ", retval, "Page: ", page);
-
-    return retval;
-  } catch (e) {
-    console.error(`Error thrown when fetching genre: ${e}`);
-    // alert(e.toString());
-    // setSearchResults(e.toString());
-  }
-};
-
-async function fetchTopGames() {
-  var obj = { topGamesFlag: true, limit: 9, size: 7 };
-  var js = JSON.stringify(obj);
-  // console.log("TOP GAMES request: ", js);
-  try {
-    const response = await fetch(buildPath("Games/api/populatehomepage"), {
-      method: "POST",
-      body: js,
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const jsonResponse = await response.json();
-    return jsonResponse.result; // Accessing the 'result' property
-  } catch (e) {
-    console.error(`Error thrown when fetching top games: ${e}`);
-    throw e; // Rethrow the error for React Query to catch
-  }
-}
-
-const fetchSearchGroup = async (page, searchGroup) => {
-  // Promisified setTimeout
-  console.log("sdaiogoasdgbasdgbiasdbgoasdigba,", searchGroup)
-  await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("page: ", page, "searchGroup: ", searchGroup, "searchGroup.slice((page - 1) * 2, page * 2): ", searchGroup.slice((page - 1) * 2, page * 2) || "[]");
-  // Assuming 'searchGroup' is an array of arrays and 'page' is the page number
-  
-  return searchGroup.slice((page - 1) * 2, page * 2) || [];
-};
-
-async function fetchSearchResults(searchTerm) {
-  var obj = { search: searchTerm };
-  var js = JSON.stringify(obj);
-  console.log("SEARCH request: ", js);
-  try {
-    const response = await fetch(buildPath("Games/api/searchGame"), {
-      method: "POST",
-      body: js,
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    let jsonResponse = await response.json();
-    
-
-    jsonResponse = doubleChunkArray(jsonResponse.games, 14, 7);
-    console.log("SEARCH RESULTS1: ", jsonResponse);
-    return jsonResponse; 
-  } catch (e) {
-    console.error(`Error thrown when fetching search results: ${e}`);
-    throw e; // Rethrow the error for React Query to catch
-  }
+const searchGenre = (genre, setSearchTerm, handleFocus) => {
+  handleFocus()
+  setSearchTerm(genre)
 }
 
 const HomePage = () => {
@@ -317,20 +49,15 @@ const HomePage = () => {
 
   // Pulling in the user context
   const authContext = useContext(AuthContext);
-  const {
-    user,
-    isAuthenticated,
-    userSignup,
-    userLogin,
-    userLogout,
-    showSuperToast,
-    checkUser,
-  } = authContext;
+  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
+
   const navigate = useNavigate();
 
-  // This kicks the user back to the login page if they are not authenticated
-  useEffect(() => {
+  // Handle Fetch Errors 
+  const handleError = (error) => {
+    console.warn('Handling Error: ', error);
     if (!checkUser()) {
+      showSuperToast("Something went wrong. Please try logging in again.", "fetch-error");
       console.log(
         "isAuthenticated: ",
         isAuthenticated,
@@ -341,17 +68,23 @@ const HomePage = () => {
       userLogout();
       navigate("/login");
     }
+  };
+
+  // This kicks the user back to the login page if they are not authenticated
+  useEffect(() => {
+    handleError("user may not be authenticated")
   }, []);
 
   // ==============Genre=================
 
   // Code to query the top games on the homepage (only runs once)
-  const {
-    data: topGamesData,
-    isLoading: isLoadingTopGames,
-    isError,
-    error,
-  } = useQuery("topGames", fetchTopGames);
+  const { data: topGamesData, isLoading: isLoadingTopGames, isError, error } = useQuery(
+      "topGames", 
+      fetchTopGames,
+      {
+        onError: handleError, // Set the onError callback here
+      }
+    );
 
   // Code to detect when the user scrolls to the bottom of the page (Works with the code below)
   const lastListRef = useRef(null);
@@ -395,24 +128,25 @@ const HomePage = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
   useEffect(() => {
-      // Create a debounced function that updates the debounced search term
-      const debounced = debounce(() => {
-          setDebouncedSearchTerm(searchTerm);
-      }, 500); // 500ms delay
+    // Create a debounced function that updates the debounced search term
+    const debounced = debounce(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
 
-      debounced();
+    debounced();
 
-      // Cleanup function to cancel the debounce if the component unmounts
-      return () => {
-          debounced.cancel();
-      };
+    // Cleanup function to cancel the debounce if the component unmounts
+    return () => {
+        debounced.cancel();
+    };
   }, [searchTerm]);
 
-  const { data: searchResults, isLoading: isLoadingSearch, isError: searchIsError, error: searchError } = useQuery(
+  const { data: searchResults, isLoading: isLoadingSearch, isFetching: isFetchingSearch, isError: searchIsError, error: searchError } = useQuery(
       ['search', debouncedSearchTerm], 
-      () => fetchSearchResults(debouncedSearchTerm), 
+      () =>  fetchSearchResults(debouncedSearchTerm), 
       {
-          enabled: debouncedSearchTerm.length > 0
+        enabled: debouncedSearchTerm.length > 0,
+        onError: handleError, // Set the onError callback here
       }
   );
 
@@ -443,13 +177,17 @@ const HomePage = () => {
         return pages.length + 1;
       },
       refetchOnWindowFocus: false,
-      enabled: debouncedSearchTerm.length > 0 && !!searchResults && searchResults.length > 0
+      enabled: debouncedSearchTerm.length > 0 && !!searchResults && searchResults.length > 0,
+      onError: handleError, // Set the onError callback here
     }
   );
+
+  // Code to flatten the data from the query
+  const _searchGroups = searchGroups?.pages.flatMap((page) => page).flatMap((page) => page);
   
   // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
   useEffect(() => { 
-    if (searchEntry?.isIntersecting) {
+    if (searchEntry?.isIntersecting && _searchGroups.length < searchResults.length) {
       console.log("INTERSECTING");
       fetchNextGroup();
     }
@@ -459,9 +197,13 @@ const HomePage = () => {
     console.log("SEARCH GROUPSsssss===========: ", searchGroups?.pages.flatMap((page) => page).flatMap((page) => page), searchGroups);
   }, [searchGroups]);
 
-  // Code to flatten the data from the query
-  const _searchGroups = searchGroups?.pages.flatMap((page) => page).flatMap((page) => page);
+  // Log isLoadingSearch on each render
+  console.log("isFetchingSearch (render):", isFetchingSearch);
 
+  // Log isLoadingSearch when it changes
+  useEffect(() => {
+    console.log("isFetchingSearch (effect):", isFetchingSearch);
+  }, [isFetchingSearch]);
   // ===================Search===================
 
   // Early return if not authenticated
@@ -500,7 +242,6 @@ const HomePage = () => {
     setInputFocused(false);
     setSearchTerm(""); // This line clears the search term
   };
-
 
   
 
@@ -672,7 +413,7 @@ const HomePage = () => {
                   leaveTo="opacity-0" 
                 >
                   <ArrowLeftIcon
-                        className="absolute cursor-pointer  ml-[20px] inset-y-0 mt-[1px] left-0 h-full w-8 text-gray-400"
+                        className="absolute cursor-pointer ml-[20px] inset-y-0 mt-[1px] left-0 h-full w-8 text-gray-400"
                         aria-hidden="true"
                         onClick={() => handleBlur()}
                   />
@@ -704,7 +445,7 @@ const HomePage = () => {
                   // onBlur={handleBlur}
                 />
                */}
-                <div className="relative ml-[40%] block w-1/3">
+                <div className="relative lg:ml-[40%] block lg:w-1/3 sm:w-full">
                   <Transition
                     show={inputFocused} 
                     className="font-bold"
@@ -722,9 +463,9 @@ const HomePage = () => {
                   </Transition>
                   <input
                     id="search-field"
-                    className={`block w-full h-full border-0 py-0 transition-all left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-gray-400 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10" : "pl-2"}`}
+                    className={`block w-full h-full border-0 py-0 transition-all  left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-gray-400 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10 " : "pl-2"}`}
                     placeholder="Search"
-                    type="search"
+                    type="search" 
                     name="search"
                     autoComplete="off"
                     onFocus={handleFocus}
@@ -808,7 +549,7 @@ const HomePage = () => {
           </div>
 
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
-          <main className="xl:pl-0 ">
+          <main className="xl:pl-0">
             {/* DEFAULT MAIN */}
             <Transition 
               show={!inputFocused} className="font-bold"
@@ -819,163 +560,164 @@ const HomePage = () => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-            <div
-              ref={lastListRef}
-              style={{ height: "calc(100vh - 120px)" }}
-              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
-            >
-              <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
-                  {/* Main area */}
-                  <HorizontalButtonList genres={genres}></HorizontalButtonList>
-                  {/* Top 3 Games */}
+              <div
+                ref={lastListRef}
+                style={{ height: "calc(100vh - 120px)" }}
+                className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+              >
+                <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
+                    {/* Main area */}
+                    <HorizontalButtonList genres={genres} searchGenre={(genre) => searchGenre(genre, setSearchTerm, handleFocus)}></HorizontalButtonList>
+                    {/* Top 3 Games */}
 
-                  {!isLoadingTopGames && topGamesData !== undefined ? (
-                    <>
-                      <GridList
-                        games={topGamesData.slice(0, 4)}
-                        listTitle={"Top Games"}
-                        width={"8/12"}
-                        mdCols="4"
-                        smCols="4"
-                        lgCols="4"
-                      ></GridList>
-                      <GridList
-                        games={topGamesData.slice(4, 10)}
-                        width={"full"}
-                        mdCols="5"
-                        smCols="5"
-                        lgCols="5"
-                      ></GridList>
-                    </>
-                  ) : (
-                    <>
-                      <GridList
-                        skeleton={true}
-                        skeletoncount={4}
-                        listTitle={"Top Games"}
-                        width={"8/12"}
-                        aspectHeight={8}
-                        aspectWidth={36}
-                        mdCols="4"
-                        smCols="4"
-                        lgCols="4"
-                      ></GridList>
-                      <GridList
-                        skeleton={true}
-                        skeletoncount={5}
-                        width={"full"}
-                        aspectHeight={8}
-                        aspectWidth={36}
-                        mdCols="5"
-                        smCols="5"
-                        lgCols="5"
-                      ></GridList>
-                    </>
-                  )}
+                    {!isLoadingTopGames && topGamesData !== undefined ? (
+                      <>
+                        <GridList
+                          games={topGamesData.slice(0, 4)}
+                          listTitle={"Top Games"}
+                          width={"8/12"}
+                          mdCols="4"
+                          smCols="4"
+                          lgCols="4"
+                        ></GridList>
+                        <GridList
+                          games={topGamesData.slice(4, 10)}
+                          width={"full"}
+                          mdCols="5"
+                          smCols="5"
+                          lgCols="5"
+                        ></GridList>
+                      </>
+                    ) : (
+                      <>
+                        <GridList
+                          skeleton={true}
+                          skeletoncount={4}
+                          listTitle={"Top Games"}
+                          width={"8/12"}
+                          aspectHeight={8}
+                          aspectWidth={36}
+                          mdCols="4"
+                          smCols="4"
+                          lgCols="4"
+                        ></GridList>
+                        <GridList
+                          skeleton={true}
+                          skeletoncount={5}
+                          width={"full"}
+                          aspectHeight={8}
+                          aspectWidth={36}
+                          mdCols="5"
+                          smCols="5"
+                          lgCols="5"
+                        ></GridList>
+                      </>
+                    )}
 
-                  {data !== undefined &&
-                    _genres?.map((genre, i) => {
-                      if (i === _genres.length - 1) {
+                    {data !== undefined &&
+                      _genres?.map((genre, i) => {
+                        if (i === _genres.length - 1) {
+                          return (
+                            <HorizontalGameList
+                              ref={ref}
+                              key={genre.id}
+                              games={genre.data}
+                              listTitle={genre.title}
+                            ></HorizontalGameList>
+                          );
+                        }
                         return (
                           <HorizontalGameList
-                            ref={ref}
                             key={genre.id}
                             games={genre.data}
                             listTitle={genre.title}
                           ></HorizontalGameList>
                         );
-                      }
-                      return (
+                      })}
+                    {(isFetchingNextPage || data == undefined) && (
+                      <>
                         <HorizontalGameList
-                          key={genre.id}
-                          games={genre.data}
-                          listTitle={genre.title}
+                          skeleton={true}
+                          skeletoncount={10}
                         ></HorizontalGameList>
-                      );
-                    })}
-                  {(isFetchingNextPage || data == undefined) && (
-                    <>
-                      <HorizontalGameList
-                        skeleton={true}
-                        skeletoncount={10}
-                      ></HorizontalGameList>
-                      <HorizontalGameList
-                        skeleton={true}
-                        skeletoncount={10}
-                      ></HorizontalGameList>
-                    </>
-                  )}
+                        <HorizontalGameList
+                          skeleton={true}
+                          skeletoncount={10}
+                        ></HorizontalGameList>
+                      </>
+                    )}
 
-                  {/*                 
-                  <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-                    {isFetchingNextPage
-                      ? 'Loading more...'
-                      : (data?.pages.length ?? 0) < 11
-                      ? 'Load More'
-                      : 'Nothing more to load'
-                    }
-                  </button>  */}
-                </div>
-            </div>
-          </Transition>
-          {/* SEARCH MAIN */}
-          <Transition 
-            show={inputFocused}  className="font-bold"
-            enter="transition-opacity duration-150"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity duration-150"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0" 
-          >
-            <div
-              ref={searchLastListRef}
-              style={{ height: "calc(100vh - 120px)" }}
-              className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+                    {/*                 
+                    <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                      {isFetchingNextPage
+                        ? 'Loading more...'
+                        : (data?.pages.length ?? 0) < 11
+                        ? 'Load More'
+                        : 'Nothing more to load'
+                      }
+                    </button>  */}
+                  </div>
+              </div>
+            </Transition>
+            {/* SEARCH MAIN */}
+            <Transition 
+              show={inputFocused}  className="font-bold"
+              enter="transition-opacity duration-150"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="transition-opacity duration-150"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0" 
             >
-              <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
-                {/*Search Main area */}
+              <div
+                ref={searchLastListRef}
+                style={{ height: "calc(100vh - 120px)" }}
+                className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
+              >
+                <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
+                  {/*Search Main area */}
 
-                {searchGroups !== undefined &&
-                  _searchGroups?.map((group, i) => {
-                    if (i === _searchGroups.length - 1  ) {
-                      console.log(`Group ${i}`, group)
-                      return (
-                        <GridList
-                        ref={searchRef}
-                        games={group}
-                        width={"8/12"}
-                        mdCols="7"
-                        smCols="7"
-                        lgCols="7"
-                        ></GridList>
-                      )
-                    } else if (group.length === 0) {
-                      return (
-                        <GridList
-                        skeleton={true}
-                        skeletoncount={7}
-                        width={"8/12"}
-                        aspectHeight={8}
-                        aspectWidth={36}
-                        mdCols="7"
-                        smCols="7"
-                        lgCols="7"
-                        ></GridList>
-                      )
-                    } else {
-                      return (
-                        <GridList
-                        games={group}
-                        width={"8/12"}
-                        mdCols="7"
-                        smCols="7"
-                        lgCols="7"
-                        ></GridList>
-                      );
-                    }
-                  })}
-                {(isFetchingNextGroup ) && (
+                  {searchGroups !== undefined &&
+                    _searchGroups?.map((group, i) => {
+                      if (i === _searchGroups.length - 1) {
+                        console.log(`Group ${i}`, group)
+                        return (
+                          <GridList
+                          ref={searchRef}
+                          games={group}
+                          width={"8/12"}
+                          mdCols="7"
+                          smCols="7"
+                          lgCols="7"
+                          ></GridList>
+                        )
+                      } else if (group.length === 0) {
+                        return (
+                          <GridList
+                          skeleton={true}
+                          skeletoncount={7}
+                          width={"8/12"}
+                          aspectHeight={8}
+                          aspectWidth={36}
+                          mdCols="7"
+                          smCols="7"
+                          lgCols="7"
+                          ></GridList>
+                        )
+                      } else {
+                        return (
+                          <GridList
+                          games={group}
+                          width={"8/12"}
+                          mdCols="7"
+                          smCols="7"
+                          lgCols="7"
+                          ></GridList>
+                        );
+                      }
+                    })
+                  }
+                  {(isFetchingNextGroup ) && (
                   <>
                     <GridList
                       skeleton={true}
@@ -1001,16 +743,30 @@ const HomePage = () => {
                   
                 )}
 
-{/*                                 
-                <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextGroup()} disabled={isFetchingNextGroup}>
-                  {isFetchingNextGroup
-                    ? 'Loading more...'
-                    : 'Load More'
-                  }
-                </button>  */}
+                  {(isFetchingSearch) && (<TailSpin className="mx-auto my-auto h-full w-[10%] "  stroke="#374151" />)}
+
+                  {/*                                 
+                  <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextGroup()} disabled={isFetchingNextGroup}>
+                    {isFetchingNextGroup
+                      ? 'Loading more...'
+                      : 'Load More'
+                    }
+                  </button>  */}
+                </div>
+              </div>
+            </Transition>
+            <div 
+              style={{ height: "calc(100vh - 120px)",  }} 
+              className="mx-4 my-10 sm:mx-6 border-transparent top-[44px] z-[-5] right-0 lg:w-[calc(100vw-132px)] sm:w-[calc(100vw-45px)]   border rounded-xl absolute scrollable-div overflow-auto  border-none lg:mx-8 xl:shadow-xl xl:shadow-gray-950"
+            >
+              <div
+                  style={{ height: "calc(100vh - 120px)" }}
+                  className=" border-transparent top-0 z-[-5] border w-full rounded-xl relative scrollable-div overflow-auto bg-black opacity-100 border-none xl:shadow-xl xl:shadow-gray-950"
+                >
+
               </div>
             </div>
-          </Transition>
+       
 
           </main>
         </div>

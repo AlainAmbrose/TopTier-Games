@@ -1,21 +1,10 @@
 import { set } from 'mongoose';
 import React, { createContext, useEffect, useState } from 'react';
 import { ToastContainer, toast as superToast } from "react-toastify";
+import { buildPath } from "../../utils/utils";
 export const AuthContext = createContext();
 
-function buildPath(route)
-{
-  if (process.env.NODE_ENV === "production")
-  {
-    return 'https://www.toptier.games/' + route;
-  } else
-  {
-    return "http://localhost:3001/" + route;
-  }
-}
-
-const showLoginToast = (toast) =>
-{
+const showLoginToast = (toast) => {
   toast.error("Username or Password is Incorrect", {
     position: "top-right",
     autoClose: 3000,
@@ -64,11 +53,33 @@ export const AuthProvider = ({ children, navigate }) =>
   const [user, setUser] = useState(null); // This can be used to store important user data
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   let inactivityTimeout;
+  let refreshTokenTimeout;
 
-  // Event listeners for user actions
-  window.addEventListener('mousemove', setUserActive);
-  window.addEventListener('keydown', setUserActive);
-  window.addEventListener('click', setUserActive);
+  useEffect(() => {
+    // Function to set up event listeners
+    const setupEventListeners = () => {
+      window.addEventListener('mousemove', setUserActive);
+      window.addEventListener('keydown', setUserActive);
+      window.addEventListener('click', setUserActive);
+    };
+
+    // Function to clean up event listeners
+    const cleanupEventListeners = () => {
+      window.removeEventListener('mousemove', setUserActive);
+      window.removeEventListener('keydown', setUserActive);
+      window.removeEventListener('click', setUserActive);
+    };
+
+    // Set up event listeners
+    setupEventListeners();
+
+    // Clean up event listeners on component unmount
+    return () => {
+      cleanupEventListeners();
+      clearTimeout(refreshTokenTimeout);
+      clearTimeout(inactivityTimeout);
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const userLogin = async (event, loginName, loginPassword, toast) =>
   {
@@ -196,14 +207,14 @@ export const AuthProvider = ({ children, navigate }) =>
         setIsAuthenticated(false);
         console.log("@userLogout Status: ", response.status);
         navigate(route);
-      } else
+      } else if (window.location.pathname !== '/login' || window.location.pathname !== '/signup' || window.location.pathname !== '/')
       {
         navigate(route);
         console.log("==================", isAuthenticated, window.location.pathname !== '/login', window.location.pathname !== '/signup', window.location.pathname !== '/');
         console.log("Navigating to login page...");
       }
 
-      if (user !== null)
+      if (localStorage.getItem("user_data") !== null)
       {
         console.log("clearing local storage================");
         localStorage.removeItem("user_data");
@@ -211,6 +222,9 @@ export const AuthProvider = ({ children, navigate }) =>
         setUser(null)
         console.log("User has logged out.================");
       }
+
+      clearTimeout(refreshTokenTimeout);
+      clearTimeout(inactivityTimeout);
     } catch (error)
     {
       console.error('Error logging out:', error);
@@ -230,7 +244,7 @@ export const AuthProvider = ({ children, navigate }) =>
     const bufferTime = 5 * 60;
     const refreshTime = Math.max(0, timeUntilExpiry - bufferTime) * 1000;
 
-    setTimeout(() =>
+    refreshTokenTimeout = setTimeout(() =>
     {
       console.log('Refreshing token...');
       refreshToken();
@@ -239,30 +253,25 @@ export const AuthProvider = ({ children, navigate }) =>
 
   async function refreshToken()
   {
-    if (isAuthenticated)
+    try
     {
-      try
+      const response = await fetch('Refresh', { method: 'GET', credentials: 'include' });
+      if (response.ok)
       {
-        const response = await fetch('Refresh', { method: 'GET', credentials: 'include' });
-        if (response.ok)
-        {
-          // Optionally, the server can send the new token's expiry time in the response
-          const { exp: expiryTime } = await response.json();
+        // Optionally, the server can send the new token's expiry time in the response
+        const { exp: expiryTime } = await response.json();
 
-          scheduleTokenRefresh(expiryTime);
-        } else
-        {
-          // Handle refresh failure, e.g., redirect to login
-          showSuperToast('Session Expired', 'session-expired');
-          userLogout();
-        }
-      } catch (error)
+        scheduleTokenRefresh(expiryTime);
+      } else
       {
-        console.error('Error refreshing token:', error);
-        // Handle errors
+        // Handle refresh failure, e.g., redirect to login
+        showSuperToast('Session Expired', 'session-expired');
+        userLogout();
       }
-    } else
+    } catch (error)
     {
+      console.error('Error refreshing token:', error);
+      // Handle refresh failure, e.g., redirect to login
       showSuperToast('Session Expired', 'session-expired');
       userLogout();
     }
@@ -271,9 +280,11 @@ export const AuthProvider = ({ children, navigate }) =>
   function setUserActive()
   {
     clearTimeout(inactivityTimeout);
+    console.log('User is active, at:', new Date().toLocaleTimeString(), 'Resetting inactivity timeout...');
     inactivityTimeout = setTimeout(() =>
     {
       showSuperToast('Inactivity Timeout', 'inactivity-timeout');
+      console.log("Inactive for 10 mintutes", new Date().toLocaleTimeString());
       userLogout();
     }, 10 * 60 * 1000); // 10 minutes of inactivity
   }
@@ -281,6 +292,7 @@ export const AuthProvider = ({ children, navigate }) =>
   // Return True if user is Authorized and False if not
   const checkUser = async () => {
     if (!isAuthenticated && localStorage.getItem("user_data") === null) {
+      console.log("!!!!User is not authenticated!!!!");
       return false;
     } else if (!isAuthenticated) {
       var currentUser = localStorage.getItem("user_data");

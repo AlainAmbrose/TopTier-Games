@@ -11,139 +11,9 @@ import { Rating } from 'react-simple-star-rating'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { AuthContext } from "./Authorizations/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { checkUserGames, addUserGame, deleteUserGame, product, convertDate, fillColorArray } from "../utils/cardpopupUtils";
 
 const mongoose = require("mongoose");
-
-const product = {
-  name: "The Game Name",
-  price: "$192",
-  rating: 3.5,
-  reviewCount: 117,
-  href: "#",
-  imageSrc:
-    "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  imageAlt: "Two each of gray, white, and black shirts arranged on table.",
-  colors: [
-    { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
-    { name: "Gray", class: "bg-gray-200", selectedClass: "ring-gray-400" },
-    { name: "Black", class: "bg-gray-900", selectedClass: "ring-gray-900" },
-  ],
-  sizes: [
-    { name: "XXS", inStock: true },
-    { name: "XS", inStock: true },
-    { name: "S", inStock: true },
-    { name: "M", inStock: true },
-    { name: "L", inStock: true },
-    { name: "XL", inStock: true },
-    { name: "XXL", inStock: true },
-    { name: "XXXL", inStock: false },
-  ],
-};
-
-const fillColorArray = [
-  "#f17a45",
-  "#f17a45",
-  "#f19745",
-  "#f19745",
-  "#f1a545",
-  "#f1a545",
-  "#f1b345",
-  "#f1b345",
-  "#f1d045",
-  "#f1d045",
-];
-
-function buildPath(route) {
-  if (process.env.NODE_ENV === "production") {
-    return "https://www.toptier.games/" + route;
-  } else {
-    return "http://localhost:3001/" + route;
-  }
-}
-
-const convertDate = (dateStr) => {
-  const dateObj = new Date(dateStr);
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  const formattedDate = dateObj.toLocaleDateString('en-US', options);
-  return formattedDate;
-}
-
-
-const checkUserGames = async (userId, gameId) => {
-  let js = JSON.stringify({ userId: userId, gameId: gameId });
-  let response = await fetch(buildPath("Progress/api/checkusergame"), {
-    method: "POST",
-    body: js,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    return false;
-  }
-
-  let res = await response.json();
-
-  // console.log("FLAG++++", res);
-
-  if (res.foundGameFlag === true) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
-const addUserGame = async (event, userId, gameId, refetch) => {
-  event.preventDefault()
-  console.log("adding game to user====================")
-  console.log("event", event);
-  console.log("userId", userId);
-  console.log("gameId", gameId);
-  let js = JSON.stringify({ userId: userId, gameId: gameId });
-  let response = await fetch(buildPath("Progress/api/addusergame"), {
-    method: "POST",
-    body: js,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  let res = await response.json();
-
-  refetch()
-};
-
-const deleteUserGame = async (event, userId, gameId, refetch) => {
-  event.preventDefault()
-  console.log("deleteUserGame====================")
-  console.log("event", event);
-  console.log("userId", userId);
-  console.log("gameId", gameId);
-  let js = JSON.stringify({ userId: userId, gameId: gameId });
-  let response = await fetch(buildPath("Progress/api/deleteusergame"), {
-    method: "POST",
-    body: js,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  let res = await response.json();
-
-  refetch()
-};
 
 const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton }) => {
   if (localStorage.getItem("user_data") !== null) {
@@ -153,14 +23,7 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
   }
 
   const authContext = useContext(AuthContext);
-  const {
-    user,
-    isAuthenticated,
-    userSignup,
-    userLogin,
-    userLogout,
-    showSuperToast,
-  } = authContext;
+  const { user, isAuthenticated, userSignup, userLogin, userLogout, showSuperToast } = authContext;
   const navigate = useNavigate();
 
   // if (user !== null) {
@@ -337,7 +200,7 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                                   (libraryFlag) ? (
                                     <>
                                       <button type="submit" className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-red-500 px-8 py-3 text-base font-medium text-white hover:bg-red-400 "
-                                        onClick={(event) => deleteUserGame(event, userId, gameInfo._id, refetch)}
+                                        onClick={(event) => deleteUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)}
                                       >
                                         Remove from library 
                                       </button>
@@ -347,7 +210,7 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                                       <button
                                         type="submit"
                                         className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-green-500 px-8 py-3 text-base font-medium text-white hover:bg-green-400 "
-                                        onClick={(event) => addUserGame(event, userId, gameInfo._id, refetch)
+                                        onClick={(event) => addUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)
                                         }
                                       >
                                         Add to library 

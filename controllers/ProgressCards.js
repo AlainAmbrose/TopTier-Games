@@ -55,10 +55,10 @@ const populateLibraryPage = async (req, res) => {
             }
 
             obj.id = game.IGDB_id;
-            //   obj.name = game.Name;
+            obj.name = game.Name;
 
-            //   let newURL = functions.updateCoverURL(game.CoverURL, "1080p");
-            //   obj.url = newURL;
+            let newURL = functions.updateCoverURL(game.CoverURL, "1080p");
+            obj.url = newURL;
             objects.push(obj);
         }
 
