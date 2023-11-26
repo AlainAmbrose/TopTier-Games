@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,12 +16,14 @@ class DiscoverPage extends StatefulWidget {
 class _DiscoverPageState extends State<DiscoverPage> {
   Map<int, List<Map<String, dynamic>>> genreResults = {};
   late Map<String, dynamic> data = <String,dynamic>{};
+  late ScrollController controller;
   List<Map<String, dynamic>> results = [];
   List<List<int>> cardData = [];
   List<int> genreData = [];
   int genreLength = 0;
 
   static const int increment = 10;
+  static const int genreIncrement = 7;
   bool isLoading = false;
   bool _mounted = true;
 
@@ -30,16 +31,28 @@ class _DiscoverPageState extends State<DiscoverPage> {
   @override
   void initState() {
     _loadMoreGenres();
-    //_loadMoreCards(genreData.length);
     super.initState();
+    controller = ScrollController();
+    controller.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _mounted = false;
+    controller.removeListener(_scrollListener);
+    controller.dispose();
     super.dispose();
   }
 
+  void _scrollListener() {
+    if ((controller.position.pixels == controller.position.maxScrollExtent) && genreLength <= 21) {
+      _loadMoreGenres();
+    }
+    else {
+      controller.position.didEndScroll();
+    }
+
+  }
 
   Future _loadMoreCards(int genre) async {
     Map<String, dynamic> jsonSendData = <String,dynamic>{};
@@ -77,8 +90,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
       data = Map<String, Object>.from(json.decode(response.body));
       // Use the genre as a key to store results in the map
       genreResults[genre] = List<Map<String, dynamic>>.from((data['result'] as Iterable?) ?? []);
-      print("yay");
-      print(response.body);
     } else {
       print("error");
       print(response.statusCode);
@@ -108,29 +119,27 @@ class _DiscoverPageState extends State<DiscoverPage> {
       isLoading = true;
     });
 
-    // dummy delay
-    await Future.delayed(const Duration(seconds: 2));
+    if (genreLength <= 20){
+      for (var i = genreLength; i < genreLength + genreIncrement && i < 21; i++) {
+        genreData.add(i);
+        cardData.add([]);
+        await _loadMoreCards(i);
+      }
 
-    // Load more genres
-    for (var i = genreLength; i < genreLength + increment; i++) {
-      genreData.add(i);
-      cardData.add([]);
-      await _loadMoreCards(i);
     }
-
 
     setState(() {
       isLoading = false;
       genreLength = genreData.length;
     });
 
-    // Load more cards for each genre
-    // for (var genre in genreData) {
-    //   await _loadMoreCards(genre);
-
   }
 
   Widget _buildCardsList(int item) {
+    if (item >= genreData.length) {
+      return const SizedBox.shrink();
+    }
+
     return LazyLoadScrollView(
       isLoading: isLoading,
       scrollDirection: Axis.horizontal,
@@ -198,42 +207,46 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
     var imageUrl = game['url'] ?? '';
 
-    return Card(
-      elevation: 0.0,
-      margin: const EdgeInsets.all(10.0),
-      color: Colors.transparent,
-      child: SizedBox(
-        width: 115.0,
-        height: 200.0,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4.0),
-              child: Image.network(
-                'https:$imageUrl',
-                height: 150.0,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(6.0),
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                game['name'] ?? 'N/A',
-                overflow: TextOverflow.fade,
-                softWrap: false,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Inter-regular',
-                  fontWeight: FontWeight.w600,
+    return GestureDetector(
+      onTap: () => {print("tapped card")},
+      child: Card(
+        elevation: 0.0,
+        margin: const EdgeInsets.all(10.0),
+        color: Colors.transparent,
+        child: SizedBox(
+          width: 115.0,
+          height: 200.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4.0),
+                child: Image.network(
+                  'https:$imageUrl',
+                  height: 150.0,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-          ],
+              Container(
+                padding: const EdgeInsets.all(6.0),
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  game['name'] ?? 'N/A',
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Inter-Light',
+                    fontWeight: FontWeight.w300,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -273,6 +286,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           ),
         ),
         child: SingleChildScrollView(
+          controller: controller,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -289,20 +303,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 ),
               ),
               ListView.builder(
-                itemCount: genreData.length,
+                itemCount: 21,
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 padding: const EdgeInsets.all(10.0),
                 itemBuilder: (BuildContext context, int index) {
-                  return _buildCardsList(index);
-                },
-              ),
-              ListView.builder(
-                itemCount: genreData.length,
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.all(10.0),
-                itemBuilder: (BuildContext context, int index) {
+                  if (index == genreData.length)  {
+                    _loadMoreGenres();
+                    return const SizedBox.shrink();
+                  }
                   return _buildCardsList(index);
                 },
               ),
