@@ -99,7 +99,9 @@ class _SearchPageState extends State<SearchPage> {
               decoration: InputDecoration(
                 labelText: 'Search',
                 labelStyle: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter-Bold',
                 ),
                 suffixIcon: InkWell(
                   onTap: () {
@@ -147,7 +149,9 @@ class _SearchPageState extends State<SearchPage> {
                         height: 250.0,
                         child: ListTile(
                         leading: Text(game['name'],
-                          style: const TextStyle(fontSize: 20, color: Colors.white)),
+                          style: const TextStyle(
+                              fontSize: 20,
+                              fontFamily: 'Inter-Bold')),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
