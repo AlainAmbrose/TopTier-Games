@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import ScrollCard from "../Cards/ScrollCard";
 import { MdArrowBackIosNew, MdArrowForwardIos } from "react-icons/md";
 
-
 const HorizontalGameList = forwardRef((
   {
   games,
@@ -21,8 +20,7 @@ const HorizontalGameList = forwardRef((
 
 
   // Dynamically calculate how much the scroll step should be based on the screen size
-  useEffect(() =>
-  {
+  useEffect(() => {
     const calculateScrollStep = () =>
     {
       if (scrollContainerRef.current)

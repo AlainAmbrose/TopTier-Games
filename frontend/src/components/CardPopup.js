@@ -1,76 +1,49 @@
 import React from 'react'
 import PropTypes from "prop-types";
 import { Dialog, RadioGroup, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useContext } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
+import { useQuery } from "react-query";
+import HorizontalGameList from "./Lists/HorizontalGameList";
+import LongText from "./LongText";
 import { Rating } from 'react-simple-star-rating'
-import HorizontalGameList from './Lists/HorizontalGameList';
-import LongText from './LongText';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { AuthContext } from "./Authorizations/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { checkUserGames, addUserGame, deleteUserGame, product, convertDate, fillColorArray } from "../utils/cardpopupUtils";
 
-const product = {
-  name: "The Game Name",
-  price: "$192",
-  rating: 3.5,
-  reviewCount: 117,
-  href: "#",
-  imageSrc:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  imageAlt: "Two each of gray, white, and black shirts arranged on table.",
-  colors: [
-    { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
-    { name: "Gray", class: "bg-gray-200", selectedClass: "ring-gray-400" },
-    { name: "Black", class: "bg-gray-900", selectedClass: "ring-gray-900" },
-  ],
-  sizes: [
-    { name: "XXS", inStock: true },
-    { name: "XS", inStock: true },
-    { name: "S", inStock: true },
-    { name: "M", inStock: true },
-    { name: "L", inStock: true },
-    { name: "XL", inStock: true },
-    { name: "XXL", inStock: true },
-    { name: "XXXL", inStock: false },
-  ],
-};
+const mongoose = require("mongoose");
 
-const fillColorArray = [
-  "#f17a45",
-  "#f17a45",
-  "#f19745",
-  "#f19745",
-  "#f1a545",
-  "#f1a545",
-  "#f1b345",
-  "#f1b345",
-  "#f1d045",
-  "#f1d045"
-];
+const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton }) => {
+  if (localStorage.getItem("user_data") !== null) {
+    var currentUser = localStorage.getItem("user_data");
+    var userData = JSON.parse(currentUser);
+    var userId = new mongoose.Types.ObjectId(userData.id);
+  }
 
-const convertDate = (dateStr) => {
-  const dateObj = new Date(dateStr);
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  const formattedDate = dateObj.toLocaleDateString('en-US', options);
-  return formattedDate;
-}
-  
+  const authContext = useContext(AuthContext);
+  const { user, userSignup, userLogin, userLogout, showSuperToast } = authContext;
+  const navigate = useNavigate();
 
-const CardPopup = ({ 
-  game,
-  gameInfo,
-  isLoadingGameInfo,
-  open, 
-  setOpen,
-  skeleton 
-  }) => {
+  // if (user !== null) {
+  //     var userId = new mongoose.Types.ObjectId(user.id);
+  // }
+
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
 
+  const { data: libraryFlag, isLoading: isLoadingLibraryFlag, isError, error, refetch} = useQuery(
+    [userId, gameInfo?._id], () => checkUserGames(userId, gameInfo?._id),
+    {
+      enabled: !!userId,
+    }
+  );
+
   return (
     <>
-      {!skeleton && 
-        (<Transition.Root show={open} as={Fragment}>
+      {!skeleton && (
+        <Transition.Root show={open} as={Fragment}>
           <Dialog as="div" className="relative z-40" onClose={setOpen}>
             <Transition.Child
               as={Fragment}
@@ -114,12 +87,11 @@ const CardPopup = ({
                             className="object-cover object-center"
                           />
                         </div>
-                        <div  className="sm:col-span-8 lg:col-span-7 relative scrollable-div overflow-auto lg:h-[620px] md:h-[270px] mr-10">
-        
+                        <div className="sm:col-span-8 lg:col-span-7 relative scrollable-div overflow-auto lg:h-[620px] md:h-[270px] mr-10">
                           <h2 className="text-4xl font-bold text-gray-200 sm:pr-12">
                             {game.name}
                           </h2>
-
+                          {/* START HERE  */}
                           <section
                             aria-labelledby="information-heading"
                             className="mt-2"
@@ -130,7 +102,7 @@ const CardPopup = ({
                             {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.releasedate !== undefined) ?
                               (<p className="text-2xl text-gray-200">
                                 <span className="text-2xl text-blue-600">Release Date: </span> {convertDate(gameInfo.releasedate)}
-                              </p>) :  
+                              </p>) :
                               (<>
                                 <p className="pointer-events-none w-4/12 h-5 mt-2 block truncate ">
                                   <SkeletonTheme baseColor="black" highlightColor="#202020">
@@ -139,64 +111,63 @@ const CardPopup = ({
                                 </p>
                               </>)
                             }
-                            
+
 
                             {/* Reviews */}
                             <div className="mt-6">
                               <h4 className="sr-only">Reviews</h4>
                               <div className="flex items-center">
                                 <div className="flex items-center">
-                                  { (!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) ?                
+                                  {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) ?
                                     (
-                                    <Rating
-                                      size={25}
-                                      transition
-                                      initialValue={gameInfo.gameranking.$numberDecimal}
-                                      allowFraction
-                                      fillColorArray={fillColorArray}
-                                      emptyColor="black"
-                                      SVGstyle={ {'display' : "inline"}}
-                                      readonly={true}
-                                    />) :
+                                      <Rating
+                                        size={25}
+                                        transition
+                                        initialValue={gameInfo.gameranking.$numberDecimal}
+                                        allowFraction
+                                        fillColorArray={fillColorArray}
+                                        emptyColor="black"
+                                        SVGstyle={{ 'display': "inline" }}
+                                        readonly={true}
+                                      />) :
                                     (<>
                                       <Rating
-                                      size={25}
-                                      transition
-                                      initialValue={0}
-                                      allowFraction
-                                      fillColorArray={fillColorArray}
-                                      emptyColor="gray"
-                                      SVGstyle={ {'display' : "inline"}}
-                                      readonly={true}
+                                        size={25}
+                                        transition
+                                        initialValue={0}
+                                        allowFraction
+                                        fillColorArray={fillColorArray}
+                                        emptyColor="gray"
+                                        SVGstyle={{ 'display': "inline" }}
+                                        readonly={true}
                                       />
                                     </>)
-                                    }
-                              
-                                
+                                  }
+
+
                                 </div>
-                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) && 
-                                (<>
-                                  <p className="sr-only">
-                                    {gameInfo.gameranking.$numberDecimal} out of 5 stars
-                                  </p>
-                                  <a
-                                    href="#"
-                                    className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
-                                  >
-                                    {/*  */}
-                                    {(!isLoadingGameInfo && gameInfo.reviewcount) && (<>{gameInfo.reviewcount} ratings </>) }
-                                  </a>
-                                </>)}
+                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) &&
+                                  (<>
+                                    <p className="sr-only">
+                                      {gameInfo.gameranking.$numberDecimal} out of 5 stars
+                                    </p>
+                                    <a
+                                      href="#"
+                                      className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
+                                    >
+                                      {/*  */}
+                                      {(!isLoadingGameInfo && gameInfo.reviewcount) && (<>{gameInfo.reviewcount} ratings </>)}
+                                    </a>
+                                  </>)}
                               </div>
                             </div>
-
 
                             {/* Description */}
                             <div className="mt-6">
                               <h4 className="sr-only">Game Description</h4>
 
                               {/* <p className="text-base text-gray-200"> */}
-                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.storyline !== undefined) && <LongText content={gameInfo.storyline} limit={150}></LongText> }
+                              {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.storyline !== undefined) && <LongText content={gameInfo.storyline} limit={150}></LongText>}
                               {/* </p> */}
                             </div>
                           </section>
@@ -205,17 +176,49 @@ const CardPopup = ({
                             aria-labelledby="options-heading"
                             className="mt-10"
                           >
-                            <h3 id="options-heading" className="sr-only">
+                            <h3
+                              id="options-heading"
+                              className="sr-only"
+                            >
                               Product options
                             </h3>
 
                             <form>
-                              <button
-                                type="submit"
-                                className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-blue-800 px-8 py-3 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                              >
-                                Add to library
-                              </button>
+                              {(isLoadingGameInfo || libraryFlag === undefined) ? 
+                                (
+                                  <>
+                                  {/* <button type="submit" className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gray-500 px-8 py-3 text-base font-medium text-white "
+                                    disabled
+                                  >
+                                    Loading ... 
+                                  </button> */}
+                                  <SkeletonTheme baseColor="black" highlightColor="#202020" >
+                                    <Skeleton count={1} className="mt-6 flex w-full items-center h-[48px] justify-center rounded-md border border-transparent bg-gray-500 px-8 py-3 text-base font-medium text-white "></Skeleton>
+                                  </SkeletonTheme>
+                                  </>
+                                ) : (
+                                  (libraryFlag) ? (
+                                    <>
+                                      <button type="submit" className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-red-500 px-8 py-3 text-base font-medium text-white hover:bg-red-400 "
+                                        onClick={(event) => deleteUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)}
+                                      >
+                                        Remove from library 
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        type="submit"
+                                        className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-green-500 px-8 py-3 text-base font-medium text-white hover:bg-green-400 "
+                                        onClick={(event) => addUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)
+                                        }
+                                      >
+                                        Add to library 
+                                      </button>
+                                    </>
+                                  )
+                                )
+                              }
                             </form>
                           </section>
 
@@ -229,16 +232,15 @@ const CardPopup = ({
                               Similar Games
                             </h3>
 
-                              <div >
-                                <h4 className="text-sm font-medium text-3xl text-gray-300">Similar Games</h4>
-                                {  (!isLoadingGameInfo && gameInfo !== undefined && gameInfo.similargames !== undefined) ? 
-                                  <HorizontalGameList games={gameInfo.similargames} ></HorizontalGameList> :
-                                  <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList> 
-                                }
-                                {/* <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList> */}
-                              </div>
+                            <div >
+                              <h4 className="text-sm font-medium text-3xl text-gray-300">Similar Games</h4>
+                              {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.similargames !== undefined) ?
+                                <HorizontalGameList games={gameInfo.similargames} ></HorizontalGameList> :
+                                <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList>
+                              }
+                              {/* <HorizontalGameList skeleton={true} skeletoncount={10} ></HorizontalGameList> */}
+                            </div>
                           </section>
-
                         </div>
                       </div>
                     </div>
@@ -247,11 +249,11 @@ const CardPopup = ({
               </div>
             </div>
           </Dialog>
-        </Transition.Root>)
-      }
+        </Transition.Root>
+      )}
     </>
-  )
-}
+  );
+};
 
 CardPopup.propTypes = {
   game: PropTypes.shape({
@@ -261,7 +263,7 @@ CardPopup.propTypes = {
   }).isRequired,
   gameInfo: PropTypes.object, // This allows both object and undefined
   isLoadingGameInfo: PropTypes.bool.isRequired,
-  open: PropTypes.bool.isRequired, 
+  open: PropTypes.bool.isRequired,
   setOpen: PropTypes.func.isRequired,
   skeleton: PropTypes.bool.isRequired,
 };
@@ -272,8 +274,8 @@ CardPopup.defaultProps = {
     id: -1,
     url: "/#"
   },
-  isLoadingGameInfo : true,
-  setOpen : () => {},
+  isLoadingGameInfo: true,
+  setOpen: () => { },
   skeleton: true,
 };
 

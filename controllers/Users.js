@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const User = require("../models/User");
-const sgMail = require('@sendgrid/mail')
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const crypto = require("crypto");
 var authCode, passResetCode;
 
@@ -40,7 +40,7 @@ const signUp = async (req, res) =>
         firstname: newUser.FirstName,
         lastname: newUser.LastName,
         message: "User Successfully Created",
-     });
+    });
 };
 
 const sendAuthEmail = async (req, res) =>
@@ -52,38 +52,40 @@ const sendAuthEmail = async (req, res) =>
         from: 'TopTierGames.ucf@gmail.com',
         subject: 'Verify your email with TopTier Games!',
         text: 'Hello ' + req.body.firstname + ',\nCopy the verification code below to verify your email with TopTier Games:\n\n' + authCode,
-      }
-      sgMail
+    };
+    sgMail
         .send(msg)
         .then(() =>
         {
-          console.log('Email sent')
-          return res.status(200).json({
-            message: "Email Sent Successfully"
-          });
+            console.log('Email sent');
+            return res.status(200).json({
+                message: "Email Sent Successfully"
+            });
         })
         .catch((error) =>
         {
-          console.error(error)
-          return res.status(400).json({
-            message: "Error Sending Email"
-          });
-        })
+            console.error(error);
+            return res.status(400).json({
+                message: "Error Sending Email"
+            });
+        });
 };
 
 const verifyAuthCode = async (req, res) =>
 {
-    if (authCode !== null && req.body.authCode === authCode) {
+    if (authCode !== null && req.body.authCode === authCode)
+    {
         return res.status(200).json({
             message: "Email Verified Successfully"
         });
     }
-    else {
+    else
+    {
         return res.status(400).json({
             message: "Incorrect Authorization Code"
         });
     }
-}
+};
 
 const login = async (req, res) =>
 {
@@ -97,7 +99,7 @@ const login = async (req, res) =>
     }
     else
     {
-        
+
         if (await user.validatePassword(req.body.password))
         {
             const accessToken = jwt.sign(
@@ -153,23 +155,23 @@ const sendPassResetEmail = async (req, res) =>
         from: 'TopTierGames.ucf@gmail.com',
         subject: 'Password Reset Request from TopTier Games!',
         text: 'Hello ' + req.body.firstname + ',\nWe have recieved a request that you would like to reset your password. If this is accurate, enter the verification code below into TopTier Games to continue:\n\n' + passResetCode,
-      }
-      sgMail
+    };
+    sgMail
         .send(msg)
         .then(() =>
         {
-          console.log('Email sent')
-          return res.status(200).json({
-            message: "Email Sent Successfully"
-          });
+            console.log('Email sent');
+            return res.status(200).json({
+                message: "Email Sent Successfully"
+            });
         })
         .catch((error) =>
         {
-          console.error(error)
-          return res.status(400).json({
-            message: "Error Sending Email"
-          });
-        })
+            console.error(error);
+            return res.status(400).json({
+                message: "Error Sending Email"
+            });
+        });
 };
 
 const resetPass = async (req, res) =>
@@ -196,10 +198,10 @@ const resetPass = async (req, res) =>
     user.createHash(req.body.newPassword);
     await user.save();
 
-    return res.status(200).json({ 
+    return res.status(200).json({
         Login: user.Login,
         message: "Password successfully updated.",
-     });
+    });
 };
 
 const getUser = async (req, res) =>
