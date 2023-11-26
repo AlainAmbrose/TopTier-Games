@@ -25,51 +25,6 @@ class _SearchPageState extends State<SearchPage> {
     return '';
   }
 
-  Future<Map<String, dynamic>> _getCover(dynamic game) async {
-    Map<String, dynamic> cover = {};
-    int id = game["IGDB_id"];
-    int size = 6;
-
-    final data = {
-      'id': id,
-      'size': size
-    };
-
-    final jsonData = jsonEncode(data);
-
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-      'Cookie': 'jwt_access=${widget.jsonResponse['accessToken']}'
-    };
-
-    final response = await http.post(
-      Uri.parse('https://www.toptier.games/Games/api/getCover'),
-      headers: headers,
-      body: jsonData,
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        cover = jsonDecode(response.body);
-      });
-    } else {
-      setState(() {
-        cover = {"image": "error"};
-      });
-    }
-
-    return cover;
-  }
-
-  void _fetchCovers(List<dynamic> games) async {
-    coversMap = {};
-
-    for (int i = 0; i < games.length; i++) {
-      Map<String, dynamic>? cover = await _getCover(games[i]);
-      coversMap[i] = cover;
-    }
-  }
-
   void _handleSearch(BuildContext context) async {
     String search = _searchController.text;
     String searchError = _validateTextField(search);
@@ -105,7 +60,6 @@ class _SearchPageState extends State<SearchPage> {
     if (response.statusCode == 200) {
       setState(() {
         searchResults = jsonDecode(response.body)['games'];
-        _fetchCovers(searchResults!);
       });
 
     } else {
@@ -169,13 +123,13 @@ class _SearchPageState extends State<SearchPage> {
                     itemCount: searchResults!.length,
                     itemBuilder: (context, index) {
                     final game = searchResults![index];
-                    final cover = coversMap[index];
+                    final coverUrl = game['url'];
                     return GestureDetector(
                       onTap: () {
                       showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                            return Modal().returnModal(context, game, cover, widget.jsonResponse);
+                            return Modal().returnModal(context, game, coverUrl, widget.jsonResponse);
                           },
                         );
                       },
@@ -186,13 +140,13 @@ class _SearchPageState extends State<SearchPage> {
                           borderRadius: BorderRadius.circular(15.0),
                           border: Border.all(width: 2.0, color: Colors.white),
                           image: DecorationImage(
-                              image: NetworkImage("https:${cover!["image"]}"),
+                              image: NetworkImage("https:$coverUrl"),
                               fit: BoxFit.cover
                           )
                       ),
                         height: 250.0,
                         child: ListTile(
-                        leading: Text(game['Name'],
+                        leading: Text(game['name'],
                           style: const TextStyle(fontSize: 20, color: Colors.white)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
