@@ -155,7 +155,10 @@ class LoginScreen extends StatelessWidget {
                 controller: _loginController,
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter-Bold'
                   ),
                   enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(color: Colors.green),
@@ -164,7 +167,7 @@ class LoginScreen extends StatelessWidget {
                       borderSide: const BorderSide(color: Colors.green),
                       borderRadius: BorderRadius.circular(20.0)), //
                 ),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontFamily: 'Inter-Regular'),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -178,7 +181,10 @@ class LoginScreen extends StatelessWidget {
                 controller: _passwordController,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter-Bold'
                   ),
                   enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(color: Colors.green),
@@ -202,9 +208,18 @@ class LoginScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 100),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
-                child: const Text('Login'),
+                child: const Text('Login', style: TextStyle(
+                  fontFamily: 'Inter-Bold'
+                )),
                 ),
-                ] 
+                TextButton(
+                  onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Forgot Password',
+                  style: TextStyle(color: Colors.green))
+                ),
+            ]
             )
             ]),
             ),

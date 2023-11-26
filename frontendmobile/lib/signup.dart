@@ -150,7 +150,10 @@ class SignupScreen extends StatelessWidget {
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter-Bold'
                       ),
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.green),
@@ -173,7 +176,10 @@ class SignupScreen extends StatelessWidget {
                     controller: _loginController,
                     decoration: InputDecoration(
                       labelText: 'Username',
-                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter-Bold'
                       ),
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.green),
@@ -196,7 +202,10 @@ class SignupScreen extends StatelessWidget {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter-Bold'
                       ),
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.green),
@@ -220,7 +229,10 @@ class SignupScreen extends StatelessWidget {
                     controller: _firstnameController,
                     decoration: InputDecoration(
                       labelText: 'First Name',
-                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter-Bold'
                       ),
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.green),
@@ -243,7 +255,10 @@ class SignupScreen extends StatelessWidget {
                     controller: _lastnameController,
                     decoration: InputDecoration(
                       labelText: 'Last Name',
-                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                      labelStyle: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter-Bold'
                       ),
                       enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: Colors.green),
@@ -266,7 +281,7 @@ class SignupScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 100),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
-                child: const Text('Sign Up'),
+                child: const Text('Sign Up', style: TextStyle(fontFamily: 'Inter-Bold')),
               ),
             ]
             )
