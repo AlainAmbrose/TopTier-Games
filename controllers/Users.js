@@ -61,9 +61,13 @@ const sendAuthEmail = async (req, res) => {
   let authCode = crypto.randomBytes(10).toString("hex");
   let email = req.body.email;
 
-  let user = await User.find({ Email: email });
-  if (user.length == 0) {
-    return res.status(400).json({ message: "Email does not exist." });
+  let passwordResetFlag = req.body.passwordResetFlag;
+
+  if (passwordResetFlag !== undefined && passwordResetFlag === true) {
+    let user = await User.find({ Email: email });
+    if (user.length == 0) {
+      return res.status(400).json({ message: "User not found." });
+    }
   }
 
   if (secure()) {
