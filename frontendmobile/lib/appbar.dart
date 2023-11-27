@@ -16,7 +16,6 @@ class TopTierAppBar {
               fontWeight: FontWeight.w800,
               fontStyle: FontStyle.italic,
               fontSize: 25),
-
         ),
         backgroundColor: Colors.black,
         actions: [
@@ -66,6 +65,8 @@ class AccountSettingsPopUp extends StatelessWidget {
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmController = TextEditingController();
   final Map<String, dynamic> userInfo;
 
   // final Function(Map<String, dynamic> updatedUserInfo) updateUserInfoCallback;
@@ -88,17 +89,19 @@ class AccountSettingsPopUp extends StatelessWidget {
     if (emailController.text.isNotEmpty) {
       data['email'] = emailController.text;
     }
+    if (passwordController.text.isNotEmpty) {
+      data['password'] = passwordController.text;
+    }
 
     data['userId'] = userInfo['id'];
 
     final jsonData = jsonEncode(data);
     final headers = <String, String>{
       'Content-Type': 'application/json',
-      'Cookie': 'jwt_access=${userInfo['accessToken']}'
     };
 
     final response = await http.post(
-      Uri.parse('https://www.toptier.games/Users/api/updateUser'),
+      Uri.parse('https://www.toptier.games/Users/api/updateuser'),
       headers: headers,
       body: jsonData,
     );
@@ -136,61 +139,238 @@ class AccountSettingsPopUp extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-            controller: usernameController,
-            decoration: const InputDecoration(
-                labelText: 'New Username',
-                labelStyle: TextStyle(color: Colors.white),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-            ),
-            style: const TextStyle(color: Colors.white),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.grey[800]!.withOpacity(0.95),
+                    title: const Text('Change Username', style: TextStyle(color: Colors.white)),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: usernameController,
+                          decoration: const InputDecoration(
+                            labelText: 'New Username',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Close'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          _handleAccountUpdate();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Save Changes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Text('Change Username'),
           ),
-          TextField(
-            controller: firstNameController,
-            decoration: const InputDecoration(
-              labelText: 'New First Name',
-              labelStyle: TextStyle(color: Colors.white),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-            ),
-            style: const TextStyle(color: Colors.white),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.grey[800]!.withOpacity(0.95),
+                    title: const Text('Change Name', style: TextStyle(color: Colors.white)),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: firstNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'New First Name',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        TextField(
+                          controller: lastNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'New Last Name',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Close'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          _handleAccountUpdate();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Save Changes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Text('Change Name'),
           ),
-          TextField(
-            controller: lastNameController,
-            decoration: const InputDecoration(
-              labelText: 'New Last Name',
-              labelStyle: TextStyle(color: Colors.white),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-            ),
-            style: const TextStyle(color: Colors.white),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.grey[800]!.withOpacity(0.95),
+                    title: const Text('Change Email', style: TextStyle(color: Colors.white)),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: emailController,
+                          decoration: const InputDecoration(
+                            labelText: 'New Email',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Close'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          _handleAccountUpdate();
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Save Changes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Text('Change Email'),
           ),
-          TextField(
-            controller: emailController,
-            decoration: const InputDecoration(
-              labelText: 'New Email',
-              labelStyle: TextStyle(color: Colors.white),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white),
-              ),
-            ),
-            style: const TextStyle(color: Colors.white),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.grey[800]!.withOpacity(0.95),
+                    title: const Text('Change Password', style: TextStyle(color: Colors.white)),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: passwordController,
+                          decoration: const InputDecoration(
+                            labelText: 'New Password',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                          obscureText: true,
+                        ),
+                        TextField(
+                          controller: passwordConfirmController,
+                          decoration: const InputDecoration(
+                            labelText: 'Confirm Password',
+                            labelStyle: TextStyle(color: Colors.white),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                          obscureText: true,
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Close'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (passwordController.text == passwordConfirmController.text) {
+                            _handleAccountUpdate();
+                            Navigator.of(context).pop();
+                          } else {
+                            Fluttertoast.showToast(
+                              msg: "Passwords do not match.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.TOP,
+                              backgroundColor: Colors.green, // You can customize the background color
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                            );
+                          }
+                        },
+                        child: const Text('Save Changes'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Text('Change Password'),
           ),
         ],
       ),
@@ -199,13 +379,7 @@ class AccountSettingsPopUp extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Close'),
-        ),
-        TextButton(
-          onPressed: () {
-            _handleAccountUpdate();
-          },
-          child: const Text('Save Changes'),
+          child: const Text('Close'),
         ),
       ],
     );
