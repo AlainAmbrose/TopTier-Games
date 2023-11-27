@@ -284,7 +284,7 @@ class _LibraryPageState extends State<LibraryPage>
                           alignment: Alignment.topRight,
                           child: PopupMenuButton<String>(
                             icon: const Icon(Icons.more_vert),
-                            onSelected: (value) {
+                            onSelected: (value) async {
                               if (value == 'Remove Game') {
                                 showDialog(
                                     context: context,
@@ -292,7 +292,16 @@ class _LibraryPageState extends State<LibraryPage>
                                       return DeleteModal().returnModal(
                                           context, filteredGames![index]);
                                     });
-                              } else if (value == 'Edit Game') {}
+                              } else if (value == 'Edit Game') {
+                                  await _getGameInfo(filteredGames![index]['id']);
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      print(filteredGames?[index]['id']);
+                                      return LibraryModal().returnModal(context, gameInfo ?? {}, gameInfo?['url'], widget.jsonResponse);
+                                    },
+                                  );
+                              };
                             },
                             color: Colors.grey[800]!.withOpacity(0.95),
                             itemBuilder: (BuildContext context) {

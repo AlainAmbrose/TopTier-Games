@@ -604,6 +604,14 @@ class LibraryModal {
                                     fontSize: 24.0
                                 ),
                             ),
+                            const Text("Your Comments: ",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 24.0
+                              ),
+                            ),
                             const SizedBox(height:15.0),
 
                             Text(_generatePlatformString(game['platforms']),
@@ -637,13 +645,16 @@ class LibraryModal {
 }
 
 class EditModal {
+  List<String> statusList = ['Not Started', 'Playing', 'Completed'];
   final TextEditingController _ratingController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
   final TextEditingController _reviewController = TextEditingController();
 
   Dialog returnModal(BuildContext context,
       Map<String, dynamic> game,
       String coverUrl,
       Map<String, dynamic> userInfo) {
+    String dropdownValue = statusList[game['Status']];
     return Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0),
@@ -682,6 +693,8 @@ class EditModal {
                               ),
                             ),
                             Container(
+                              height: 175.0,
+                              width: 130,
                               margin: const EdgeInsets.symmetric(vertical: 8.0),
                               decoration: BoxDecoration(
                                   color: Colors.grey,
@@ -693,14 +706,19 @@ class EditModal {
                                       fit: BoxFit.fill
                                   )
                               ),
-                              constraints: BoxConstraints.expand(
-                                height: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width,
-                              ),
+                              // constraints: BoxConstraints.expand(
+                              //   height: MediaQuery
+                              //       .of(context)
+                              //       .size
+                              //       .width,
+                              // ),
                             ),
-
+                            DropdownMenu<String>(
+                                initialSelection: dropdownValue,
+                                    dropdownMenuEntries: statusList.map<DropdownMenuEntry<String>>((String value) {
+                                      return DropdownMenuEntry<String>(value: value, label: value);
+                                    }).toList(),
+                                  ),
                           ]
                       )
                   ),
