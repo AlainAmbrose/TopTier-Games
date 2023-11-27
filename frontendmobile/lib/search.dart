@@ -135,30 +135,39 @@ class _SearchPageState extends State<SearchPage> {
                           },
                         );
                       },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(15.0),
-                          border: Border.all(width: 2.0, color: Colors.white),
-                          image: DecorationImage(
-                              image: NetworkImage("https:$coverUrl"),
-                              fit: BoxFit.cover
-                          )
-                      ),
-                        height: 250.0,
-                        child: ListTile(
-                        leading: Text(game['name'],
-                          style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontFamily: 'Inter-Bold')),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        textColor: Colors.white,
-                      ),
-                    ));
+                        child: Column(
+                          children: <Widget> [
+                            Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  border: Border.all(width: 2.0, color: Colors.white),
+                                  image: DecorationImage(
+                                      image: NetworkImage("https:$coverUrl"),
+                                      fit: BoxFit.cover
+                                  )
+                              ),
+                              height: 250.0,
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                textColor: Colors.white,
+                              ),
+                            ),
+                            Text(game['name'],
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontFamily: 'Inter-Light',
+                                    fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16.0),
+                          ]
+                        )
+                    );
                   },
                 ),
               ),
