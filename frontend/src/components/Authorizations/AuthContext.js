@@ -181,7 +181,7 @@ export const AuthProvider = ({ children, navigate }) => {
             token_expiry_time: res.exp,
           };
           localStorage.setItem("user_data", JSON.stringify(user));
-          scheduleTokenRefresh(res.exp);
+          // scheduleTokenRefresh(res.exp);
           // setIsAuthenticated(true);
           setUser(user);
           navigate("/login");

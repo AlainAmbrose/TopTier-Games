@@ -82,7 +82,10 @@ const SettingsPopup = ({ open, setOpen }) => {
 
       if (response.status === 200) {
         var res = JSON.parse(await response.text());
-        showSuperToast("Updated Info!");
+        showSuperToast("Updated Info!", "Updated Info!");
+      }
+      if (localStorage.getItem("user_data") !== null) {
+        localStorage.setItem("user_data", JSON.stringify(editedUser));
       }
     } catch (e) {
       return;

@@ -41,7 +41,7 @@ const EmailAuthPage = () => {
       );
       let _email = JSON.stringify({ email: resetEmail });
       localStorage.setItem("user_email", _email);
-      var obj = { email: email, firstname: firstname };
+      var obj = { email: email, firstname: firstname, passwordResetFlag: true };
       console.log("================Sending object");
       var js = JSON.stringify(obj);
       try {
