@@ -102,7 +102,9 @@ const sendAuthEmail = async (req, res) => {
   try {
     await sgMail.send(msg);
     console.log("Email sent successfully");
-    return res.status(200).json({ message: "Email Sent Successfully" });
+    return res
+      .status(200)
+      .json({ message: "Email Sent Successfully", authCode: authCode });
   } catch (error) {
     console.error("Error sending email:", error);
     return res.status(400).json({ message: "Error Sending Email" });
