@@ -280,7 +280,6 @@ const HomePage = () => {
 
   // User navigation
   const userNavigation = [
-    { name: "Your profile", href: "#", action: () => navigate("#") },
     {
       name: "Your Library",
       href: "/library",

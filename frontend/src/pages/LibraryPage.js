@@ -212,7 +212,6 @@ const LibraryPage = () => {
   //   }
 
   const userNavigation = [
-    { name: "Your profile", href: "#", action: () => navigate("#") },
     { name: "Home", href: "/home", action: () => navigate("/home") },
     { name: "Sign out", href: "/", action: () => userLogout("/") },
   ];
