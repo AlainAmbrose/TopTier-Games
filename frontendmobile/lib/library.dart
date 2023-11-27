@@ -251,21 +251,6 @@ class _LibraryPageState extends State<LibraryPage>
                                 ),
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.only(
-                                  left: 12.0, bottom: 10.0),
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                'Your Rating:  ${filteredGames?[index]['ranking'] ?? '-'}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Inter-Bold',
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            )
                           ],
                         ),
                       ),
