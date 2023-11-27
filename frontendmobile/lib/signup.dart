@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
-import 'bottomNavBar.dart';
+import 'package:zxcvbn/zxcvbn.dart';
 import 'gradient.dart';
 import 'dart:convert';
 import 'emailverify.dart';
@@ -12,6 +12,7 @@ class SignupScreen extends StatelessWidget {
     final TextEditingController _emailController = TextEditingController();
     final TextEditingController _firstnameController = TextEditingController();
     final TextEditingController _lastnameController = TextEditingController();
+    final zxcvbn = Zxcvbn();
 
     SignupScreen({super.key});
 
@@ -254,11 +255,25 @@ class SignupScreen extends StatelessWidget {
                     Fluttertoast.showToast(msg: "Please fill in all fields.",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.TOP,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.black,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
                         fontSize: 16.0);
                     return;
                     }
+
+                  final result = zxcvbn.evaluate(_passwordController.text);
+                  if (result.score! < 2) {
+                    final feedback = result.feedback.suggestions![0];
+
+                    Fluttertoast.showToast(msg: "Password too weak: $feedback",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.TOP,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    return;
+                  }
+
                   _handleEmailVerify(context);
                   Navigator.push(context,MaterialPageRoute(builder: (context) => EmailVerifyScreen(
                       email: _emailController.text,
