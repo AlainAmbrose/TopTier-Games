@@ -350,7 +350,7 @@ export const AuthProvider = ({ children, navigate }) => {
     } else {
       // No token expiry time found, handle accordingly
       console.warn("No token expiry time found, logging out...");
-      userLogout("/");
+      // userLogout("/");
     }
   }
 
