@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontendmobile/forgotpassword.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'bottomNavBar.dart';
@@ -197,6 +198,20 @@ class LoginScreen extends StatelessWidget {
                 style: const TextStyle(color: Colors.white),
               ),
             ),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 10.0),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(context,MaterialPageRoute(builder: (context) => ForgotPassScreen()));
+                    },
+                    child: const Text('Forgot Password',
+                        style: TextStyle(color: Colors.green)
+                    )
+                  ),
+                ]
+            ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
                 onPressed: () {
@@ -211,13 +226,6 @@ class LoginScreen extends StatelessWidget {
                 child: const Text('Login', style: TextStyle(
                   fontFamily: 'Inter-Bold'
                 )),
-                ),
-                TextButton(
-                  onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Forgot Password',
-                  style: TextStyle(color: Colors.green))
                 ),
             ]
             )
