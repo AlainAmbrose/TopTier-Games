@@ -26,6 +26,7 @@ class ForgotPassScreen extends StatelessWidget {
 
       final data = {
         'email': email,
+        'passwordResetFlag': true
       };
 
       final jsonData = jsonEncode(data);
