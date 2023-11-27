@@ -1,7 +1,7 @@
 import { Fragment, useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import _, { debounce, set } from 'lodash';
+import _, { debounce, set } from "lodash";
 import {
   Bars3Icon,
   BellIcon,
@@ -12,7 +12,8 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
-  ArrowLeftIcon
+  CogIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
@@ -27,37 +28,68 @@ import AsideCard from "../components/Cards/AsideCard";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { useIntersection } from "@mantine/hooks";
 import { AuthContext } from "../components/Authorizations/AuthContext";
-import { classNames } from '../utils/utils'; // Update the path accordingly
-import { fetchGenre, fetchTopGames, fetchSearchGroup, fetchSearchResults, genres } from '../utils/homepageUtils'; 
-import { TailSpin } from 'react-loading-icons'
-
-const navigation = [
-  { name: "Homepage", href: "#", icon: HomeIcon, current: true },
-  { name: "Library", href: "/library", icon: FolderIcon, current: false },
-];
-
+import SettingsPopup from "../components/SettingsPopup";
+import { classNames } from "../utils/utils"; // Update the path accordingly
+import {
+  fetchGenre,
+  fetchTopGames,
+  fetchSearchGroup,
+  fetchSearchResults,
+  genres,
+} from "../utils/homepageUtils";
+import { TailSpin } from "react-loading-icons";
 
 const searchGenre = (genre, setSearchTerm, handleFocus) => {
-  handleFocus()
-  setSearchTerm(genre)
-}
+  handleFocus();
+  setSearchTerm(genre);
+};
 
 const HomePage = () => {
   // State for the sidebar for mobile
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Pulling in the user context
   const authContext = useContext(AuthContext);
-  const { user, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
+  const { user, userSignup, userLogin, userLogout, showSuperToast, checkUser } =
+    authContext;
+
+  // Values for left hand side navigation bar
+  const navigation = [
+    {
+      name: "Homepage",
+      href: "/home",
+      icon: HomeIcon,
+      current: true,
+      action: () => navigate("#"),
+    },
+    {
+      name: "Library",
+      href: "/library",
+      icon: FolderIcon,
+      current: false,
+      action: () => navigate("/library"),
+    },
+    {
+      name: "Settings",
+      href: "#",
+      icon: CogIcon,
+      current: false,
+      action: () => setSettingsOpen(true),
+    },
+  ];
 
   const navigate = useNavigate();
 
-  // Handle Fetch Errors 
+  // Handle Fetch Errors
   const handleError = (error) => {
-    console.warn('Handling Error: ', error);
+    console.warn("Handling Error: ", error);
     if (!checkUser()) {
-      showSuperToast("Something went wrong. Please try logging in again.", "fetch-error");
+      showSuperToast(
+        "Something went wrong. Please try logging in again.",
+        "fetch-error"
+      );
       console.log(
         "isAuthenticated: ",
         localStorage.getItem("user_data").isAuthenticated
@@ -71,19 +103,20 @@ const HomePage = () => {
 
   // This kicks the user back to the login page if they are not authenticated
   useEffect(() => {
-    handleError("user may not be authenticated on mounted")
+    handleError("user may not be authenticated on mounted");
   }, []);
 
   // ==============Genre=================
 
   // Code to query the top games on the homepage (only runs once)
-  const { data: topGamesData, isLoading: isLoadingTopGames, isError, error } = useQuery(
-      "topGames", 
-      fetchTopGames,
-      {
-        onError: handleError, // Set the onError callback here
-      }
-    );
+  const {
+    data: topGamesData,
+    isLoading: isLoadingTopGames,
+    isError,
+    error,
+  } = useQuery("topGames", fetchTopGames, {
+    onError: handleError, // Set the onError callback here
+  });
 
   // Code to detect when the user scrolls to the bottom of the page (Works with the code below)
   const lastListRef = useRef(null);
@@ -91,7 +124,6 @@ const HomePage = () => {
     root: lastListRef.current,
     threshold: 1,
   });
-
 
   // Code to query the genres on the homepage (runs every time the user scrolls to the bottom of the page)
   const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
@@ -107,9 +139,9 @@ const HomePage = () => {
       refetchOnWindowFocus: false,
     }
   );
-  
+
   // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
-  useEffect(() => { 
+  useEffect(() => {
     if (entry?.isIntersecting) {
       console.log("INTERSECTING");
       fetchNextPage();
@@ -121,9 +153,8 @@ const HomePage = () => {
 
   // ==============Genre=================
 
-
   // ===================Search===================
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
   useEffect(() => {
@@ -136,17 +167,23 @@ const HomePage = () => {
 
     // Cleanup function to cancel the debounce if the component unmounts
     return () => {
-        debounced.cancel();
+      debounced.cancel();
     };
   }, [searchTerm]);
 
-  const { data: searchResults, isLoading: isLoadingSearch, isFetching: isFetchingSearch, isError: searchIsError, error: searchError } = useQuery(
-      ['search', debouncedSearchTerm], 
-      () =>  fetchSearchResults(debouncedSearchTerm), 
-      {
-        enabled: debouncedSearchTerm.length > 0,
-        onError: handleError, // Set the onError callback here
-      }
+  const {
+    data: searchResults,
+    isLoading: isLoadingSearch,
+    isFetching: isFetchingSearch,
+    isError: searchIsError,
+    error: searchError,
+  } = useQuery(
+    ["search", debouncedSearchTerm],
+    () => fetchSearchResults(debouncedSearchTerm),
+    {
+      enabled: debouncedSearchTerm.length > 0,
+      onError: handleError, // Set the onError callback here
+    }
   );
 
   // Code to detect when the user scrolls to the bottom of the page (Works with the code below)
@@ -156,9 +193,12 @@ const HomePage = () => {
     threshold: 1,
   });
 
-
   // Code to query the genres on the homepage (runs every time the user scrolls to the bottom of the page)
-  const { data: searchGroups, fetchNextPage: fetchNextGroup, isFetchingNextPage: isFetchingNextGroup } = useInfiniteQuery(
+  const {
+    data: searchGroups,
+    fetchNextPage: fetchNextGroup,
+    isFetchingNextPage: isFetchingNextGroup,
+  } = useInfiniteQuery(
     ["query", searchResults],
     async ({ pageParam = 1 }) => {
       const response = await fetchSearchGroup(pageParam, searchResults);
@@ -170,30 +210,42 @@ const HomePage = () => {
         const MAX_ITEMS_PER_PAGE = 7;
         // If the number of items in the last page is less than the max, it's the last page
         if (lastPage.length.length < MAX_ITEMS_PER_PAGE) {
-          console.log("LAST PAGE")
+          console.log("LAST PAGE");
           return undefined;
         }
         return pages.length + 1;
       },
       refetchOnWindowFocus: false,
-      enabled: debouncedSearchTerm.length > 0 && !!searchResults && searchResults.length > 0,
+      enabled:
+        debouncedSearchTerm.length > 0 &&
+        !!searchResults &&
+        searchResults.length > 0,
       onError: handleError, // Set the onError callback here
     }
   );
 
   // Code to flatten the data from the query
-  const _searchGroups = searchGroups?.pages.flatMap((page) => page).flatMap((page) => page);
-  
+  const _searchGroups = searchGroups?.pages
+    .flatMap((page) => page)
+    .flatMap((page) => page);
+
   // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
-  useEffect(() => { 
-    if (searchEntry?.isIntersecting && _searchGroups.length < searchResults.length) {
+  useEffect(() => {
+    if (
+      searchEntry?.isIntersecting &&
+      _searchGroups.length < searchResults.length
+    ) {
       console.log("INTERSECTING");
       fetchNextGroup();
     }
   }, [searchEntry]);
 
   useEffect(() => {
-    console.log("SEARCH GROUPSsssss===========: ", searchGroups?.pages.flatMap((page) => page).flatMap((page) => page), searchGroups);
+    console.log(
+      "SEARCH GROUPSsssss===========: ",
+      searchGroups?.pages.flatMap((page) => page).flatMap((page) => page),
+      searchGroups
+    );
   }, [searchGroups]);
 
   // Log isLoadingSearch on each render
@@ -229,7 +281,11 @@ const HomePage = () => {
   // User navigation
   const userNavigation = [
     { name: "Your profile", href: "#", action: () => navigate("#") },
-    { name: "Your Library", href: "/library", action: () => navigate("/library")},
+    {
+      name: "Your Library",
+      href: "/library",
+      action: () => navigate("/library"),
+    },
     { name: "Sign out", href: "/", action: () => userLogout("/") },
   ];
 
@@ -241,8 +297,6 @@ const HomePage = () => {
     setInputFocused(false);
     setSearchTerm(""); // This line clears the search term
   };
-
-  
 
   return (
     <>
@@ -306,7 +360,7 @@ const HomePage = () => {
                       <ul role="list" className="-mx-2 flex-1 space-y-1">
                         {navigation.map((item) => (
                           <li key={item.name}>
-                            <a
+                            <button
                               href={item.href}
                               className={classNames(
                                 item.current
@@ -314,13 +368,14 @@ const HomePage = () => {
                                   : "text-gray-400 hover:text-white hover:bg-gray-800",
                                 "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                               )}
+                              onClick={item.action}
                             >
                               <item.icon
                                 className="h-6 w-6 shrink-0"
                                 aria-hidden="true"
                               />
                               {item.name}
-                            </a>
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -339,26 +394,30 @@ const HomePage = () => {
             <ul role="list" className="flex flex-col items-center space-y-1">
               {navigation.map((item) => (
                 <li key={item.name}>
-                  <a
-                    href={item.href}
+                  <button
                     className={classNames(
                       item.current
                         ? "bg-gray-800 text-white"
                         : "text-gray-400 hover:text-white hover:bg-gray-800",
                       "group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold"
                     )}
+                    onClick={item.action}
                   >
                     <item.icon
                       className="h-6 w-6 shrink-0"
                       aria-hidden="true"
                     />
                     <span className="sr-only">{item.name}</span>
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
           </nav>
         </div>
+        <SettingsPopup
+          open={settingsOpen}
+          setOpen={setSettingsOpen}
+        ></SettingsPopup>
 
         <div className="lg:pl-20 ">
           <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b  px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -378,12 +437,12 @@ const HomePage = () => {
             />
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 ">
-              <div className="relative flex flex-1 mt-[20px]" >
+              <div className="relative flex flex-1 mt-[20px]">
                 <label htmlFor="search-field" className="sr-only">
                   Search
                 </label>
                 {/* <div className=" absolute left-0  top-[-20px] flex w-16 justify-center pt-5"> */}
-                  {/* <button
+                {/* <button
                     type="button"
                     className=" pointer-events-none absolute inset-y-0 left-0 h-full w-6"
                     onClick={() => handleBlur()}
@@ -403,18 +462,19 @@ const HomePage = () => {
                   /> 
                 )} */}
                 <Transition
-                  show={inputFocused}  className="font-bold"
+                  show={inputFocused}
+                  className="font-bold"
                   enter="transition-opacity duration-150"
                   enterFrom="opacity-0"
                   enterTo="opacity-100"
                   leave="transition-opacity duration-150"
                   leaveFrom="opacity-100"
-                  leaveTo="opacity-0" 
+                  leaveTo="opacity-0"
                 >
                   <ArrowLeftIcon
-                        className="absolute cursor-pointer ml-[20px] inset-y-0 mt-[1px] left-0 h-full w-8 text-gray-400"
-                        aria-hidden="true"
-                        onClick={() => handleBlur()}
+                    className="absolute cursor-pointer ml-[20px] inset-y-0 mt-[1px] left-0 h-full w-8 text-gray-400"
+                    aria-hidden="true"
+                    onClick={() => handleBlur()}
                   />
                 </Transition>
                 {/* <Transition
@@ -446,27 +506,29 @@ const HomePage = () => {
                */}
                 <div className="relative lg:ml-[40%] block lg:w-1/3 sm:w-full">
                   <Transition
-                    show={inputFocused} 
+                    show={inputFocused}
                     className="font-bold"
                     enter="transition-opacity duration-150"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
                     leave="transition-opacity duration-150"
                     leaveFrom="opacity-100"
-                    leaveTo="opacity-0" 
+                    leaveTo="opacity-0"
                   >
                     <MagnifyingGlassIcon
                       className="absolute ml-[9px] inset-y-0 left-0 h-full w-6 text-gray-400"
                       aria-hidden="true"
-                    /> 
+                    />
                   </Transition>
                   <input
                     id="search-field"
                     // className={`block w-full h-full border-0 py-0 transition-all  left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10 " : "pl-2"}`}
-                    className={`block w-full h-full border-0 py-0 outline-none transition-all duration-75 left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10" : "pl-2"}`}
+                    className={`block w-full h-full border-0 py-0 outline-none transition-all duration-75 left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${
+                      inputFocused ? "pl-10" : "pl-2"
+                    }`}
                     style={{ transition: "box-shadow 50ms ease-in-out;" }}
                     placeholder="Search"
-                    type="search" 
+                    type="search"
                     name="search"
                     autoComplete="off"
                     onFocus={handleFocus}
@@ -552,8 +614,9 @@ const HomePage = () => {
           {/* bg-gradient-to-r from-gray-700 via-gray-900 to-black */}
           <main className="xl:pl-0">
             {/* DEFAULT MAIN */}
-            <Transition 
-              show={!inputFocused} className="font-bold"
+            <Transition
+              show={!inputFocused}
+              className="font-bold"
               enter="transition-opacity duration-150"
               enterFrom="opacity-0"
               enterTo="opacity-100"
@@ -567,96 +630,102 @@ const HomePage = () => {
                 className="px-4 py-10 sm:px-6 border-transparent m-5 border rounded-xl  relative scrollable-div overflow-auto bg-black border-none lg:px-8 lg:py-6 xl:shadow-xl xl:shadow-gray-950"
               >
                 <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
-                    {/* Main area */}
-                    <HorizontalButtonList genres={genres} searchGenre={(genre) => searchGenre(genre, setSearchTerm, handleFocus)}></HorizontalButtonList>
-                    {/* Top 3 Games */}
+                  {/* Main area */}
+                  <HorizontalButtonList
+                    genres={genres}
+                    searchGenre={(genre) =>
+                      searchGenre(genre, setSearchTerm, handleFocus)
+                    }
+                  ></HorizontalButtonList>
+                  {/* Top 3 Games */}
 
-                    {!isLoadingTopGames && topGamesData !== undefined ? (
-                      <>
-                        <GridList
-                          games={topGamesData.slice(0, 4)}
-                          listTitle={"Top Games"}
-                          width={"8/12"}
-                          mdCols="4"
-                          smCols="4"
-                          lgCols="4"
-                        ></GridList>
-                        <GridList
-                          games={topGamesData.slice(4, 10)}
-                          width={"full"}
-                          mdCols="5"
-                          smCols="5"
-                          lgCols="5"
-                        ></GridList>
-                      </>
-                    ) : (
-                      <>
-                        <GridList
-                          skeleton={true}
-                          skeletoncount={4}
-                          listTitle={"Top Games"}
-                          width={"8/12"}
-                          aspectHeight={8}
-                          aspectWidth={36}
-                          mdCols="4"
-                          smCols="4"
-                          lgCols="4"
-                        ></GridList>
-                        <GridList
-                          skeleton={true}
-                          skeletoncount={5}
-                          width={"full"}
-                          aspectHeight={8}
-                          aspectWidth={36}
-                          mdCols="5"
-                          smCols="5"
-                          lgCols="5"
-                        ></GridList>
-                      </>
-                    )}
+                  {!isLoadingTopGames && topGamesData !== undefined ? (
+                    <>
+                      <GridList
+                        games={topGamesData.slice(0, 4)}
+                        listTitle={"Top Games"}
+                        width={"8/12"}
+                        mdCols="4"
+                        smCols="4"
+                        lgCols="4"
+                      ></GridList>
+                      <GridList
+                        games={topGamesData.slice(4, 10)}
+                        width={"full"}
+                        mdCols="5"
+                        smCols="5"
+                        lgCols="5"
+                      ></GridList>
+                    </>
+                  ) : (
+                    <>
+                      <GridList
+                        skeleton={true}
+                        skeletoncount={4}
+                        listTitle={"Top Games"}
+                        width={"8/12"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="4"
+                        smCols="4"
+                        lgCols="4"
+                      ></GridList>
+                      <GridList
+                        skeleton={true}
+                        skeletoncount={5}
+                        width={"full"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="5"
+                        smCols="5"
+                        lgCols="5"
+                      ></GridList>
+                    </>
+                  )}
 
-                    {data !== undefined &&
-                      _genres?.map((genre, i) => {
-                        if (genre === undefined) {
-                          return (<HorizontalGameList
-                          skeleton={true}
-                          skeletoncount={10}
-                          ></HorizontalGameList>)
-                        }
-
-
-                        if (i === _genres.length - 1) {
-                          return (
-                            <HorizontalGameList
-                              ref={ref}
-                              key={genre.id}
-                              games={genre.data}
-                              listTitle={genre.title}
-                            ></HorizontalGameList>
-                          );
-                        }
+                  {data !== undefined &&
+                    _genres?.map((genre, i) => {
+                      if (genre === undefined) {
                         return (
                           <HorizontalGameList
+                            skeleton={true}
+                            skeletoncount={10}
+                          ></HorizontalGameList>
+                        );
+                      }
+
+                      if (i === _genres.length - 1) {
+                        return (
+                          <HorizontalGameList
+                            ref={ref}
                             key={genre.id}
                             games={genre.data}
                             listTitle={genre.title}
                           ></HorizontalGameList>
                         );
-                      })}
-                    {(isFetchingNextPage || data == undefined) && (
-                      <>
+                      }
+                      return (
                         <HorizontalGameList
-                          skeleton={true}
-                          skeletoncount={10}
+                          key={genre.id}
+                          games={genre.data}
+                          listTitle={genre.title}
                         ></HorizontalGameList>
-                        <HorizontalGameList
-                          skeleton={true}
-                          skeletoncount={10}
-                        ></HorizontalGameList>
-                      </>
-                    )}
+                      );
+                    })}
+                  {(isFetchingNextPage || data == undefined) && (
+                    <>
+                      <HorizontalGameList
+                        skeleton={true}
+                        skeletoncount={10}
+                      ></HorizontalGameList>
+                      <HorizontalGameList
+                        skeleton={true}
+                        skeletoncount={10}
+                      ></HorizontalGameList>
+                    </>
+                  )}
 
-                    {/*                 
+                  {/*                 
                     <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
                       {isFetchingNextPage
                         ? 'Loading more...'
@@ -665,18 +734,19 @@ const HomePage = () => {
                         : 'Nothing more to load'
                       }
                     </button>  */}
-                  </div>
+                </div>
               </div>
             </Transition>
             {/* SEARCH MAIN */}
-            <Transition 
-              show={inputFocused}  className="font-bold"
+            <Transition
+              show={inputFocused}
+              className="font-bold"
               enter="transition-opacity duration-150"
               enterFrom="opacity-0"
               enterTo="opacity-100"
               leave="transition-opacity duration-150"
               leaveFrom="opacity-100"
-              leaveTo="opacity-0" 
+              leaveTo="opacity-0"
             >
               <div
                 ref={searchLastListRef}
@@ -689,70 +759,73 @@ const HomePage = () => {
                   {searchGroups !== undefined &&
                     _searchGroups?.map((group, i) => {
                       if (i === _searchGroups.length - 1) {
-                        console.log(`Group ${i}`, group)
+                        console.log(`Group ${i}`, group);
                         return (
                           <GridList
-                          ref={searchRef}
-                          games={group}
-                          width={"8/12"}
-                          mdCols="7"
-                          smCols="7"
-                          lgCols="7"
+                            ref={searchRef}
+                            games={group}
+                            width={"8/12"}
+                            mdCols="7"
+                            smCols="7"
+                            lgCols="7"
                           ></GridList>
-                        )
+                        );
                       } else if (group.length === 0) {
                         return (
                           <GridList
-                          skeleton={true}
-                          skeletoncount={7}
-                          width={"8/12"}
-                          aspectHeight={8}
-                          aspectWidth={36}
-                          mdCols="7"
-                          smCols="7"
-                          lgCols="7"
+                            skeleton={true}
+                            skeletoncount={7}
+                            width={"8/12"}
+                            aspectHeight={8}
+                            aspectWidth={36}
+                            mdCols="7"
+                            smCols="7"
+                            lgCols="7"
                           ></GridList>
-                        )
+                        );
                       } else {
                         return (
                           <GridList
-                          games={group}
-                          width={"8/12"}
-                          mdCols="7"
-                          smCols="7"
-                          lgCols="7"
+                            games={group}
+                            width={"8/12"}
+                            mdCols="7"
+                            smCols="7"
+                            lgCols="7"
                           ></GridList>
                         );
                       }
-                    })
-                  }
-                  {(isFetchingNextGroup ) && (
-                  <>
-                    <GridList
-                      skeleton={true}
-                      skeletoncount={7}
-                      width={"8/12"}
-                      aspectHeight={8}
-                      aspectWidth={36}
-                      mdCols="7"
-                      smCols="5"
-                      lgCols="7"
-                    ></GridList>
-                    <GridList
-                      skeleton={true}
-                      skeletoncount={7}
-                      width={"8/12"}
-                      aspectHeight={8}
-                      aspectWidth={36}
-                      mdCols="7"
-                      smCols="5"
-                      lgCols="7"
-                    ></GridList>
-                  </>
-                  
-                )}
+                    })}
+                  {isFetchingNextGroup && (
+                    <>
+                      <GridList
+                        skeleton={true}
+                        skeletoncount={7}
+                        width={"8/12"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="7"
+                        smCols="5"
+                        lgCols="7"
+                      ></GridList>
+                      <GridList
+                        skeleton={true}
+                        skeletoncount={7}
+                        width={"8/12"}
+                        aspectHeight={8}
+                        aspectWidth={36}
+                        mdCols="7"
+                        smCols="5"
+                        lgCols="7"
+                      ></GridList>
+                    </>
+                  )}
 
-                  {(isFetchingSearch) && (<TailSpin className="mx-auto my-auto h-full w-[10%] "  stroke="#374151" />)}
+                  {isFetchingSearch && (
+                    <TailSpin
+                      className="mx-auto my-auto h-full w-[10%] "
+                      stroke="#374151"
+                    />
+                  )}
 
                   {/*                                 
                   <button  className="bg-white mb-2 text-blue-600" onClick={() => fetchNextGroup()} disabled={isFetchingNextGroup}>
@@ -764,19 +837,15 @@ const HomePage = () => {
                 </div>
               </div>
             </Transition>
-            <div 
-              style={{ height: "calc(100vh - 120px)",  }} 
+            <div
+              style={{ height: "calc(100vh - 120px)" }}
               className="mx-4 my-10 sm:mx-6 border-transparent top-[44px] z-[-5] right-0 lg:w-[calc(100vw-132px)] sm:w-[calc(100vw-45px)]   border rounded-xl absolute scrollable-div overflow-auto  border-none lg:mx-8 xl:shadow-xl xl:shadow-gray-950"
             >
               <div
-                  style={{ height: "calc(100vh - 120px)" }}
-                  className=" border-transparent top-0 z-[-5] border w-full rounded-xl relative scrollable-div overflow-auto bg-black opacity-100 border-none xl:shadow-xl xl:shadow-gray-950"
-                >
-
-              </div>
+                style={{ height: "calc(100vh - 120px)" }}
+                className=" border-transparent top-0 z-[-5] border w-full rounded-xl relative scrollable-div overflow-auto bg-black opacity-100 border-none xl:shadow-xl xl:shadow-gray-950"
+              ></div>
             </div>
-       
-
           </main>
         </div>
 

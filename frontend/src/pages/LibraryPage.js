@@ -1,158 +1,3 @@
-// import React, { Fragment, useState, useEffect, useRef } from "react";
-// import {
-//   ChevronDownIcon,
-//   MagnifyingGlassIcon,
-// } from "@heroicons/react/20/solid";
-// import { Dialog, Menu, Transition } from "@headlessui/react";
-// import LibraryContent from "../components/LibraryContent";
-
-// const userNavigation = [
-//   { name: "Your profile", href: "#" },
-//   { name: "Home", href: "/home" },
-//   { name: "Sign out", href: "/" },
-// ];
-
-// function classNames(...classes) {
-//   return classes.filter(Boolean).join(" ");
-// }
-
-// const LibraryPage = () => {
-//   var currentUser = localStorage.getItem("user_data");
-//   var userData = JSON.parse(currentUser);
-//   console.log(userData);
-//   var fn = userData.firstname;
-//   var ln = userData.lastname;
-
-//   const [isClicked1, setIsClicked1] = useState(true);
-//   const [isClicked2, setIsClicked2] = useState(false);
-//   const [isClicked3, setIsClicked3] = useState(false);
-//   const [selectedTab, setTab] = useState("played");
-
-//   const toggleColor1 = () => {
-//     setIsClicked1(!isClicked1);
-//     setTab("played");
-//     if (isClicked2) {
-//       setIsClicked2(!isClicked2);
-//     }
-//     if (isClicked3) {
-//       setIsClicked3(!isClicked3);
-//     }
-//   };
-
-//   const toggleColor2 = () => {
-//     setIsClicked2(!isClicked2);
-//     setTab("wantToPlay");
-//     if (isClicked1) {
-//       setIsClicked1(!isClicked1);
-//     }
-//     if (isClicked3) {
-//       setIsClicked3(!isClicked3);
-//     }
-//   };
-
-//   const toggleColor3 = () => {
-//     setIsClicked3(!isClicked3);
-//     setTab("all");
-//     if (isClicked1) {
-//       setIsClicked1(!isClicked1);
-//     }
-//     if (isClicked2) {
-//       setIsClicked2(!isClicked2);
-//     }
-//   };
-
-//   return (
-//     <div id="LibraryDiv">
-//       <a
-//         className="text-slate-50 italic font-bold text-[5vh] left-[5vh] top-[2vh] absolute "
-//         href={"/home"}
-//       >
-//         TopTier
-//       </a>
-//       <Menu as="div" className="relative">
-//         <Menu.Button className="absolute right-[3.8vh] top-[1.9vh] -m-1.5 flex items-center p-1.5">
-//           <span className="sr-only">Open user menu</span>
-//           <span className="inline-block h-8 w-8 overflow-hidden rounded-full bg-gray-100">
-//             <svg
-//               className="h-full w-full text-gray-300"
-//               fill="currentColor"
-//               viewBox="0 0 24 24"
-//             >
-//               <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-//             </svg>
-//           </span>
-//           <span className="hidden lg:flex lg:items-center">
-//             <span
-//               className="ml-4 text-sm font-semibold leading-6 text-gray-200"
-//               aria-hidden="true"
-//             >
-//               {fn + " " + ln}
-//             </span>
-//             <ChevronDownIcon
-//               className="ml-2 h-5 w-5 text-gray-400"
-//               aria-hidden="true"
-//             />
-//           </span>
-//         </Menu.Button>
-//         <Transition
-//           as={Fragment}
-//           enter="transition ease-out duration-100"
-//           enterFrom="transform opacity-0 scale-95"
-//           enterTo="transform opacity-100 scale-100"
-//           leave="transition ease-in duration-75"
-//           leaveFrom="transform opacity-100 scale-100"
-//           leaveTo="transform opacity-0 scale-95"
-//         >
-//           <Menu.Items className="absolute right-[3.8vh] top-[5.5vh] z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-//             {userNavigation.map((item) => (
-//               <Menu.Item key={item.name}>
-//                 {({ active }) => (
-//                   <a
-//                     href={item.href}
-//                     className={classNames(
-//                       active ? "bg-gray-50" : "",
-//                       "block px-3 py-1 text-sm leading-6 text-gray-900"
-//                     )}
-//                   >
-//                     {item.name}
-//                   </a>
-//                 )}
-//               </Menu.Item>
-//             ))}
-//           </Menu.Items>
-//         </Transition>
-//       </Menu>
-//       <button
-//         className={`${
-//           isClicked1 ? "bg-slate-800" : "bg-opacity-50"
-//         } text-slate-50 top-[7.8rem] left-[41px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
-//         onClick={toggleColor1}
-//       >
-//         Played
-//       </button>
-//       <button
-//         className={`${
-//           isClicked2 ? "bg-slate-800" : "bg-opacity-50"
-//         } text-slate-50 top-[7.8rem] left-[191px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
-//         onClick={toggleColor2}
-//       >
-//         Want to Play
-//       </button>
-//       <button
-//         className={`${
-//           isClicked3 ? "bg-slate-800" : "bg-opacity-50"
-//         } text-slate-50 top-[7.8rem] left-[341px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
-//         onClick={toggleColor3}
-//       >
-//         All
-//       </button>
-//       <LibraryContent selectedTab={selectedTab} />
-//     </div>
-//   );
-// };
-
-// export default LibraryPage;
-
 import { Fragment, useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, Menu, Transition } from "@headlessui/react";
@@ -164,10 +9,14 @@ import {
   DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
+  CogIcon,
   UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { ChevronDownIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
 import HorizontalGameList from "../components/Lists/HorizontalGameList";
 import ToggleSwitch from "../components/ToggleSwitch";
 import GridList from "../components/Lists/GridList";
@@ -177,11 +26,11 @@ import { useInfiniteQuery, useQuery } from "react-query";
 import { useIntersection } from "@mantine/hooks";
 import { AuthContext } from "../components/Authorizations/AuthContext";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { TailSpin } from 'react-loading-icons';
+import { TailSpin } from "react-loading-icons";
 import { doubleChunkArray, buildPath } from "../utils/utils";
+import SettingsPopup from "../components/SettingsPopup";
 
 const mongoose = require("mongoose");
-
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -192,14 +41,17 @@ const fetchUserGames = async (userId) => {
   let obj = { userId: userId };
   let js = JSON.stringify(obj);
   try {
-    const response = await fetch(buildPath("Progress/api/populatelibrarypage"), {
-      method: "POST",
-      body: js,
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      buildPath("Progress/api/populatelibrarypage"),
+      {
+        method: "POST",
+        body: js,
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -217,24 +69,35 @@ const fetchUserGames = async (userId) => {
 export const fetchGameGroup = async (page, gameGroup) => {
   // Promisified setTimeout
   console.log("sdaiogoasdgbasdgbiasdbgoasdigba,", gameGroup);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("page: ", page, "gameGroup: ", gameGroup, "gameGroup.slice((page - 1) * 2, page * 2): ", gameGroup.slice((page - 1) * 2, page * 2) || "[]");
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  console.log(
+    "page: ",
+    page,
+    "gameGroup: ",
+    gameGroup,
+    "gameGroup.slice((page - 1) * 2, page * 2): ",
+    gameGroup.slice((page - 1) * 2, page * 2) || "[]"
+  );
   // Assuming 'gameGroup' is an array of arrays and 'page' is the page number
 
   return gameGroup.slice((page - 1) * 2, page * 2) || [];
 };
 
-
 const LibraryPage = () => {
   const authContext = useContext(AuthContext);
-  const { user, userSignup, userLogin, userLogout, showSuperToast, checkUser } = authContext;
+  const { user, userSignup, userLogin, userLogout, showSuperToast, checkUser } =
+    authContext;
   const navigate = useNavigate();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Handle Fetch Errors 
+  // Handle Fetch Errors
   const handleError = (error) => {
-    console.warn('Handling Error: ', error);
+    console.warn("Handling Error: ", error);
     if (!checkUser()) {
-      showSuperToast("Something went wrong. Please try logging in again.", "fetch-error");
+      showSuperToast(
+        "Something went wrong. Please try logging in again.",
+        "fetch-error"
+      );
       console.log(
         "isAuthenticated: ",
         localStorage.getItem("user_data").isAuthenticated
@@ -262,7 +125,6 @@ const LibraryPage = () => {
     var userId = new mongoose.Types.ObjectId(userData.id);
   }
 
-
   // ===================UseDataFetch===================
 
   const { data: usersGameData, isFetching: isFetchingUserGameData } = useQuery(
@@ -281,9 +143,12 @@ const LibraryPage = () => {
     threshold: 1,
   });
 
-
   // Code to query the genres on the homepage (runs every time the user scrolls to the bottom of the page)
-  const { data: gameDataGroups, fetchNextPage: fetchNextGroup, isFetchingNextPage: isFetchingNextGroup } = useInfiniteQuery(
+  const {
+    data: gameDataGroups,
+    fetchNextPage: fetchNextGroup,
+    isFetchingNextPage: isFetchingNextGroup,
+  } = useInfiniteQuery(
     ["usersGameData", usersGameData],
     async ({ pageParam = 1 }) => {
       const response = await fetchGameGroup(pageParam, usersGameData);
@@ -307,18 +172,27 @@ const LibraryPage = () => {
   );
 
   // Code to flatten the data from the query
-  const _gameDataGroups = gameDataGroups?.pages.flatMap((page) => page).flatMap((page) => page);
+  const _gameDataGroups = gameDataGroups?.pages
+    .flatMap((page) => page)
+    .flatMap((page) => page);
 
   // Code to fetch the next page of genres when the user scrolls to the bottom of the page (Works with the code above)
   useEffect(() => {
-    if (gamesEntry?.isIntersecting && _gameDataGroups.length < usersGameData.length) {
+    if (
+      gamesEntry?.isIntersecting &&
+      _gameDataGroups.length < usersGameData.length
+    ) {
       console.log("INTERSECTING");
       fetchNextGroup();
     }
   }, [gamesEntry]);
 
   useEffect(() => {
-    console.log("SEARCH GROUPSsssss===========: ", gameDataGroups?.pages.flatMap((page) => page).flatMap((page) => page), gameDataGroups);
+    console.log(
+      "SEARCH GROUPSsssss===========: ",
+      gameDataGroups?.pages.flatMap((page) => page).flatMap((page) => page),
+      gameDataGroups
+    );
   }, [gameDataGroups]);
 
   // Log isFetchingUserGameData on each render
@@ -343,17 +217,40 @@ const LibraryPage = () => {
     { name: "Sign out", href: "/", action: () => userLogout("/") },
   ];
 
+  // Values for left hand side navigation bar
   const navigation = [
-    { name: "Homepage", href: "/home", icon: HomeIcon, current: false },
-    { name: "Library", href: "/#", icon: FolderIcon, current: true },
+    {
+      name: "Homepage",
+      href: "/home",
+      icon: HomeIcon,
+      current: false,
+      action: () => navigate("/home"),
+    },
+    {
+      name: "Library",
+      href: "/library",
+      icon: FolderIcon,
+      current: true,
+      action: () => navigate("#"),
+    },
+    {
+      name: "Settings",
+      href: "#",
+      icon: CogIcon,
+      current: false,
+      action: () => setSettingsOpen(true),
+    },
   ];
-
 
   return (
     <>
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
-          <Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
+          <Dialog
+            as="div"
+            className="relative z-50 lg:hidden"
+            onClose={setSidebarOpen}
+          >
             <Transition.Child
               as={Fragment}
               enter="transition-opacity ease-linear duration-300"
@@ -407,21 +304,21 @@ const LibraryPage = () => {
                       <ul role="list" className="-mx-2 flex-1 space-y-1">
                         {navigation.map((item) => (
                           <li key={item.name}>
-                            <a
-                              href={item.href}
+                            <button
                               className={classNames(
                                 item.current
                                   ? "bg-gray-800 text-white"
                                   : "text-gray-400 hover:text-white hover:bg-gray-800",
                                 "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                               )}
+                              onClick={item.action}
                             >
                               <item.icon
                                 className="h-6 w-6 shrink-0"
                                 aria-hidden="true"
                               />
                               {item.name}
-                            </a>
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -440,26 +337,30 @@ const LibraryPage = () => {
             <ul role="list" className="flex flex-col items-center space-y-1">
               {navigation.map((item) => (
                 <li key={item.name}>
-                  <a
-                    href={item.href}
+                  <button
                     className={classNames(
                       item.current
                         ? "bg-gray-800 text-white"
                         : "text-gray-400 hover:text-white hover:bg-gray-800",
                       "group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold"
                     )}
+                    onClick={item.action}
                   >
                     <item.icon
                       className="h-6 w-6 shrink-0"
                       aria-hidden="true"
                     />
                     <span className="sr-only">{item.name}</span>
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
           </nav>
         </div>
+        <SettingsPopup
+          open={settingsOpen}
+          setOpen={setSettingsOpen}
+        ></SettingsPopup>
 
         <div className="lg:pl-20 ">
           <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b  px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -473,7 +374,10 @@ const LibraryPage = () => {
             </button>
 
             {/* Separator */}
-            <div className="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
+            <div
+              className="h-6 w-px bg-gray-900/10 lg:hidden"
+              aria-hidden="true"
+            />
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 ">
               <form className="relative flex flex-1" action="#" method="GET">
@@ -595,7 +499,6 @@ const LibraryPage = () => {
                                         : "Nothing more to load"}
                                 </button> */}
 
-
                 {gameDataGroups !== undefined &&
                   _gameDataGroups?.map((group, i) => {
                     if (i === _gameDataGroups.length - 1) {
@@ -634,9 +537,8 @@ const LibraryPage = () => {
                         ></GridList>
                       );
                     }
-                  })
-                }
-                {(isFetchingNextGroup) && (
+                  })}
+                {isFetchingNextGroup && (
                   <>
                     <GridList
                       skeleton={true}
@@ -661,7 +563,12 @@ const LibraryPage = () => {
                   </>
                 )}
 
-                {(isFetchingUserGameData) && (<TailSpin className="mx-auto my-auto h-full w-[10%] " stroke="#374151" />)}
+                {isFetchingUserGameData && (
+                  <TailSpin
+                    className="mx-auto my-auto h-full w-[10%] "
+                    stroke="#374151"
+                  />
+                )}
               </div>
             </div>
           </main>

@@ -23,24 +23,46 @@ const insertGame = async (req, res) => {
     search = `where total_rating != null & cover.url != null; search "${gameToInsert}"; limit 10;`;
   }
 
-  await functions.getGame(search).then(async (data) => {
+  await functions
+    .getGame(search)
+    .then(async (data) => {
       let errorFlag = false;
       for (let obj of data) {
         let game = obj;
 
         const newGame = new Game();
 
-        if (game.id) newGame.IGDB_id = game.id; else {errorFlag = true; break;}
-        if (game.name) newGame.Name = game.name; else {errorFlag = true; break;}
-        if (game.cover && game.cover.url) newGame.CoverURL = game.cover.url; else {errorFlag = true; break;}
+        if (game.id) newGame.IGDB_id = game.id;
+        else {
+          errorFlag = true;
+          break;
+        }
+        if (game.name) newGame.Name = game.name;
+        else {
+          errorFlag = true;
+          break;
+        }
+        if (game.cover && game.cover.url) newGame.CoverURL = game.cover.url;
+        else {
+          errorFlag = true;
+          break;
+        }
         if (game.storyline) newGame.Summary = game.storyline;
-        if (game.first_release_date) newGame.ReleaseDate = new Date(game.first_release_date * 1000);
+        if (game.first_release_date)
+          newGame.ReleaseDate = new Date(game.first_release_date * 1000);
         if (game.genres) newGame.Genre = game.genres;
 
-        if (game.total_rating)newGame.GameRanking = functions.getGameRatingOutOf5(game.total_rating);
-        else {errorFlag = true; break;}
+        if (game.total_rating)
+          newGame.GameRanking = functions.getGameRatingOutOf5(
+            game.total_rating
+          );
+        else {
+          errorFlag = true;
+          break;
+        }
 
-        if (game.total_rating_count) newGame.ReviewCount = game.total_rating_count;
+        if (game.total_rating_count)
+          newGame.ReviewCount = game.total_rating_count;
 
         if (game.screenshots)
           newGame.Images = await functions.getGameImages(game.screenshots);
@@ -67,18 +89,21 @@ const insertGame = async (req, res) => {
 
         if (game.videos)
           newGame.Videos = await functions.getGameVideos(game.videos);
-        
+
         if (game.age_ratings)
           newGame.AgeRating = await functions.getAgeRating(game.age_ratings);
 
         if (game.similar_games) newGame.SimilarGames = game.similar_games;
 
         await newGame.save();
-      };
+      }
 
-      if (errorFlag) return res.status(400).json({ id: -1, message: "Bad Entry" });
+      if (errorFlag)
+        return res.status(400).json({ id: -1, message: "Bad Entry" });
 
-      return res.status(200).json({ id: 1, message: "Game Inserted Successfully" });
+      return res
+        .status(200)
+        .json({ id: 1, message: "Game Inserted Successfully" });
     })
     .catch((err) => {
       return res.status(400).json({ id: -1, message: "Bad Entry" });
