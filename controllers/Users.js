@@ -134,7 +134,7 @@ const verifyAuthCode = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const accessExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+  const accessExpirationTime = 60 * 60 * 1000; // 15 minutes in milliseconds
   const refreshExpirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
   let user = await User.findOne({ Login: req.body.login });
 
@@ -146,7 +146,7 @@ const login = async (req, res) => {
         { userId: user._id },
         process.env.ACCESS_TOKEN_SECRET,
         {
-          expiresIn: "15m",
+          expiresIn: "1h",
         }
       );
 

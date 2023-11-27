@@ -91,7 +91,7 @@ const getUserGame = async (req, res) => {
             obj.GameId = pcard[i].GameId;
             obj.HoursPlayed = pcard[i].HoursPlayed;
             obj.Status = pcard[i].Status;
-            if (rcard[i]?.ranking) obj.Ranking = rcard[i].Ranking;
+            if (rcard[i]?.Ranking) obj.Ranking = rcard[i].Ranking;
             if (rcard[i]?.Review) obj.Review = rcard[i].Review;
 
             obj.id = game.IGDB_id;

@@ -1,15 +1,10 @@
-const tabs = [
-    { name: 'All Games', href: '#', current: true },
-    { name: 'Not Started', href: '#', current: false },
-    { name: 'In Progress', href: '#', current: false },
-    { name: 'Completed', href: '#', current: false },
-  ]
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
   
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-  }
-  
-const Tabs = () => {
+const Tabs = ({tabs}) => {
+
     return (
       <div className="mb-0">
         <div className="sm:hidden">
@@ -33,7 +28,7 @@ const Tabs = () => {
             {tabs.map((tab) => (
               <a
                 key={tab.name}
-                href={tab.href}
+                onClick={() => tab.action()}
                 className={classNames(
                   tab.current ? 'bg-black ring-1 ring-slate-800  text-slate-300' : 'text-gray-500 bg-black hover:text-gray-700',
                   'rounded-md px-3 py-2 text-sm font-medium'

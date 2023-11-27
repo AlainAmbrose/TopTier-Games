@@ -11,7 +11,7 @@ function secure() {
 }
 
 const refreshToken = async (req, res) => {
-  const accessExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+  const accessExpirationTime = 60 * 60 * 1000; // 15 minutes in milliseconds
   let cookies = req.cookies;
 
   if (!cookies?.jwt_refresh)
@@ -28,7 +28,7 @@ const refreshToken = async (req, res) => {
     const accessToken = jwt.sign(
       { userId: decoded.userId },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "1h" }
     );
     console.log("Access token created @refreshToken");
     if (secure()) {

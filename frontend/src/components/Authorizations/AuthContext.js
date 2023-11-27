@@ -365,7 +365,7 @@ export const AuthProvider = ({ children, navigate }) => {
       showSuperToast("Inactivity Timeout", "inactivity-timeout");
       console.warn("Inactive for 10 mintutes", new Date().toLocaleTimeString());
       userLogout();
-    }, 10 * 60 * 1000); // 10 minutes of inactivity
+    }, 100 * 60 * 1000); // 10 minutes of inactivity
   }
 
   // Return True if user is Authorized and False if not
