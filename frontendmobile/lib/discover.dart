@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'genres.dart';
 import 'dart:convert';
 
+import 'modal.dart';
+
 class DiscoverPage extends StatefulWidget {
   Map<String, dynamic> jsonResponse;
   DiscoverPage({Key? key, required this.jsonResponse}) : super(key: key);
@@ -22,7 +24,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
   List<List<int>> cardData = [];
   List<int> genreData = [];
   int genreLength = 0;
-
+  Map<String, dynamic> ? gameInfo;
   static const int increment = 10;
   static const int genreIncrement = 7;
   bool isLoading = false;
@@ -114,6 +116,55 @@ class _DiscoverPageState extends State<DiscoverPage> {
     });
   }
 
+    Future _getGameInfo(int gameId) async {
+    // ... existing code
+      var jsonSendData = {
+        'gameId': gameId,
+        'options': {
+          '_id': true,
+          'id': true,
+          'name': true,
+          'coverURL': true,
+          'storyline': true,
+          'releasedate': true,
+          'genres': true,
+          'gameranking': true,
+          'images': true,
+          'links': true,
+          'platforms': true,
+          'platformlogos': true,
+          'videos': true,
+          'ageratings': true,
+          'similargames': true,
+          'reviewcount': true
+        }
+    };
+
+    final jsonData = jsonEncode(jsonSendData);
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'authorization': '${widget.jsonResponse['accessToken']}',
+      'Cookie': 'jwt_access=${widget.jsonResponse['accessToken']}',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://www.toptier.games/Games/api/getgameinfo'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        var data = jsonDecode(response.body);
+        gameInfo = data['gameInfo'];
+      });
+
+    } else {
+      print("Status Code");
+      print(response.statusCode);
+    }
+  }
 
   Future _loadMoreGenres() async {
     setState(() {
@@ -135,6 +186,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     });
 
   }
+
 
   Widget _buildCardsList(int item) {
     if (item >= genreData.length) {
@@ -209,7 +261,16 @@ class _DiscoverPageState extends State<DiscoverPage> {
     var imageUrl = game['url'] ?? '';
 
     return GestureDetector(
-      onTap: () => {print("tapped card")},
+      onTap: () async {
+      await _getGameInfo(game['id']);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          print("gameInfo $gameInfo");
+          return Modal().returnModal(context, gameInfo ?? {}, imageUrl, widget.jsonResponse);
+          },
+        );
+      },
       child: Card(
         elevation: 0.0,
         margin: const EdgeInsets.all(10.0),
