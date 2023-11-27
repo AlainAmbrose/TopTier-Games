@@ -3,6 +3,7 @@ import 'package:frontendmobile/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zxcvbn/zxcvbn.dart';
 
 class TopTierAppBar {
   static bool showAccountSettings = false;
@@ -106,6 +107,7 @@ class AccountSettingsPopUp extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController passwordConfirmController = TextEditingController();
   final Map<String, dynamic> userInfo;
+  final zxcvbn = Zxcvbn();
 
   // final Function(Map<String, dynamic> updatedUserInfo) updateUserInfoCallback;
 
@@ -426,10 +428,7 @@ class AccountSettingsPopUp extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          if (passwordController.text == passwordConfirmController.text) {
-                            _handleAccountUpdate();
-                            Navigator.of(context).pop();
-                          } else {
+                          if (passwordController.text != passwordConfirmController.text) {
                             Fluttertoast.showToast(
                               msg: "Passwords do not match.",
                               toastLength: Toast.LENGTH_SHORT,
@@ -438,6 +437,23 @@ class AccountSettingsPopUp extends StatelessWidget {
                               textColor: Colors.white,
                               fontSize: 16.0,
                             );
+                            return;
+                          } else {
+                            final result = zxcvbn.evaluate(passwordController.text);
+                            if (result.score! < 2) {
+                              final feedback = result.feedback.suggestions![0];
+
+                              Fluttertoast.showToast(msg: "Password too weak: $feedback",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.TOP,
+                                  backgroundColor: Colors.green,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                              return;
+                            }
+
+                            _handleAccountUpdate();
+                            Navigator.of(context).pop();
                           }
                         },
                         child: const Text('Save Changes'),
