@@ -206,7 +206,7 @@ class _LibraryPageState extends State<LibraryPage>
                     context: context,
                     builder: (BuildContext context) {
                       print(filteredGames?[index]['id']);
-                      return LibraryModal().returnModal(context, gameInfo ?? {}, gameInfo?['url'], widget.jsonResponse);
+                      return LibraryModal().returnModal(context, filteredGames![index], filteredGames?[index]['url'], widget.jsonResponse);
                     },
                   );
                 },
@@ -234,16 +234,20 @@ class _LibraryPageState extends State<LibraryPage>
                           children: [
                             Container(
                               padding: const EdgeInsets.only(
-                                  left: 12.0, bottom: 25.0, top: 10.0),
+                                  left: 12.0, bottom: 8.0, top: 10.0),
                               alignment: Alignment.topLeft,
-                              child: Text(
-                                '${filteredGames?[index]['name']}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Inter-Bold',
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 26,
+                              child: SizedBox(
+                                height: 75,
+                                child: Text(
+                                  overflow: TextOverflow.fade,
+                                  '${filteredGames?[index]['name']}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Inter-Bold',
+                                    fontStyle: FontStyle.italic,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 26,
+                                  ),
                                 ),
                               ),
                             ),
@@ -252,28 +256,13 @@ class _LibraryPageState extends State<LibraryPage>
                                   left: 12.0, bottom: 10.0),
                               alignment: Alignment.topLeft,
                               child: Text(
-                                'Hours Played: ${filteredGames?[index]['HoursPlayed']}',
+                                'Your Rating:  ${filteredGames?[index]['ranking'] ?? '-'}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontFamily: 'Inter-Bold',
                                   fontStyle: FontStyle.italic,
                                   fontWeight: FontWeight.w400,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(
-                                  left: 12.0, bottom: 10.0),
-                              alignment: Alignment.topLeft,
-                              child: Text(
-                                'Your Rating: $index',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Inter-Bold',
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 15,
+                                  fontSize: 20,
                                 ),
                               ),
                             )
@@ -290,15 +279,16 @@ class _LibraryPageState extends State<LibraryPage>
                                     context: context,
                                     builder: (BuildContext context) {
                                       return DeleteModal().returnModal(
-                                          context, filteredGames![index]);
+                                          context, filteredGames![index], widget.jsonResponse);
                                     });
+
                               } else if (value == 'Edit Game') {
                                   await _getGameInfo(filteredGames![index]['id']);
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       print(filteredGames?[index]['id']);
-                                      return LibraryModal().returnModal(context, gameInfo ?? {}, gameInfo?['url'], widget.jsonResponse);
+                                      return EditModal().returnModal(context, filteredGames![index], filteredGames![index]['url'], widget.jsonResponse);
                                     },
                                   );
                               };
