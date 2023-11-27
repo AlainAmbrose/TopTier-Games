@@ -11,6 +11,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import AuthProvider from "./components/Authorizations/AuthContext";
 import AuthProviderWithNavigation from "./components/Authorizations/AuthProviderWithNavigation";
+import PasswordResetPage from "./pages/PasswordResetPage";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -21,12 +22,13 @@ function App() {
       <Router>
         <AuthProviderWithNavigation>
           <Routes>
-            <Route path="/" element={<LandingPage />}></Route>
-            <Route path="/home" element={<HomePage />}></Route>
-            <Route path="/login" element={<LoginPage />}></Route>
-            <Route path="/signup" element={<SignUpPage />}></Route>
-            {/* <Route path="/library" element={<LibraryPage />}></Route> */}
-            <Route path="/auth" element={<EmailAuthPage />}></Route>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/library" element={<LibraryPage />} />
+            <Route path="/auth/:isPasswordReset" element={<EmailAuthPage />} />
+            <Route path="/passwordReset" element={<PasswordResetPage />} />
           </Routes>
         </AuthProviderWithNavigation>
       </Router>

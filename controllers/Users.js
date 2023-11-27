@@ -40,10 +40,20 @@ const signUp = async (req, res) => {
 const checkUsername = async (req, res) => {
   let user = await User.find({ Login: req.body.login });
 
-  if (user === undefined) {
-    return res.status(200).json({ isValid: true });
+  if (user.length == 0) {
+    return res.status(200).json({ isUsernameValid: true });
   } else {
-    return res.status(200).json({ isValid: false });
+    return res.status(200).json({ isUsernameValid: false });
+  }
+};
+
+const checkEmail = async (req, res) => {
+  let user = await User.find({ Email: req.body.email });
+
+  if (user.length == 0) {
+    return res.status(200).json({ isEmailValid: true });
+  } else {
+    return res.status(200).json({ isEmailValid: false });
   }
 };
 
@@ -102,7 +112,7 @@ const verifyAuthCode = async (req, res) => {
 
   if (authCode !== null && req.body.authCode == authCode) {
     return res.status(200).json({
-      message: "Email Verified Successfully",
+      message: "Correct Authorization Code",
     });
   } else {
     return res.status(200).json({
@@ -191,83 +201,6 @@ const login = async (req, res) => {
   }
 };
 
-const sendPassResetEmail = async (req, res) => {
-  let passResetCode = crypto.randomBytes(10).toString("hex");
-
-  if (secure()) {
-    res.cookie("passResetCode", passResetCode, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 5 * 60 * 1000,
-      path: "/",
-    });
-  } else {
-    res.cookie("passResetCode", passResetCode, {
-      httpOnly: true,
-      sameSite: "strict",
-      maxAge: 5 * 60 * 1000,
-      path: "/",
-    });
-  }
-
-  const msg = {
-    to: req.body.email,
-    from: "TopTierGames.ucf@gmail.com",
-    subject: "Password Reset Request from TopTier Games!",
-    text:
-      "Hello " +
-      req.body.firstname +
-      ",\nWe have recieved a request that you would like to reset your password. If this is accurate, enter the verification code below into TopTier Games to continue:\n\n" +
-      passResetCode +
-      "\n\nThis code is valid for 5 minutes only.",
-  };
-
-  await sgMail
-    .send(msg)
-    .then(() => {
-      console.log("Email sent");
-      return res.status(200).json({ message: "Email Sent Successfully" });
-    })
-    .catch((error) => {
-      console.error(error);
-      return res.status(400).json({ message: "Error Sending Email" });
-    });
-};
-
-const resetPass = async (req, res) => {
-  //verify passResetCode
-  let cookies = req.cookies;
-  if (!cookies?.passResetCode)
-    return res.status(400).json({ message: "Resend password reset code." });
-
-  let passResetCode = cookies.passResetCode;
-
-  if (passResetCode === null || req.body.passResetCode !== passResetCode) {
-    return res.status(400).json({
-      message: "Incorrect Password Reset Code",
-    });
-  }
-
-  //get user
-  let user = await User.findOne({ _id: req.body.userId });
-
-  if (user === null) {
-    return res.status(400).json({
-      message: "User not found.",
-    });
-  }
-
-  //update password
-  user.createHash(req.body.newassword);
-  await user.save();
-
-  return res.status(200).json({
-    Login: user.Login,
-    message: "Password successfully updated.",
-  });
-};
-
 const getUser = async (req, res) => {
   let user = await User.findOne({ _id: req.body.id });
 
@@ -294,10 +227,18 @@ const updateUser = async (req, res) => {
   let newFirstName = req.body.firstname;
   let newLastName = req.body.lastname;
   let newEmail = req.body.email;
+  let newPassword = req.body.password;
 
   let id = req.body.userId;
 
-  let user = await User.findOne({ _id: id });
+  let emailFlag = req.body.emailFlag;
+  let user = {};
+
+  if (emailFlag !== undefined && emailFlag === true) {
+    user = await User.findOne({ Email: req.body.verifyEmail });
+  } else {
+    user = await User.findOne({ _id: id });
+  }
 
   if (user === null) {
     return res.status(400).json({ id: -1, message: "User not found." });
@@ -316,6 +257,10 @@ const updateUser = async (req, res) => {
 
     if (newEmail !== undefined) {
       user.Email = newEmail;
+    }
+
+    if (newPassword !== undefined) {
+      user.createHash(newPassword);
     }
 
     await user.save();
@@ -369,10 +314,9 @@ const logout = async (req, res) => {
 module.exports = {
   signUp,
   checkUsername,
+  checkEmail,
   sendAuthEmail,
   verifyAuthCode,
-  sendPassResetEmail,
-  resetPass,
   login,
   updateUser,
   getUser,

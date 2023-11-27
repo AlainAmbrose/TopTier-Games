@@ -1,15 +1,23 @@
 import React, { useState, useContext, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from '../components/Authorizations/AuthContext'; // Adjust the path as necessary
+import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjust the path as necessary
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
   let loginName;
   let loginPassword;
 
   // Now you can access values from the context
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } = authContext;
+  const { user, isAuthenticated, userSignup, userLogin, userLogout } =
+    authContext;
+
+  const handleForgotPassword = (event) => {
+    event.preventDefault();
+    navigate("/auth/true");
+  };
 
   return (
     <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -19,7 +27,11 @@ const LoginPage = () => {
         alt=""
         className="absolute inset-0 -z-30 h-full w-full object-cover"
       />
-      <form className="space-y-6" action="#" onSubmit={(event) => userLogin(event, loginName, loginPassword, toast)}>
+      <form
+        className="space-y-6"
+        action="#"
+        onSubmit={(event) => userLogin(event, loginName, loginPassword, toast)}
+      >
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
           Sign in to your account
         </h2>
@@ -49,12 +61,13 @@ const LoginPage = () => {
               Password
             </label>
             <div className="text-sm">
-              <a
+              <button
                 href="#"
                 className="font-semibold text-green-400 hover:text-green-300"
+                onClick={(event) => handleForgotPassword(event)}
               >
                 Forgot password?
-              </a>
+              </button>
             </div>
           </div>
           <div className="mt-2">

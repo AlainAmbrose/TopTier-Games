@@ -192,10 +192,9 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const app_name = "poosd-large-project-group-8-1502fa002270";
 function buildPath(route) {
   if (process.env.NODE_ENV === "production") {
-    return "https://" + app_name + ".herokuapp.com/" + route;
+    return "https://www.toptier.games/" + route;
   } else {
     return "http://localhost:3001/" + route;
   }

@@ -5,6 +5,14 @@ import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjus
 import { useNavigate } from "react-router-dom";
 import zxcvbn from "zxcvbn";
 
+function buildPath(route) {
+  if (process.env.NODE_ENV === "production") {
+    return "https://www.toptier.games/" + route;
+  } else {
+    return "http://localhost:3001/" + route;
+  }
+}
+
 const SignUpPage = () => {
   const authContext = useContext(AuthContext);
   let firstname;
@@ -14,10 +22,70 @@ const SignUpPage = () => {
   let email;
 
   // Now you can access values from the context
-  const { user, isAuthenticated, userSignup, userLogin, userLogout } =
-    authContext;
+  const {
+    user,
+    isAuthenticated,
+    userSignup,
+    userLogin,
+    userLogout,
+    showSuperToast,
+  } = authContext;
 
   const navigate = useNavigate();
+
+  const checkValidEntries = async (event) => {
+    event.preventDefault();
+    // isValid = api call
+    let js_username = JSON.stringify({ login: login.value });
+    let js_email = JSON.stringify({ email: email.value });
+    let response_username = await fetch(buildPath("Users/api/checkusername"), {
+      method: "POST",
+      credentials: "include",
+      body: js_username,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    let response_email = await fetch(buildPath("Users/api/checkemail"), {
+      method: "POST",
+      credentials: "include",
+      body: js_email,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response_username.ok || !response_email.ok) {
+      showSuperToast(
+        "Cannot check username and email!",
+        "Cannot check username and email!"
+      );
+    }
+
+    let res_username = await response_username.json();
+
+    let res_email = await response_email.json();
+
+    let isUsernameValid = false;
+    let isEmailValid = false;
+
+    if (res_username !== null && res_username.isUsernameValid !== null)
+      isUsernameValid = res_username.isUsernameValid;
+    if (res_email !== null && res_email.isEmailValid !== null)
+      isEmailValid = res_email.isEmailValid;
+
+    if (res_username.isUsernameValid && res_email.isEmailValid) {
+      handleUserLogin(event, firstname, lastname, login, password, email);
+    } else {
+      if (!isUsernameValid && !isEmailValid) {
+        showSuperToast(
+          "Username and Email are taken!",
+          "Username and Email are taken!"
+        );
+      } else if (!isUsernameValid) {
+        showSuperToast("Username is taken!", "Username is taken!");
+      } else {
+        showSuperToast("Email is taken!", "Email is taken!");
+      }
+    }
+  };
 
   const handleUserLogin = (
     event,
@@ -33,8 +101,7 @@ const SignUpPage = () => {
 
     if (passwordStrength.score < 2) {
       const feedback = passwordStrength.feedback.suggestions.join(" ");
-
-      toast.error(`Password is too weak: ${feedback}`);
+      showSuperToast(`Password is too weak: ${feedback}`, "Password too weak");
       return;
     }
     var user = {
@@ -50,7 +117,7 @@ const SignUpPage = () => {
     let signUpUser = JSON.stringify(user);
     localStorage.setItem("temp_user_data", signUpUser);
     console.log("made it to user login!");
-    navigate("/auth");
+    navigate("/auth/false");
   };
 
   return (
@@ -64,9 +131,7 @@ const SignUpPage = () => {
       <form
         className="space-y-6"
         action="#"
-        onSubmit={(event) =>
-          handleUserLogin(event, firstname, lastname, login, password, email)
-        }
+        onSubmit={(event) => checkValidEntries(event)}
       >
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
           Sign up for a new account
