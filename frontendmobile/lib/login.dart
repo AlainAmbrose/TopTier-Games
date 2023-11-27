@@ -32,8 +32,8 @@ class LoginScreen extends StatelessWidget {
           Fluttertoast.showToast(msg: "Please fill in all fields.",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.TOP,
-              backgroundColor: Colors.white,
-              textColor: Colors.black,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
               fontSize: 16.0);
 
           return;
