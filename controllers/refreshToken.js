@@ -20,11 +20,11 @@ const refreshToken = async (req, res) => {
   const refreshToken = cookies.jwt_refresh;
   let user = await User.findOne({ RefreshToken: refreshToken });
 
-  if (!user) return res.sendStatus(403).json({ message: "User not found" });
+  if (!user) return res.status(403).json({ message: "User not found" });
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err || user._id.toString() !== decoded.userId)
-      return res.sendStatus(403);
+      return res.status(403).json({ message: "Can not decode userId" });
     const accessToken = jwt.sign(
       { userId: decoded.userId },
       process.env.ACCESS_TOKEN_SECRET,
@@ -58,5 +58,4 @@ const refreshToken = async (req, res) => {
     return res.status(200).json({ exp: accessTokenExpiryTime });
   });
 };
-
 module.exports = { refreshToken };

@@ -4,6 +4,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjust the path as necessary
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { buildPath } from "../utils/utils";
+import zxcvbn from "zxcvbn";
 
 const PasswordResetPage = () => {
   const authContext = useContext(AuthContext);
@@ -19,15 +21,14 @@ const PasswordResetPage = () => {
     console.log("Made it to local storage check");
   }
 
-  function buildPath(route) {
-    if (process.env.NODE_ENV === "production") {
-      return "https://www.toptier.games/" + route;
-    } else {
-      return "http://localhost:3001/" + route;
-    }
-  }
-
   async function resetPassword() {
+    const passwordStrength = zxcvbn(newPassword);
+
+    if (passwordStrength.score < 2) {
+      const feedback = passwordStrength.feedback.suggestions.join(" ");
+      showSuperToast(`Password is too weak: ${feedback}`, "Password too weak");
+      return;
+    }
     console.log("Resetting password with password:", newPassword);
     var obj = {
       emailFlag: true,

@@ -113,13 +113,86 @@ const insertGame = async (req, res) => {
 // Search game in database
 const searchGame = async (req, res) => {
   let search = req.body.search;
+  let genreFlag = req.body.genreFlag;
   let pattern = `${search}`;
+  let games = [];
 
-  let games = await Game.find({ Name: { $regex: pattern, $options: "i" } });
+  const converter = {
+    _id: "_id",
+    Summary: "storyline",
+    AgeRating: "ageratings", 
+    CoverURL: "url",
+    GameRanking: "gameranking",
+    Genre: "genres",
+    IGDB_id: "id",
+    Images: "images",
+    Links: "links",
+    Name: "name",
+    PlatformLogos: "platformlogos",
+    Platforms: "platforms",
+    ReleaseDate: "releasedate",
+    ReviewCount: "reviewcount",
+    SimilarGames: "similargames",
+  };
+
+  const genres = {
+    "Point-and-click": 2,
+    "Fighting": 4,
+    "Shooter": 5,
+    "Music": 7,
+    "Platform": 8,
+    "Puzzle": 9,
+    "Racing": 10,
+    "Real Time Strategy (RTS)": 11,
+    "Role-playing (RPG)": 12,
+    "Simulator": 13,
+    "Sport":14,
+    "Strategy":15,
+    "Turn-based strategy (TBS)":16,
+    "Tactical":24,
+    "Hack and slash/Beat 'em up":25,
+    "Quiz/Trivia":26,
+    "Pinball":30,
+    "Adventure":31,
+    "Indie":32,
+    "Arcade":33,
+    "Visual Novel":34,
+    "Card & Board Game":35,
+    "MOBA":36
+  }
+
+  if (genreFlag === undefined) genreFlag = false;
+  
+  if (genreFlag)
+  {
+    games = await Game.find({Genre: genres[search]})
+  }
+  else
+  {
+    games = await Game.find({ Name: { $regex: pattern, $options: "xi" } });
+  }
+
+
   if (games === null) {
     return res.status(400).json({ games: [], message: "Game not found." });
   } else {
-    return res.status(200).json({ games: games, message: "Games Found" });
+    console.log("before",games[0]);
+
+    newGames = games.map((game) => {
+      // Convert the Mongoose document to a JavaScript object
+      let gameObj = game.toObject();
+      let newGame = {};
+      for (const key of Object.keys(gameObj)) {
+        if (key in converter && "CoverURL" !== key) {
+          newGame[converter[key]] = gameObj[key];
+        } else if ( key in converter && "CoverURL" === key) {
+          newGame[converter[key]] = functions.updateCoverURL(gameObj[key], "1080p");
+        }
+      }
+      return newGame;
+    });
+    console.log("After", newGames[0]);
+    return res.status(200).json({ games: newGames, message: "Games Found" });
   }
 };
 
@@ -160,7 +233,7 @@ const populateHomePage = async (req, res) => {
   }
 
   await functions
-    .getGenre(body)
+    .getGenre(body, limit)
     .then(async (data) => {
       let objects = [];
 
@@ -244,6 +317,7 @@ const getGameInfo = async (req, res) => {
     similargames: "SimilarGames",
     reviewcount: "ReviewCount",
   };
+  
   let gameIds = req.body.gameId;
 
   let options = req.body.options;

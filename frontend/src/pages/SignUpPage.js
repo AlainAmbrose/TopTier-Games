@@ -4,14 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjust the path as necessary
 import { useNavigate } from "react-router-dom";
 import zxcvbn from "zxcvbn";
-
-function buildPath(route) {
-  if (process.env.NODE_ENV === "production") {
-    return "https://www.toptier.games/" + route;
-  } else {
-    return "http://localhost:3001/" + route;
-  }
-}
+import { buildPath } from "../utils/utils";
 
 const SignUpPage = () => {
   const authContext = useContext(AuthContext);

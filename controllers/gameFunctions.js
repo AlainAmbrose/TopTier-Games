@@ -31,7 +31,7 @@ module.exports = {
     return json;
   },
 
-  getGenre: async function (body)
+  getGenre: async function (body, limit)
   {
     let result = await fetch("https://api.igdb.com/v4/games", {
       method: "POST",
@@ -43,7 +43,24 @@ module.exports = {
       body: body,
     });
 
-    const json = await result.json();
+    let json = await result.json();
+    console.log("JSON: ", json);
+    if (json.length < limit) {
+      newBody = body.replace("& first_release_date > 1514782800", "");
+
+      let result2 = await fetch("https://api.igdb.com/v4/games", {
+        method: "POST",
+        headers: {
+          'Accept': "application/json",
+          "Client-ID": process.env.IGDB_CLIENT_ID,
+          'Authorization': process.env.IGDB_AUTHORIZATION,
+        },
+        body: newBody,
+      });
+
+      json = await result2.json();
+    }
+
     return json;
   },
 

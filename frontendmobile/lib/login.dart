@@ -47,8 +47,9 @@ class LoginScreen extends StatelessWidget {
         final headers = <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         };
-
-        final response = await http.post(Uri.parse('https://www.toptier.games/Users/api/login'),
+      
+        final response = await http.post(
+          Uri.parse('https://www.toptier.games/Users/api/login'),
             headers: headers,
             body: jsonData,
         );
@@ -64,7 +65,28 @@ class LoginScreen extends StatelessWidget {
               textColor: Colors.white,
               fontSize: 16.0,
             );
-        } else {
+        }
+        else if (response.statusCode == 403) {
+          Fluttertoast.showToast(
+            msg: "No user exists with that username.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green, // You can customize the background color
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+        else if (response.statusCode == 401) {
+          Fluttertoast.showToast(
+            msg: "Incorrect password.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green, // You can customize the background color
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+        else {
             Fluttertoast.showToast(
               msg: response.statusCode.toString(),
               toastLength: Toast.LENGTH_SHORT,
@@ -124,36 +146,52 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24.0),
             Container(
+              width: 400,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(20.0),
                 color: Colors.black.withOpacity(0.5),
               ),
               child: TextField(
                 controller: _loginController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter-Bold'
                   ),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.green),
+                      borderRadius: BorderRadius.circular(20.0)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.green),
+                      borderRadius: BorderRadius.circular(20.0)), //
                 ),
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontFamily: 'Inter-Regular'),
               ),
             ),
             const SizedBox(height: 10.0),
             Container(
+              width: 400,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(20.0),
                 color: Colors.black.withOpacity(0.5),
               ),
               child: TextField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter-Bold'
                   ),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                  focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.green)), // Remove the default border
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.green),
+                      borderRadius: BorderRadius.circular(20.0)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.green),
+                      borderRadius: BorderRadius.circular(20.0)), // Remove the default border
                 ),
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
@@ -170,9 +208,18 @@ class LoginScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 100),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
-                child: const Text('Login'),
+                child: const Text('Login', style: TextStyle(
+                  fontFamily: 'Inter-Bold'
+                )),
                 ),
-                ] 
+                TextButton(
+                  onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Forgot Password',
+                  style: TextStyle(color: Colors.green))
+                ),
+            ]
             )
             ]),
             ),

@@ -59,6 +59,12 @@ const checkEmail = async (req, res) => {
 
 const sendAuthEmail = async (req, res) => {
   let authCode = crypto.randomBytes(10).toString("hex");
+  let email = req.body.email;
+
+  let user = await User.find({ Email: email });
+  if (user.length == 0) {
+    return res.status(400).json({ message: "Email does not exist." });
+  }
 
   if (secure()) {
     res.cookie("authCode", authCode, {
@@ -79,7 +85,7 @@ const sendAuthEmail = async (req, res) => {
 
   console.log(req.body.email);
   const msg = {
-    to: req.body.email,
+    to: email,
     from: "TopTierGames.ucf@gmail.com",
     subject: "Verify your email with TopTier Games!",
     text:

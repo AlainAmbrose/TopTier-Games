@@ -3,12 +3,6 @@ import 'login.dart';
 import 'signup.dart';
 import 'gradient.dart';
 
-// void main() {
-//   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-//       .then((_) {
-//     runApp(MyApp());
-//   });
-// }
 
 void main() => runApp(const MyApp());
 

@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../components/Authorizations/AuthContext"; // Adjust the path as necessary
 import { useQuery } from "react-query";
 import { useParams, useNavigate } from "react-router-dom";
+import { buildPath } from "../utils/utils";
 
 const EmailAuthPage = () => {
   const { isPasswordReset } = useParams();
@@ -29,14 +30,6 @@ const EmailAuthPage = () => {
   }
 
   console.log(typeof isPasswordReset);
-
-  function buildPath(route) {
-    if (process.env.NODE_ENV === "production") {
-      return "https://www.toptier.games/" + route;
-    } else {
-      return "http://localhost:3001/" + route;
-    }
-  }
 
   async function sendAuthEmail(email, firstname, caller) {
     if (isPasswordReset === "true") {

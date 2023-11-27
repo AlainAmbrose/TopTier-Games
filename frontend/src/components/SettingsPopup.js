@@ -3,19 +3,25 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { AuthContext } from "../components/Authorizations/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { buildPath } from "../utils/utils";
 
 const SettingsPopup = ({ open, setOpen }) => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
-  const { user, showSuperToast } = authContext;
+  const { showSuperToast } = authContext;
+  if (localStorage.getItem("user_data") !== null) {
+    var currentUser = localStorage.getItem("user_data");
+    var userData = JSON.parse(currentUser);
+    console.log("Loading in firstname and lastname from: ", userData);
+  }
 
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedUser, setEditedUser] = useState({
-    username: user.username,
-    email: user.email,
-    firstname: user.firstname,
-    lastname: user.lastname,
+    username: userData.username,
+    email: userData.email,
+    firstname: userData.firstname,
+    lastname: userData.lastname,
   });
 
   const username = editedUser.username;
@@ -23,14 +29,6 @@ const SettingsPopup = ({ open, setOpen }) => {
   const lastname = editedUser.lastname;
   const email = editedUser.email;
   var deletePhrase = "";
-
-  function buildPath(route) {
-    if (process.env.NODE_ENV === "production") {
-      return "https://www.toptier.games/" + route;
-    } else {
-      return "http://localhost:3001/" + route;
-    }
-  }
 
   const handleEdit = () => {
     setIsEditMode(true);
@@ -42,7 +40,7 @@ const SettingsPopup = ({ open, setOpen }) => {
 
   const deleteUser = async () => {
     var obj = {
-      userId: user.id,
+      userId: userData.id,
     };
     var js = JSON.stringify(obj);
 
@@ -70,7 +68,7 @@ const SettingsPopup = ({ open, setOpen }) => {
       firstname: editedUser.firstname,
       lastname: editedUser.lastname,
       email: editedUser.email,
-      userId: user.id,
+      userId: userData.id,
     };
     var js = JSON.stringify(obj);
 
