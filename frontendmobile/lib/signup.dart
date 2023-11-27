@@ -257,6 +257,7 @@ class SignupScreen extends StatelessWidget {
                         backgroundColor: Colors.white,
                         textColor: Colors.black,
                         fontSize: 16.0);
+                    return;
                     }
                   _handleEmailVerify(context);
                   Navigator.push(context,MaterialPageRoute(builder: (context) => EmailVerifyScreen(

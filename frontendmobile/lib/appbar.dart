@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:frontendmobile/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -32,8 +33,7 @@ class TopTierAppBar {
                       }
                     );
                   } else if (value == 'logout') {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => LoginSignupScreen()));
                   }
                 },
                 color: Colors.grey[800]!.withOpacity(0.95),
