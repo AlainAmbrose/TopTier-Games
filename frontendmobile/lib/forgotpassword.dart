@@ -440,6 +440,7 @@ class ResetPassScreen extends StatelessWidget {
                                       borderSide: const BorderSide(color: Colors.green),
                                       borderRadius: BorderRadius.circular(20.0)), //
                                 ),
+                                obscureText: true,
                                 style: const TextStyle(color: Colors.white, fontFamily: 'Inter-Regular'),
                               ),
                             ),
@@ -466,6 +467,7 @@ class ResetPassScreen extends StatelessWidget {
                                       borderSide: const BorderSide(color: Colors.green),
                                       borderRadius: BorderRadius.circular(20.0)), //
                                 ),
+                                obscureText: true,
                                 style: const TextStyle(color: Colors.white, fontFamily: 'Inter-Regular'),
                               ),
                             ),
