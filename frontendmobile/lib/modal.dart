@@ -600,30 +600,7 @@ class LibraryModal {
                                     fontSize: 24.0
                                 ),
                                 textAlign: TextAlign.left),
-                             Text("Your Rating: $ranking",
-                                 style: const TextStyle(
-                                     color: Colors.white,
-                                     fontWeight: FontWeight.bold,
-                                     fontStyle: FontStyle.italic,
-                                     fontSize: 24.0
-                                 ),
-                              textAlign: TextAlign.left),
-
-                            const Text("Your Comments: ",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 24.0
-                              ),
-                            ),
-                            Text(review,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 15.0
-                              ),),
+                            
                             const SizedBox(height:15.0),
 
                           ]
@@ -846,6 +823,16 @@ class EditModal {
                                 ),
                               ),
                               const SizedBox(height: 10.0),
+                              const Text(
+                                'Please put in a value from 0-5',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 13.0
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
                               Container(
                                 width: 400,
                                 decoration: BoxDecoration(
@@ -872,6 +859,7 @@ class EditModal {
                                   style: const TextStyle(color: Colors.white),
                                 ),
                               ),
+
                               Align(
                                   alignment: Alignment.center,
                                   child: ElevatedButton(
