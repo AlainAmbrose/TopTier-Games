@@ -33,7 +33,8 @@ class TopTierAppBar {
                       }
                     );
                   } else if (value == 'logout') {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => LoginSignupScreen()));
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => LoginSignupScreen()));
                   }
                 },
                 color: Colors.grey[800]!.withOpacity(0.95),
@@ -127,6 +128,45 @@ class AccountSettingsPopUp extends StatelessWidget {
           backgroundColor: Colors.green, // You can customize the background color
           textColor: Colors.white,
           fontSize: 16.0,
+      );
+    }
+  }
+
+  static void _handleDeleteAccount(BuildContext context, Map<String, dynamic> userInfo) async {
+    final data = {
+      'userId': userInfo['id'],
+    };
+
+    final jsonData = jsonEncode(data);
+    final headers = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Cookie': 'jwt_access=${userInfo['accessToken']}',
+    };
+
+    final response = await http.post(
+      Uri.parse('https://www.toptier.games/Users/api/deleteUser'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+        msg: "Account successfully deleted.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+    else {
+      Fluttertoast.showToast(
+        msg: "Error in deleting account: ${response.statusCode}",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     }
   }
@@ -371,6 +411,40 @@ class AccountSettingsPopUp extends StatelessWidget {
               );
             },
             child: const Text('Change Password'),
+          ),
+          const SizedBox(height: 20.0),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.grey[800]!.withOpacity(0.95),
+                    title: const Text('Delete Account', style: TextStyle(color: Colors.white)),
+                    content: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('You are about to delete your TopTier account. Are you sure you wish to continue?',
+                          style: TextStyle(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          _handleDeleteAccount(context, userInfo);
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) => LoginSignupScreen()));
+                        },
+                        child: const Text('Confirm'),
+                      ),
+                    ],
+                  );
+                  },
+              );
+              },
+              child: const Text('Delete Account')
           ),
         ],
       ),
