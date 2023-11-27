@@ -64,19 +64,16 @@ export const checkUserGames = async (userId, gameId) => {
 
   let res = await response.json();
 
-  // console.log("FLAG++++", res);
+  console.log("checkUserGames====================", res)
 
-  if (res.foundGameFlag === true) {
-    return true;
-  } else {
-    return false;
-  }
+  return res;
 };
 
 export const addUserGame = async (event, userId, gameId, refetch, pathname) => {
   if (pathname !== "/library") {
     event.preventDefault()
   }
+
   console.log("adding game to user====================")
   console.log("event", event);
   console.log("userId", userId);
@@ -104,6 +101,7 @@ export const deleteUserGame = async (event, userId, gameId, refetch, pathname) =
   if (pathname !== "/library") {
     event.preventDefault()
   }
+
   console.log("deleteUserGame====================")
   console.log("event", event);
   console.log("userId", userId);

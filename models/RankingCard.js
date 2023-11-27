@@ -10,7 +10,7 @@ const RankingSchema = mongoose.Schema({
         required: true,
     },
     Ranking: {
-        type: mongoose.Schema.Types.Decimal128,
+        type: Number,
     },
     Review: {
         type: String,

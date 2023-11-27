@@ -12,10 +12,24 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { AuthContext } from "./Authorizations/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { checkUserGames, addUserGame, deleteUserGame, product, convertDate, fillColorArray } from "../utils/cardpopupUtils";
-
+import ReviewPopup from "./ReviewPopup";
+import ProgressDropDown from './ProgressDropDown';
+import UserStatistics from './UserStats';
 const mongoose = require("mongoose");
 
+
+const writeReview = (event, foundGameFlag, showSuperToast, setIsReviewing) => { 
+  event.preventDefault();
+  if (!foundGameFlag) {
+    showSuperToast("Game must be in your library to write a review", "game-not-in-library");
+    return;
+  }
+
+  setIsReviewing(true);
+}
+
 const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton }) => {
+  const [isReviewing, setIsReviewing] = useState(false);
   if (localStorage.getItem("user_data") !== null) {
     var currentUser = localStorage.getItem("user_data");
     var userData = JSON.parse(currentUser);
@@ -33,10 +47,10 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
 
-  const { data: libraryFlag, isLoading: isLoadingLibraryFlag, isError, error, refetch} = useQuery(
-    [userId, gameInfo?._id], () => checkUserGames(userId, gameInfo?._id),
+  const { data: userGame, isLoading: isLoadingUserGame, isError, error, refetch} = useQuery(
+    [userId, gameInfo], () => checkUserGames(userId, gameInfo._id),
     {
-      enabled: !!userId,
+      enabled: !!userId && !! gameInfo,
     }
   );
 
@@ -146,21 +160,48 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
 
 
                                 </div>
-                                {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) &&
-                                  (<>
-                                    <p className="sr-only">
-                                      {gameInfo.gameranking.$numberDecimal} out of 5 stars
-                                    </p>
-                                    <a
-                                      href="#"
-                                      className="ml-3 text-sm font-medium text-blue-600 hover:text-blue-500"
-                                    >
-                                      {/*  */}
-                                      {(!isLoadingGameInfo && gameInfo.reviewcount) && (<>{gameInfo.reviewcount} ratings </>)}
-                                    </a>
-                                  </>)}
+                                  {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.gameranking !== undefined) && ( <p className="sr-only"> {gameInfo.gameranking.$numberDecimal} out of 5 stars </p>)}
+                                  {(!isLoadingGameInfo && gameInfo !== undefined && gameInfo.reviewcount) ? (<p className="ml-3 text-sm font-medium text-blue-600 "> {gameInfo.reviewcount} ratings </p>)
+                                    : (
+                                      <p className="pl-[2rem] pointer-events-none w-[8rem] mt-2 block truncate ">
+                                      <SkeletonTheme baseColor="black" highlightColor="#202020">
+                                        <Skeleton count={1} className='h-[1.2rem]'></Skeleton>
+                                      </SkeletonTheme>
+                                      </p>
+                                      )
+                                  }
+                                  <div>
+                                    {(isLoadingGameInfo || userGame === undefined) ? 
+                                      (
+                                        <>
+                                        <SkeletonTheme baseColor="black" highlightColor="#202020"  width={"12rem"}>
+                                          <Skeleton count={1} className="mt-0 flex items-center h-8 w-full justify-center rounded-md border border-transparent bg-gray-500 px-0 py-3 text-base font-medium text-white "></Skeleton>
+                                        </SkeletonTheme>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div
+                                            type="submit"
+                                            className="mt-0 ml-[1.5rem] h-8 flex w-full items-center justify-center rounded-md border border-transparent bg-blue-700 px-8 py-3 text-base font-medium text-white cursor-pointer hover:bg-blue-800 "
+                                              onClick={(event) => writeReview(event, userGame.foundGameFlag, showSuperToast, setIsReviewing)}
+                                          >
+                                            Write a Review 
+                                          </div>
+                                        </>
+                                      )
+                                    }
+                                  </div>
                               </div>
+                              {<ReviewPopup game={game} gameInfo={gameInfo} isReviewing={isReviewing} setIsReviewing={setIsReviewing} skeleton={skeleton}></ReviewPopup>}
                             </div>
+                            {/* Progress */}
+
+                            {(userGame !== undefined) && (
+                              <div className="mt-6">
+                                <ProgressDropDown userGame={userGame} refetchFocusedUserGameData={refetch}></ProgressDropDown>
+                              </div>
+                            )}
+                          
 
                             {/* Description */}
                             <div className="mt-6">
@@ -184,23 +225,21 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                             </h3>
 
                             <form>
-                              {(isLoadingGameInfo || libraryFlag === undefined) ? 
+                              {(isLoadingGameInfo || userGame === undefined) ? 
                                 (
                                   <>
-                                  {/* <button type="submit" className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-gray-500 px-8 py-3 text-base font-medium text-white "
-                                    disabled
-                                  >
-                                    Loading ... 
-                                  </button> */}
                                   <SkeletonTheme baseColor="black" highlightColor="#202020" >
                                     <Skeleton count={1} className="mt-6 flex w-full items-center h-[48px] justify-center rounded-md border border-transparent bg-gray-500 px-8 py-3 text-base font-medium text-white "></Skeleton>
                                   </SkeletonTheme>
                                   </>
                                 ) : (
-                                  (libraryFlag) ? (
+                                  (userGame.foundGameFlag) ? (
                                     <>
-                                      <button type="submit" className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-red-500 px-8 py-3 text-base font-medium text-white hover:bg-red-400 "
-                                        onClick={(event) => deleteUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)}
+                                      <button type="submit" className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-8 py-3 text-base font-medium text-white hover:bg-red-700 "
+                                        onClick={(event) => {
+                                          deleteUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)
+                                          showSuperToast("Game removed from library", "game-removed-from-library");
+                                        }}
                                       >
                                         Remove from library 
                                       </button>
@@ -209,9 +248,11 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                                     <>
                                       <button
                                         type="submit"
-                                        className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-green-500 px-8 py-3 text-base font-medium text-white hover:bg-green-400 "
-                                        onClick={(event) => addUserGame(event, userId, gameInfo._id, refetch, window.location.pathname)
-                                        }
+                                        className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-green-600 px-8 py-3 text-base font-medium text-white hover:bg-green-700 "
+                                        onClick={(event) => {
+                                          addUserGame(event, userId, gameInfo._id, refetch, window.location.pathname);
+                                          showSuperToast("Game added to library", "game-added-to-library");
+                                        }}
                                       >
                                         Add to library 
                                       </button>
@@ -223,6 +264,17 @@ const CardPopup = ({ game, gameInfo, isLoadingGameInfo, open, setOpen, skeleton 
                           </section>
 
                           {/* Recommended Section */}
+
+                          <section
+                            aria-labelledby="options-heading"
+                            className="mt-10 "
+                          >
+                            <h3 id="options-heading" className="sr-only">
+                              Statistics
+                            </h3>
+                            <UserStatistics></UserStatistics>
+
+                          </section>
 
                           <section
                             aria-labelledby="options-heading"

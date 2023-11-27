@@ -1,158 +1,3 @@
-// import React, { Fragment, useState, useEffect, useRef } from "react";
-// import {
-//   ChevronDownIcon,
-//   MagnifyingGlassIcon,
-// } from "@heroicons/react/20/solid";
-// import { Dialog, Menu, Transition } from "@headlessui/react";
-// import LibraryContent from "../components/LibraryContent";
-
-// const userNavigation = [
-//   { name: "Your profile", href: "#" },
-//   { name: "Home", href: "/home" },
-//   { name: "Sign out", href: "/" },
-// ];
-
-// function classNames(...classes) {
-//   return classes.filter(Boolean).join(" ");
-// }
-
-// const LibraryPage = () => {
-//   var currentUser = localStorage.getItem("user_data");
-//   var userData = JSON.parse(currentUser);
-//   console.log(userData);
-//   var fn = userData.firstname;
-//   var ln = userData.lastname;
-
-//   const [isClicked1, setIsClicked1] = useState(true);
-//   const [isClicked2, setIsClicked2] = useState(false);
-//   const [isClicked3, setIsClicked3] = useState(false);
-//   const [selectedTab, setTab] = useState("played");
-
-//   const toggleColor1 = () => {
-//     setIsClicked1(!isClicked1);
-//     setTab("played");
-//     if (isClicked2) {
-//       setIsClicked2(!isClicked2);
-//     }
-//     if (isClicked3) {
-//       setIsClicked3(!isClicked3);
-//     }
-//   };
-
-//   const toggleColor2 = () => {
-//     setIsClicked2(!isClicked2);
-//     setTab("wantToPlay");
-//     if (isClicked1) {
-//       setIsClicked1(!isClicked1);
-//     }
-//     if (isClicked3) {
-//       setIsClicked3(!isClicked3);
-//     }
-//   };
-
-//   const toggleColor3 = () => {
-//     setIsClicked3(!isClicked3);
-//     setTab("all");
-//     if (isClicked1) {
-//       setIsClicked1(!isClicked1);
-//     }
-//     if (isClicked2) {
-//       setIsClicked2(!isClicked2);
-//     }
-//   };
-
-//   return (
-//     <div id="LibraryDiv">
-//       <a
-//         className="text-slate-50 italic font-bold text-[5vh] left-[5vh] top-[2vh] absolute "
-//         href={"/home"}
-//       >
-//         TopTier
-//       </a>
-//       <Menu as="div" className="relative">
-//         <Menu.Button className="absolute right-[3.8vh] top-[1.9vh] -m-1.5 flex items-center p-1.5">
-//           <span className="sr-only">Open user menu</span>
-//           <span className="inline-block h-8 w-8 overflow-hidden rounded-full bg-gray-100">
-//             <svg
-//               className="h-full w-full text-gray-300"
-//               fill="currentColor"
-//               viewBox="0 0 24 24"
-//             >
-//               <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-//             </svg>
-//           </span>
-//           <span className="hidden lg:flex lg:items-center">
-//             <span
-//               className="ml-4 text-sm font-semibold leading-6 text-gray-200"
-//               aria-hidden="true"
-//             >
-//               {fn + " " + ln}
-//             </span>
-//             <ChevronDownIcon
-//               className="ml-2 h-5 w-5 text-gray-400"
-//               aria-hidden="true"
-//             />
-//           </span>
-//         </Menu.Button>
-//         <Transition
-//           as={Fragment}
-//           enter="transition ease-out duration-100"
-//           enterFrom="transform opacity-0 scale-95"
-//           enterTo="transform opacity-100 scale-100"
-//           leave="transition ease-in duration-75"
-//           leaveFrom="transform opacity-100 scale-100"
-//           leaveTo="transform opacity-0 scale-95"
-//         >
-//           <Menu.Items className="absolute right-[3.8vh] top-[5.5vh] z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-//             {userNavigation.map((item) => (
-//               <Menu.Item key={item.name}>
-//                 {({ active }) => (
-//                   <a
-//                     href={item.href}
-//                     className={classNames(
-//                       active ? "bg-gray-50" : "",
-//                       "block px-3 py-1 text-sm leading-6 text-gray-900"
-//                     )}
-//                   >
-//                     {item.name}
-//                   </a>
-//                 )}
-//               </Menu.Item>
-//             ))}
-//           </Menu.Items>
-//         </Transition>
-//       </Menu>
-//       <button
-//         className={`${
-//           isClicked1 ? "bg-slate-800" : "bg-opacity-50"
-//         } text-slate-50 top-[7.8rem] left-[41px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
-//         onClick={toggleColor1}
-//       >
-//         Played
-//       </button>
-//       <button
-//         className={`${
-//           isClicked2 ? "bg-slate-800" : "bg-opacity-50"
-//         } text-slate-50 top-[7.8rem] left-[191px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
-//         onClick={toggleColor2}
-//       >
-//         Want to Play
-//       </button>
-//       <button
-//         className={`${
-//           isClicked3 ? "bg-slate-800" : "bg-opacity-50"
-//         } text-slate-50 top-[7.8rem] left-[341px] absolute w-36 h-14 rounded-t-lg hover:bg-slate-800`}
-//         onClick={toggleColor3}
-//       >
-//         All
-//       </button>
-//       <LibraryContent selectedTab={selectedTab} />
-//     </div>
-//   );
-// };
-
-// export default LibraryPage;
-
 import { Fragment, useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, Menu, Transition } from "@headlessui/react";
@@ -179,6 +24,7 @@ import { AuthContext } from "../components/Authorizations/AuthContext";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { TailSpin } from 'react-loading-icons'
 import { doubleChunkArray } from "../utils/utils";
+import Tabs from "../components/Tabs"
 
 const mongoose = require("mongoose");
 
@@ -198,6 +44,7 @@ function buildPath(route) {
 
 // ONLY THING IT SHOULD BE GETTING IS [{}, {} ,{}] => [[[],[]], {}, ...]
 const fetchUserGames = async (userId) => {
+    await new Promise(resolve => setTimeout(resolve, 250)); // 1-second delay
     let obj = { userId: userId };
     let js = JSON.stringify(obj);
     try {
@@ -215,7 +62,7 @@ const fetchUserGames = async (userId) => {
       }
   
       const data = await response.json();
-      console.log(data);
+      console.log("Progress/api/populatelibrarypage Data", data);
       let jsonResponse = doubleChunkArray(data.games, 14, 7);
       return jsonResponse;
     } catch (e) {
@@ -274,12 +121,16 @@ const LibraryPage = () => {
 
   // ===================UseDataFetch===================
 
-  const { data: usersGameData, isFetching: isFetchingUserGameData } = useQuery( 
+  const { data: usersGameData, isFetching: isFetchingUserGameData, refetch} = useQuery( 
     ["usersGameData", userId],
     () => fetchUserGames(userId),
     { 
       enabled: !!userId,
       onError: handleError, // Set the onError callback here
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
+    //   refetchInterval: 2000,
     } // ensure userId is not null or undefined
   );
 
@@ -485,24 +336,14 @@ const LibraryPage = () => {
                         <div className="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
 
                         <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 ">
-                            <form className="relative flex flex-1" action="#" method="GET">
-                                <label htmlFor="search-field" className="sr-only">
-                                    Search
-                                </label>
-                                <MagnifyingGlassIcon
-                                    className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
-                                    aria-hidden="true"
-                                />
-                                <input
-                                    id="search-field"
-                                    className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-0 focus:bg-gray-800 focus:bg-opacity-25 rounded-md
-                   sm:text-sm"
-                                    placeholder="Search..."
-                                    type="search"
-                                    name="search"
-                                    autoComplete="off"
-                                />
-                            </form>
+                            
+                            <div className="flex flex-1 items-center mt-[70px] ">
+                                <h2 className="text-4xl font-bold leading-7 mb-6 mr-10 text-white sm:truncate sm:text-5xl sm:tracking-tight">
+                                    Your Library
+                                </h2>
+                                <Tabs></Tabs>
+                            </div>
+               
                             <div className="flex items-center gap-x-4 lg:gap-x-6">
                                 {/* Profile dropdown */}
                                 <Menu as="div" className="relative">
@@ -570,40 +411,9 @@ const LibraryPage = () => {
                         >
                             <div className="px-4 py-10 sm:px-6 border-transparent border rounded-xl absolute h-full top-0 right-0 bottom-0 left-0 border-none  lg:px-8 lg:py-6">
                                 {/* Main area */}
-                                <h1 className="text-gray-300 text-4xl p-5">Your Library</h1>
-
-                                {/* {usersGameData !== undefined && currentPage > 0 && (
-                                    <button
-                                        onClick={() => {
-                                            changePage("backward");
-                                        }}
-                                    >
-                                        <FaArrowLeft style={{ color: "white" }} />
-                                    </button>
-                                )}  */}
-
-                                {/* {usersGameData !== undefined && usersGameData.length && (
-                                    <button
-                                      onClick={() => {
-                                        changePage(1);
-                                      }}
-                                    >
-                                      <FaArrowRight style={{ color: "white" }} />
-                                    </button>
-                                  )} */}
-
-                                {/* <button
-                                    className="bg-white mb-2 text-blue-600"
-                                    onClick={() => changePage("forward")}
-                                    disabled={isFetchingNextPage}
-                                >
-                                    {isFetchingNextPage
-                                        ? "Loading more..."
-                                        : (data?.pages.length ?? 0) < 2
-                                        ? "Load More"
-                                        : "Nothing more to load"}
-                                </button> */}
-
+                                <div className="min-w-0 flex-1">
+                     
+                                </div>
                           
                               {gameDataGroups !== undefined &&
                                 _gameDataGroups?.map((group, i) => {
@@ -670,7 +480,7 @@ const LibraryPage = () => {
                               </>
                             )}
 
-                              {(isFetchingUserGameData) && (<TailSpin className="mx-auto my-auto h-full w-[10%] "  stroke="#374151" />)}
+                              {(usersGameData === undefined) && (<TailSpin className="mx-auto my-auto h-full w-[10%] "  stroke="#374151" />)}
                             </div>
                         </div>
                     </main>

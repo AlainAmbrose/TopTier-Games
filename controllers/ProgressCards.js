@@ -56,7 +56,7 @@ const populateLibraryPage = async (req, res) => {
 
             obj.id = game.IGDB_id;
             obj.name = game.Name;
-
+            obj.pCard = pcard[i];
             let newURL = functions.updateCoverURL(game.CoverURL, "1080p");
             obj.url = newURL;
             objects.push(obj);
@@ -107,6 +107,48 @@ const getUserGame = async (req, res) => {
     }
 };
 
+const setStatus = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let gameId = req.body.gameId;
+    let status = req.body.status;
+
+    let pcard = await Progress.findOne({ UserId: userId, GameId: gameId });
+
+    if (pcard === undefined) 
+    {
+        return res.status(400).json({ id: -1, message: "No games found." });
+    }
+    else
+    {
+        pcard.Status = status;
+        await pcard.save();
+
+        return res.status(200).json({ id: 1, message: "User progress set." });
+    }
+};
+
+const setHoursPlayed = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let gameId = req.body.gameId;
+    let hoursPlayed = req.body.hoursPlayed;
+
+    let pcard = await Progress.findOne({ UserId: userId, GameId: gameId });
+
+    if (pcard === undefined) 
+    {
+        return res.status(400).json({ id: -1, message: "No games found." });
+    }
+    else
+    {
+        pcard.HoursPlayed = hoursPlayed;
+        await pcard.save();
+
+        return res.status(200).json({ id: 1, message: "Hours played set." });
+    }
+};
+
 const deleteUserGame = async (req, res) => {
     let userId = req.body.userId;
     let gameId = req.body.gameId;
@@ -137,9 +179,9 @@ const checkUserGame = async (req, res) => {
     let rcard = await Ranking.findOne({ UserId: userId, GameId: gameId });
 
     if (pcard === null || rcard === null) {
-        return res.status(200).json({ foundGameFlag: false });
+        return res.status(200).json({ foundGameFlag: false});
     } else {
-        return res.status(200).json({ foundGameFlag: true });
+        return res.status(200).json({ foundGameFlag: true, rankingRow: rcard, progressRow: pcard});
     }
 };
 
@@ -147,6 +189,8 @@ module.exports = {
     addUserGame,
     populateLibraryPage,
     getUserGame,
+    setStatus,
+    setHoursPlayed,
     deleteUserGame,
     checkUserGame,
 };

@@ -451,7 +451,7 @@ const HomePage = () => {
                     enter="transition-opacity duration-150"
                     enterFrom="opacity-0"
                     enterTo="opacity-100"
-                    leave="transition-opacity duration-150"
+                    leave="transition-opacity duration-0"
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0" 
                   >
@@ -463,8 +463,7 @@ const HomePage = () => {
                   <input
                     id="search-field"
                     // className={`block w-full h-full border-0 py-0 transition-all  left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10 " : "pl-2"}`}
-                    className={`block w-full h-full border-0 py-0 outline-none transition-all duration-75 left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10" : "pl-2"}`}
-                    style={{ transition: "box-shadow 50ms ease-in-out;" }}
+                    className={`block w-full h-full border-0 py-0 outline-none transition-all left-0 text-gray-100 bg-transparent placeholder:text-gray-400 focus:ring-2 ring-1 ring-gray-700 focus:ring-blue-600 focus:ring-opacity-50 focus:bg-gray-800 focus:bg-opacity-25 rounded-md sm:text-sm ${inputFocused ? "pl-10" : "pl-2"}`}
                     placeholder="Search"
                     type="search" 
                     name="search"

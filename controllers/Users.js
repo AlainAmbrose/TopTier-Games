@@ -313,9 +313,9 @@ const logout = async (req, res) =>
 
     let user = await User.findOne({ RefreshToken: refreshToken });
 
-    if (user !== undefined)
+    if (user !== undefined || user !== null)
     {
-        console.log("user found: ", user);
+        console.log("user found: ", user, typeof user, user !== undefined,  user !== null);
         user.RefreshToken = '';
         await user.save();
     }
