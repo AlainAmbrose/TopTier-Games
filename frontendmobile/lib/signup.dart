@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
-import 'bottomNavBar.dart';
+import 'package:zxcvbn/zxcvbn.dart';
 import 'gradient.dart';
 import 'dart:convert';
+import 'emailverify.dart';
 
 class SignupScreen extends StatelessWidget {
     final TextEditingController _loginController = TextEditingController();
@@ -11,86 +12,59 @@ class SignupScreen extends StatelessWidget {
     final TextEditingController _emailController = TextEditingController();
     final TextEditingController _firstnameController = TextEditingController();
     final TextEditingController _lastnameController = TextEditingController();
+    final zxcvbn = Zxcvbn();
 
     SignupScreen({super.key});
 
-    String _validateTextField(String value) {
-      if (value.isEmpty) {
-        return 'ERROR';
-      }
-      return '';
-    }
+    void _handleEmailVerify(BuildContext context) async {
+      String email = _emailController.text;
 
-    void _handleSignup(BuildContext context) async {
-        String email = _emailController.text;
-        String password = _passwordController.text;
-        String login = _loginController.text;
-        String firstname = _firstnameController.text;
-        String lastname = _lastnameController.text;
+      final data = {
+        'email': email,
+        'passwordResetFlag': false,
+      };
 
-        String emailError = _validateTextField(email);
-        String passwordError = _validateTextField(password);
-        String loginError = _validateTextField(login);
-        String firstnameError = _validateTextField(firstname);
-        String lastnameError = _validateTextField(lastname);
+      final jsonData = jsonEncode(data);
+      final headers = <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
 
-        if (emailError != '' ||
-            passwordError != '' ||
-            loginError != '' ||
-            firstnameError != '' ||
-            lastnameError != '') {
-            
-          Fluttertoast.showToast(msg: "Please fill in all fields.",
+      final response = await http.post(
+        Uri.parse('https://www.toptier.games/Users/api/sendAuthEmail'),
+        headers: headers,
+        body: jsonData,
+      );
+
+      if (response.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: "Code sent",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
-          backgroundColor: Colors.white,
-          textColor: Colors.black,
-          fontSize: 16.0);
-
-          return;
-          }
-
-        final data = {
-        'email': email,
-        'password': password,
-        'login': login,
-        'firstname': firstname,
-        'lastname': lastname,
-        };
-
-        final jsonData = jsonEncode(data);
-        final headers = <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        };
-
-        final response = await http.post(
-          Uri.parse('https://www.toptier.games/Users/api/signup'),
-          headers: headers,
-          body: jsonData,
-        );
-
-        if (response.statusCode == 200) {
-          Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-          _navigateToNextScreen(context, jsonResponse);
-
-        Fluttertoast.showToast(
-          msg: 'Signup successful',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.blueGrey,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0,
         );
-        } else {
+      }
+      else if (response.statusCode == 400) {
         Fluttertoast.showToast(
-          msg: 'Signup Failed',
+          msg: "No account with that email address found.",
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.blueGrey,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0,
         );
-        }
+      }
+      else {
+        Fluttertoast.showToast(
+          msg: response.statusCode.toString(),
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
     }
 
     @override
@@ -273,7 +247,43 @@ class SignupScreen extends StatelessWidget {
               const SizedBox(height: 10.0),
               ElevatedButton(
                 onPressed: () {
-                  _handleSignup(context);
+                  if (_emailController.text.isEmpty ||
+                      _loginController.text.isEmpty ||
+                      _firstnameController.text.isEmpty ||
+                      _lastnameController.text.isEmpty ||
+                      _passwordController.text.isEmpty) {
+                    Fluttertoast.showToast(msg: "Please fill in all fields.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.TOP,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    return;
+                    }
+
+                  final result = zxcvbn.evaluate(_passwordController.text);
+                  if (result.score! < 2) {
+                    final feedback = result.feedback.suggestions![0];
+
+                    Fluttertoast.showToast(msg: "Password too weak: $feedback",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.TOP,
+                        backgroundColor: Colors.green,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    return;
+                  }
+
+                  _handleEmailVerify(context);
+                  Navigator.push(context,MaterialPageRoute(builder: (context) => EmailVerifyScreen(
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                      login: _loginController.text,
+                      firstname: _firstnameController.text,
+                      lastname: _lastnameController.text)
+                    )
+                  );
+                  //_handleSignup(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -302,11 +312,5 @@ class SignupScreen extends StatelessWidget {
         ]
         )
         );
-    }
-
-    Future _navigateToNextScreen(BuildContext context, Map<String, dynamic> jsonResponse) async{
-
-      Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage(jsonResponse: jsonResponse)));
-
     }
 }

@@ -8,10 +8,10 @@ class Modal {
     IconData iconSymbol;
     double rating = double.parse(ratingStr);
 
-    if (index < rating.floor() || rating % 1.0 > 0.7) {
+    if (index < rating.floor() || (index == rating.floor() && rating % 1.0 > 0.7)) {
       iconSymbol = Icons.star;
     }
-    else if (rating % 1.0 > 0.4 && rating % 1.0 < 0.7) {
+    else if (index == rating.floor() && rating % 1.0 > 0.4 && rating % 1.0 < 0.7) {
       iconSymbol = Icons.star_half_outlined;
     }
     else {
@@ -25,6 +25,10 @@ class Modal {
 
   String _generatePlatformString(List platforms) {
     String platformStr = (platforms.length == 1) ? "Platform: " : "Platforms: ";
+
+    if (platforms.isEmpty) {
+      return "${platformStr}N/A\n";
+    }
 
     for (int i = 0; i < platforms.length; i++) {
         platformStr += (i < platforms.length-1)
@@ -63,6 +67,10 @@ class Modal {
       35: 'Card & Board Game',
       36: 'MOBA',
     };
+
+    if (genres.isEmpty) {
+      return "${genres}N/A\n";
+    }
 
     for (int i = 0; i < genres.length; i++) {
       genreStr += ((i < genres.length-1)
@@ -270,7 +278,7 @@ class Modal {
                           ),
                         textAlign: TextAlign.left,
                     ),
-                    Text("Release date: ${_formatDate(game['releasedate'])}",
+                    Text("Release Date: ${_formatDate(game['releasedate'])}",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15.0
