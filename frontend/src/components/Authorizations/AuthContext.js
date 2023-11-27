@@ -35,7 +35,7 @@ const showSuperToast = (message, id) => {
   superToast.info(message, {
     toastId: id,
     position: "top-right",
-    autoClose: 4000,
+    autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: false,
@@ -347,6 +347,10 @@ export const AuthProvider = ({ children, navigate }) => {
         console.warn("Token is already expired, logging out...");
         userLogout();
       }
+    } else {
+      // No token expiry time found, handle accordingly
+      console.warn('No token expiry time found, logging out...');
+      userLogout();
     }
   }
 

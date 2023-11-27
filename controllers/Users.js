@@ -280,56 +280,66 @@ const updateUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
-  let userId = req.body.userId;
-  let user = await User.findOne({ _id: userId });
+const deleteUser = async (req, res) =>
+{
+    let userId = req.body.userId;
+    let user = await User.findOne({ _id: userId });
 
-  if (user === null) {
-    return res.status(400).json({ id: -1, message: "Error: User not found." });
-  } else {
-    let result = await User.deleteOne({ _id: userId });
-    if (result.deletedCount == 1) {
-      return res
-        .status(200)
-        .json({ id: 1, message: "User deleted successfully." });
-    } else {
-      return res.status(400).json({
-        id: -1,
-        message: "Error: User deleted unsuccessfully, please try again.",
-      });
+    if (user === null)
+    {
+        return res.status(400).json({ id: -1, message: "Error: User not found." });
+    } else
+    {
+        let result = await User.deleteOne({ _id: userId });
+        if (result.deletedCount == 1)
+        {
+            return res
+                .status(200)
+                .json({ id: 1, message: "User deleted successfully." });
+        } else
+        {
+            return res.status(400).json({
+                id: -1,
+                message: "Error: User deleted unsuccessfully, please try again.",
+            });
+        }
     }
-  }
+
 };
 
-const logout = async (req, res) => {
-  let cookies = req.cookies;
-  if (!cookies?.jwt_refresh) return res.sendStatus(401);
+const logout = async (req, res) =>
+{
+    let cookies = req.cookies;
 
-  const refreshToken = cookies.jwt_refresh;
+    if (!cookies?.jwt_refresh) return res.sendStatus(401);
 
-  let user = await User.findOne({ RefreshToken: refreshToken });
+    const refreshToken = cookies.jwt_refresh;
 
-  if (user !== undefined) {
-    console.log("user found: ", user);
-    user.RefreshToken = "";
-    await user.save();
-  }
+    let user = await User.findOne({ RefreshToken: refreshToken });
 
-  res.clearCookie("jwt_refresh");
-  res.clearCookie("jwt_access");
+    if (user !== undefined || user !== null)
+    {
+        console.log("user found: ", user, typeof user, user !== undefined,  user !== null);
+        user.RefreshToken = '';
+        await user.save();
+    }
 
-  return res.sendStatus(200);
+    res.clearCookie('jwt_refresh');
+    res.clearCookie('jwt_access');
+
+    return res.sendStatus(200);
 };
 
-module.exports = {
-  signUp,
-  checkUsername,
-  checkEmail,
-  sendAuthEmail,
-  verifyAuthCode,
-  login,
-  updateUser,
-  getUser,
-  deleteUser,
-  logout,
+module.exports =
+{
+    signUp,
+    sendAuthEmail,
+    verifyAuthCode,
+    login,
+    updateUser,
+    getUser,
+    deleteUser,
+    logout,
+    checkUsername,
+    checkEmail
 };

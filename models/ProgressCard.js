@@ -10,7 +10,7 @@ const ProgressSchema = mongoose.Schema({
         required: true,
     },
     HoursPlayed: {
-        type: mongoose.Schema.Types.Decimal128,
+        type: Number,
         required: true,
     },
     DateLastPlayed: {
