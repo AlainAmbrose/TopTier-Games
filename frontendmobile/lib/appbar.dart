@@ -7,6 +7,44 @@ import 'package:fluttertoast/fluttertoast.dart';
 class TopTierAppBar {
   static bool showAccountSettings = false;
 
+  static void _handleLogout(BuildContext context, Map<String, dynamic> userInfo) async {
+    final String refreshToken = userInfo['refreshToken'];
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Cookie': 'jwt_refresh=$refreshToken'
+    };
+
+    final response = await http.get(
+      Uri.parse('https://www.toptier.games/Users/api/logout'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      Fluttertoast.showToast(
+        msg: "Logged out.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => LoginSignupScreen()));
+    }
+    else {
+      Fluttertoast.showToast(
+        msg: "Error in logout: ${response.statusCode}",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+  }
+
   static AppBar returnAppBar(BuildContext context, Map<String, dynamic> userInfo) {
     return AppBar(
         automaticallyImplyLeading: false,
@@ -33,8 +71,7 @@ class TopTierAppBar {
                       }
                     );
                   } else if (value == 'logout') {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => LoginSignupScreen()));
+                    _handleLogout(context, userInfo);
                   }
                 },
                 color: Colors.grey[800]!.withOpacity(0.95),

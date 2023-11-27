@@ -7,22 +7,23 @@ import 'dart:convert';
 class ForgotPassScreen extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _authorizationController = TextEditingController();
+  String _corAuthCode = "";
 
   ForgotPassScreen({super.key});
 
   void _handleForgotPassEmail(BuildContext context) async {
     String email = _emailController.text;
 
-    if (email.isEmpty) {
-      Fluttertoast.showToast(msg: "Please enter an email.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP,
-          backgroundColor: Colors.white,
-          textColor: Colors.black,
-          fontSize: 16.0
-      );
-      return;
-    }
+      if (email.isEmpty) {
+        Fluttertoast.showToast(msg: "Please enter an email.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.white,
+            textColor: Colors.black,
+            fontSize: 16.0
+        );
+        return;
+      }
 
       final data = {
         'email': email,
@@ -41,6 +42,8 @@ class ForgotPassScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
+        final emailResponse = jsonDecode(response.body);
+        _corAuthCode = emailResponse['authCode'];
         Fluttertoast.showToast(
           msg: "Code sent",
           toastLength: Toast.LENGTH_SHORT,
@@ -93,7 +96,7 @@ class ForgotPassScreen extends StatelessWidget {
     };
     final codeHeaders = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'Cookie': "authCode=$authorization"
+      'Cookie': "authCode=$_corAuthCode"
     };
 
     final jsonCodeData = jsonEncode(codeData);
@@ -106,18 +109,21 @@ class ForgotPassScreen extends StatelessWidget {
 
     if (codeResponse.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(codeResponse.body);
-      Fluttertoast.showToast(
-        msg: jsonResponse['message'],
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
+        Fluttertoast.showToast(
+          msg: jsonResponse['message'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
 
-      Navigator.push(context,MaterialPageRoute(builder: (context) => ResetPassScreen(email: email)));
+        if (jsonResponse['message'] == "Correct Authorization Code") {
+          Navigator.push(context, MaterialPageRoute(
+              builder: (context) => ResetPassScreen(email: email)));
+        }
     }
-    else if (codeResponse.statusCode == 400) {
+    else {
       Fluttertoast.showToast(
         msg: "Error: ${codeResponse.statusCode}",
         toastLength: Toast.LENGTH_SHORT,
@@ -316,6 +322,8 @@ class ResetPassScreen extends StatelessWidget {
         textColor: Colors.white,
         fontSize: 16.0,
       );
+
+      return;
     }
 
     final data = {
