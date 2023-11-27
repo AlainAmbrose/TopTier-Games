@@ -107,7 +107,7 @@ class _SearchPageState extends State<SearchPage> {
                   onTap: () {
                     _handleSearch(context);
                   },
-                  child: Icon(Icons.circle, color: Colors.white, size: 30,)),
+                  child: const Icon(Icons.circle, color: Colors.white, size: 30,)),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(20),
                 borderSide: const BorderSide(width: 3, color: Colors.black)),
                 filled: true,

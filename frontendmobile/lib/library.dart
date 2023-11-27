@@ -13,16 +13,19 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  late List<Map<String, dynamic>> userGamesList = [];
-  Iterable<Map<String, dynamic>> filteredGames = [];
+  List<Map<String, dynamic>>? userGamesList;
+  List<Map<String, dynamic>>? filteredGames;
+  bool _mounted = true;
 
   @override
   void initState() {
+    _loadUserList(0);
     super.initState();
   }
 
   @override
   void dispose() {
+    _mounted = false;
     super.dispose();
   }
 
@@ -48,8 +51,7 @@ class _LibraryPageState extends State<LibraryPage> {
     return 'https:${json.decode(response.body)['url']}';
   }
 
-  Future<List<Map<String, dynamic>>> _loadUserList(int tabNumber) async {
-    // ... existing code
+  void _loadUserList(int tabNumber) async {
     Map<String, dynamic> jsonSendData = <String, dynamic>{};
 
     jsonSendData = {
@@ -64,93 +66,100 @@ class _LibraryPageState extends State<LibraryPage> {
       'Cookie': 'jwt_access=${widget.jsonResponse['accessToken']}',
     };
 
-    var response = await http.post(
-      Uri.parse('https://www.toptier.games/Progress/api/getusergame'),
-      headers: headers,
-      body: jsonData,
-    );
+    try {
+      var response = await http.post(
+        Uri.parse('https://www.toptier.games/Progress/api/getusergame'),
+        headers: headers,
+        body: jsonData,
+      );
 
-    if (response.statusCode == 200) {
-      var data = Map<String, Object>.from(json.decode(response.body));
-      userGamesList = List<Map<String, dynamic>>.from(
-          ((data['result']) as Iterable?) ?? []);
-      filteredGames = userGamesList
-          .where((userGame) => userGame['result']['status'] == tabNumber);
-      return filteredGames.toList();
-    } else {
-      print(response.statusCode);
-      throw Exception("Unable to Load Games :(");
+      if (mounted) {
+        // Check if the widget is still in the tree before calling setState
+        if (response.statusCode == 200) {
+          var data = jsonDecode(response.body);
+          setState(() {
+            userGamesList =
+                (data['games'] as List<dynamic>).cast<Map<String, dynamic>>();
+            filteredGames = userGamesList
+                ?.where((userGame) => userGame['Status'] == tabNumber)
+                .toList();
+            print("filteredGames: ${filteredGames}");
+            print(filteredGames);
+          });
+        } else {
+          print('Error: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Error: $e');
     }
   }
 
   Widget _buildTabContent(int tabNumber) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _loadUserList(tabNumber),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Add loading indicator
-        } else if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
-        } else {
-          // Ensure filteredGames is initialized before calling toList()
-          List<Map<String, dynamic>> userGamesList = snapshot.data ?? [];
-          filteredGames = userGamesList
-              .where((userGame) => userGame['result']['status'] == tabNumber);
-          if (filteredGames.isEmpty) {
-            return ListView(
-              children: const [
-                SizedBox(
-                  height: 180,
-                  child: Card(
-                    color: Colors.transparent,
-                    child: ListTile(
-                      title: Center(
-                        child:  Text(
-                          'No games in your library',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Inter-Bold',
-                              fontStyle: FontStyle.italic,
-                              fontSize: 22),
+    if (userGamesList == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (filteredGames!.isEmpty || filteredGames == null) {
+      return ListView(
+        children: const [
+          SizedBox(
+            height: 180,
+            child: Card(
+              color: Colors.transparent,
+              child: ListTile(
+                title: Center(
+                  child: Text(
+                    'No games in your library',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Inter-Bold',
+                        fontStyle: FontStyle.italic,
+                        fontSize: 22),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return ListView.builder(
+          itemCount: filteredGames?.length,
+          itemBuilder: (BuildContext context, int index) {
+            print('filteredGames length: ${filteredGames?.length}');
+            print('Current index: $index');
+            return SizedBox(
+              height:200,
+              child: Row(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(13.0),
+                      height: 170.0,
+                      width: 130,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4.0),
+                        child: Image.network(
+                          'https:${filteredGames?[index]['url']}',
+                          height: 170.0,
+                          width: 115,
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),
-                  ),
-                ),
-              ],
+
+                  ],
+              ),
             );
-          }
-          return SizedBox(
-            height: 180,
-            child: ListView.builder(
-              itemCount: userGamesList.length,
-              itemBuilder: (BuildContext context, int index) {
-                var game = userGamesList[index];
-                return ListTile(
-                  key: ValueKey<String>(game['GameId']),
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(4.0),
-                    child: Image.network(
-                      getCoverInfo(game['GameId']) as String,
-                      height: 150.0,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        }
-      },
-    );
+          });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      initialIndex: 1,
+      initialIndex: 0,
       length: 3,
       child: Scaffold(
         extendBodyBehindAppBar: false,
@@ -205,13 +214,13 @@ class _LibraryPageState extends State<LibraryPage> {
                     //Change background color from here
                     tabs: const <Widget>[
                       Tab(
-                        text: "All",
+                        text: "Not Started",
                       ),
                       Tab(
-                        text: "Played",
+                        text: "Playing",
                       ),
                       Tab(
-                        text: "Want to Play",
+                        text: "Complete",
                       ),
                     ],
                   )),
