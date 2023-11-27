@@ -154,7 +154,7 @@ class EmailVerifyScreen extends StatelessWidget {
                           children: <Widget>[
                             RichText(
                                 text: const TextSpan(
-                                    text: 'Reset Your Password',
+                                    text: 'Verify your Email',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'Inter-Bold',
@@ -165,7 +165,7 @@ class EmailVerifyScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 24.0),
                             const Text(
-                              'Please enter your email and we\'ll send you a verification code',
+                              'Please enter the verification code sent to your email.',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Inter-Bold',
